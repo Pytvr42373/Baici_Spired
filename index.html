@@ -561,11 +561,11 @@ function buildOptions(target,pool,qType){
   const opts=[];const used=shuffle(dist);
   if(qType==='e2c'){
     const p=[];for(const c of used){if(!p.includes(c.cn)&&c.cn!==target.cn){p.push(c.cn);if(p.length>=3)break;}}
-    while(p.length<3)p.push('其他释义');
+    const f2=[...TIERS.ket.words].filter(x=>!p.includes(x.cn)&&x.cn!==target.cn);for(const c of f2){if(p.length>=3)break;p.push(c.cn);}while(p.length<3)p.push('其他释义'+(p.length+1));
     return shuffle([target.cn,...p]);
   }else{
     const p=[];for(const c of used){if(!p.includes(c.en)){p.push(c.en);if(p.length>=3)break;}}
-    while(p.length<3)p.push('anotherword');
+    const f3=[...TIERS.ket.words].filter(x=>!p.includes(x.en));for(const c of f3){if(p.length>=3)break;p.push(c.en);}while(p.length<3)p.push('word'+(p.length+1));
     return shuffle([target.en,...p]);
   }
 }
@@ -623,10 +623,10 @@ function nextQuestion(){
   startTimer();
 }
 function startTimer(){
-  const time=(DIFFS[S.diff].time||15)+(HEROES[S.hero].time||0);let remain=time;
+  const time=(DIFFS[S.diff].time||15)+(HEROES[S.hero].time||0)+(S.timeBonus||0);let remain=time;
   const ring=$('timerRing');ring.textContent=remain;ring.style.background='var(--card)';ring.classList.remove('low');
   clearInterval(S.timer);
-  S.timer=setInterval(()=>{remain--;ring.textContent=remain;if(remain<=5){ring.style.background='var(--red)';ring.classList.add('low');}else{ring.style.color='';}ring.style.color='#fff';if(remain<=0){clearInterval(S.timer);onTimeout();}},1000);
+  S.timer=setInterval(()=>{remain--;ring.textContent=remain;if(remain<=5){ring.style.background='var(--red)';ring.style.color='#fff';ring.classList.add('low');}else{ring.style.background='var(--card)';ring.style.color='';ring.classList.remove('low');};if(remain<=0){clearInterval(S.timer);onTimeout();}},1000);
 }
 function lockOptions(){[...document.querySelectorAll('.opt')].forEach(b=>b.disabled=true);clearInterval(S.timer);}
 
@@ -641,20 +641,23 @@ function answer(i,el){
   if(isRight){if(rightBtn)rightBtn.classList.add('correct');resolve(true);}
   else{el.classList.add('wrong');if(rightBtn)rightBtn.classList.add('correct');resolve(false);}
 }
-function onTimeout(){if(S.phase!=='question')return;lockOptions();const target=S.qType==='e2c'?S.currentWord.cn:S.currentWord.en;const rb=[...document.querySelectorAll('.opt')][S.options.indexOf(target)];if(rb)rb.classList.add('correct');$('feedback').textContent='⏰ 超时！正确：'+target;$('feedback').className='bad';recordWrong();resolve(false,true);}
+function onTimeout(){if(S.phase!=='question')return;lockOptions();const target=S.qType==='e2c'?S.currentWord.cn:S.currentWord.en;const rb=[...document.querySelectorAll('.opt')][S.options.indexOf(target)];if(rb)rb.classList.add('correct');$('feedback').textContent='⏰ 超时！正确：'+target;$('feedback').className='bad';resolve(false,true);}
+function recordWrong(){if(S.currentWord)S.wrongWords[S.currentWord.en]=true;}
 function resolve(correct,timeout){
   S.locked=true;
+  if(correct){S.correctTotal++;}else{S.wrongTotal++;recordWrong();}
   const curTime=$('timerRing');const remain=Math.max(0,parseInt(curTime.textContent)||0);
   S.answeredThisTurn=remain;
   // 数值 = 剩余时间 × 系数
-  let val=correct?Math.round(remain*(S.choice==='atk'?ATK_RATE*S.atkMul:DEF_RATE)):0;
+  let val=correct?Math.round(remain*(S.choice==='atk'?ATK_RATE*S.atkMul:DEF_RATE*(S.defMul||1))):0;
+  if(S.choice==='atk'&&S.knowBuff&&S.intent&&S.intent.type===2)val*=2;
   if(S.choice==='atk'){
-    if(correct){S.enemy.hp-=Math.max(val-S.enemy.block,0);const absorbed=Math.min(val,S.enemy.block);S.enemy.block-=absorbed;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);}
+    if(correct){S.enemy.hp-=Math.max(val-S.enemy.block,0);const absorbed=Math.min(val,S.enemy.block);S.enemy.block-=absorbed;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;}
     else{S.combo=0;}
     const p=rect('enemyArea');if(val>0)fx(p.x,p.y,'-'+val,'');else if(!correct)fx(p.x,p.y,'落空','heal');
     log((correct?('⚔ 攻击 '+val):'✗ 落空')+(timeout?'（超时）':''),correct?'':'r');
   }else{
-    if(correct){S.block+=val;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);}
+    if(correct){S.block+=val;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;}
     else{S.combo=0;}
     if(val>0)fx(rect('playerArea').x,rect('playerArea').y,'+'+val,'def');
     log((correct?('🛡 格挡 '+val):'✗ 防御失败')+(timeout?'（超时）':''),correct?'':'r');
@@ -678,6 +681,7 @@ function enemyTurn(){
     S.block-=absorbed;S.hp-=real;
     log('👹 敌人攻击 '+dmg+'（格挡抵 '+absorbed+'，掉 '+real+' 血）',real>0?'r':'g');
     const p=rect('playerArea');if(real>0)fx(p.x,p.y,'-'+real,'');
+    if(S.thorn){S.enemy.hp-=4;log('🌵 荆棘反弹 4 伤害','b');}
   }else if(it.type===1){ // 防御
     S.enemy.block+=it.val;log('👹 敌人防御 +'+it.val,'b');
   }else{ // 蓄力
@@ -693,7 +697,7 @@ function enemyTurn(){
 
 /* ============ 击杀/层 ============ */
 function onKill(){
-  S.killedTotal++;S.gold+=(S.enemy.goldGain||0);
+  S.killedTotal++;S.gold+=Math.round((S.enemy.goldGain||0)*(S.goldMul||1));
   S.enemiesInFloor--;S.combo=0;
   if(S.enemy.isBoss){S.bossIndex=(S.bossIndex||0)+1;}
   toast('🎉 击败「'+S.enemy.name+'」');
@@ -829,7 +833,7 @@ function renderMeta(){
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+id).classList.add('active');if(id==='meta')renderMeta();refreshIcons();}
 function init(){
   // ★ 双主题：极简线条 / 粉红可爱（localStorage 记忆）
-  S.theme=localStorage.getItem('lexicon_theme')||'minimal';
+  let _th='minimal';try{_th=localStorage.getItem('lexicon_theme')||'minimal';}catch(e){}S.theme=_th;
   document.documentElement.setAttribute('data-theme',S.theme);
   document.querySelectorAll('#themeChips .chip').forEach(c=>{
     c.classList.toggle('selected',c.dataset.theme===S.theme);
