@@ -4,70 +4,130 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>词域远征 · 尖塔背单词</title>
+<!-- 现代学术奇幻 · 字体：标题衬线 / 正文无衬线 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Manrope:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.min.css">
 <style>
+/* ============================================================
+   设计令牌 · 现代学术奇幻（双主题）
+   :root          极简·学术（默认）：米白纸底 / 墨绿主
+   :root[data-theme="pink"]  粉红·可爱
+============================================================ */
 :root{
-  --bg:#f4f2ec;
-  --card:#ffffff;
-  --card2:#faf8f3;
-  --line:#e9e4d8;
-  --ink:#3a362e;
-  --sub:#9a9488;
-  --accent:#4a6b5a;
-  --atk:#c0392b;
-  --def:#2980b9;
-  --gold:#a9823d;
-  --green:#5f8a70;
-  --red:#b8534a;
+  /* 色板 */
+  --bg:#f4f2ec; --card:#ffffff; --card2:#faf8f3; --line:#e9e4d8;
+  --ink:#3a362e; --sub:#9a9488; --accent:#4a6b5a;
+  --atk:#c0392b; --def:#2980b9; --gold:#a9823d;
+  --green:#5f8a70; --red:#b8534a;
+  /* 纸感 */
+  --paper-shadow:0 1px 3px rgba(60,50,40,.06);
+  --paper-shadow-lg:0 8px 30px rgba(60,50,40,.12);
+  /* 字体 */
+  --font-serif:'Cormorant Garamond','Noto Serif SC',Georgia,serif;
+  --font-sans:'Manrope','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  --font-cn-title:'Noto Serif SC',serif;
+  /* 圆角 */
+  --r:13px; --r-sm:9px; --r-lg:18px;
 }
 :root[data-theme="pink"]{
   --bg:#fff0f5; --card:#fff7fa; --card2:#ffe9f0; --line:#ffd9e4;
   --ink:#7a4358; --sub:#c98da3; --accent:#e87aa0;
-  --atk:#f06292; --def:#9c6bd6; --gold:#f9a825; --green:#66bb6a; --red:#ef5350;
+  --atk:#f06292; --def:#9c6bd6; --gold:#f9a825;
+  --green:#66bb6a; --red:#ef5350;
+  --paper-shadow:0 1px 3px rgba(180,90,120,.08);
+  --paper-shadow-lg:0 8px 30px rgba(180,90,120,.16);
+  /* 粉红主题：更圆润 */
+  --r:18px; --r-sm:14px; --r-lg:22px;
 }
-:root[data-theme="pink"] .panel{border-radius:20px;}
-:root[data-theme="pink"] .chip{border-radius:15px;}
-:root[data-theme="pink"] .btn{border-radius:16px;}
-:root[data-theme="pink"] .actionCard{border-radius:18px;}
-:root[data-theme="pink"] #topbar{border-radius:18px;}
-:root[data-theme="pink"] #enemyArea{border-radius:18px;}
-:root[data-theme="pink"] #qArea{border-radius:18px;}
-:root[data-theme="pink"] #playerArea{border-radius:18px;}
-:root[data-theme="pink"] #log{border-radius:18px;}
 :root[data-theme="pink"] h1.title{letter-spacing:2px;}
-:root[data-theme="pink"] body{background:var(--bg);}
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--ink);font-family:'Segoe UI','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px 12px 44px;}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.14;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:34px 34px;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:var(--font-sans);
+  min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
+  padding:16px 12px 44px;
+}
+/* 纸张背景 + 细网格纹理（克制，仅装饰） */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:34px 34px;
+}
+/* 纸张晕染 */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.5),transparent 60%);
+}
 #app{width:100%;max-width:500px;position:relative;z-index:1;}
+
+/* ============================================================
+   屏幕切换 / 动效
+============================================================ */
 .screen{display:none;}
 .screen.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes pop{0%{opacity:0;transform:scale(.85)}70%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
 @keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 @keyframes floatUp{0%{opacity:0;transform:translateY(0)}25%{opacity:1;transform:translateY(-8px)}100%{opacity:0;transform:translateY(-52px)}}
+@keyframes hitPulse{0%{transform:scale(1)}35%{transform:scale(.96)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
 
-h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--accent);}
-.sub{color:var(--sub);text-align:center;font-size:13px;margin-top:6px;}
+/* ============================================================
+   通用组件
+============================================================ */
+h1.title{
+  font-family:var(--font-cn-title);font-size:38px;font-weight:900;
+  text-align:center;letter-spacing:3px;color:var(--accent);line-height:1.2;
+  text-shadow:0 1px 0 rgba(255,255,255,.6);
+}
+h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;color:var(--gold);}
+.sub{color:var(--sub);text-align:center;font-size:13px;margin-top:6px;letter-spacing:.5px;}
 .logo{text-align:center;margin:22px 0 8px;}
 .logo .glyph{font-size:44px;color:var(--accent);display:inline-block;}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);padding:18px;margin-bottom:12px;animation:fadeUp .3s;}
+
+/* 纸张面板 */
+.panel,.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--paper-shadow);padding:18px;margin-bottom:12px;animation:fadeUp .3s;
+}
 .panel h3{font-size:12px;color:var(--sub);font-weight:700;letter-spacing:1px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--line);}
+
+/* 选择 chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px;}
-.chip{flex:1;min-width:82px;text-align:center;padding:10px 6px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;transition:all .12s;}
+.chip{
+  flex:1;min-width:82px;text-align:center;padding:10px 6px;
+  border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--card2);color:var(--ink);font-weight:600;font-size:13px;
+  cursor:pointer;transition:all .12s;
+}
 .chip:active{transform:scale(.97);}
-.chip.selected{background:var(--accent);color:#fff;border-color:var(--accent);}
+.chip.selected{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px -2px var(--accent);}
 .chip .d{display:block;font-size:10px;font-weight:400;margin-top:2px;color:var(--sub);}
+.chip.selected .d{color:rgba(255,255,255,.75);}
 .chip-ico{display:inline-block;margin-right:4px;vertical-align:-4px;color:var(--accent);}
 .chip.selected .chip-ico{color:#fff;}
-.chip.selected .d{color:rgba(255,255,255,.75);}
-.btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .12s;margin-bottom:10px;text-align:center;}
+
+/* 按钮 */
+.btn{
+  display:block;width:100%;padding:13px;border:none;border-radius:var(--r-sm);
+  background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+  transition:all .12s;margin-bottom:10px;text-align:center;
+  box-shadow:0 2px 8px -3px var(--accent);
+}
 .btn:active{transform:scale(.98);opacity:.9;}
-.btn.gold{background:var(--gold);}
-.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
+.btn.gold{background:var(--gold);box-shadow:0 2px 8px -3px var(--gold);}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none;}
 .btn.ghost:active{background:var(--card2);}
+
+/* ============================================================
+   主菜单 · staggered 入场
+============================================================ */
 .home-hero{padding:4px 0 6px;}
 #screen-start > *{animation:fadeUp .45s ease both;}
 #screen-start > *:nth-child(1){animation-delay:.04s}
@@ -78,46 +138,123 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
 #screen-start > *:nth-child(6){animation-delay:.44s}
 #screen-start > *:nth-child(7){animation-delay:.52s}
 
-#topbar{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);padding:11px 14px;margin-bottom:10px;}
+/* ============================================================
+   HUD 顶条
+============================================================ */
+#topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--paper-shadow);padding:11px 14px;margin-bottom:10px;
+}
 .stat{text-align:center;min-width:50px;}
-.stat .v{font-size:17px;font-weight:800;color:var(--ink);}
+.stat .v{font-size:17px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
 .stat .l{font-size:9px;color:var(--sub);letter-spacing:1px;font-weight:600;}
 .hpbar{width:50px;height:6px;background:var(--card2);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin:4px auto 0;}
 .hpbar i{display:block;height:100%;background:var(--red);transition:width .3s;}
 
-#playerArea{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-around;align-items:center;}
-.pstat{text-align:center;}
-.pstat .lbl{font-size:9px;color:var(--sub);font-weight:700;letter-spacing:1px;}
-.pstat .num{font-size:24px;font-weight:800;line-height:1.15;color:var(--ink);}
-.pstat .ico{font-size:20px;color:var(--sub);}
-
-#enemyArea{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);padding:16px;margin-bottom:10px;text-align:center;}
+/* ============================================================
+   敌人区（血条 + 意图批注）
+============================================================ */
+#enemyArea{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--paper-shadow);padding:16px;margin-bottom:10px;text-align:center;
+}
+#enemyArea.hit{animation:hitPulse .3s;}
 #floorTag{display:block;font-size:10px;color:var(--sub);font-weight:700;letter-spacing:1px;margin-bottom:10px;}
 #enemyRow{display:flex;align-items:center;justify-content:center;gap:16px;}
-#enemyIcon{font-size:44px;color:var(--accent);line-height:1;}
+#enemyIcon{font-size:44px;color:var(--accent);line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.08));}
 #enemyMeta{text-align:left;}
-#enemyName{font-size:17px;font-weight:800;color:var(--ink);}
+#enemyName{font-size:17px;font-weight:800;color:var(--ink);font-family:var(--font-cn-title);}
 #enemyHpWrap{margin-top:5px;}
 #enemyHp{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:99px;overflow:hidden;width:140px;}
 #enemyHp i{display:block;height:100%;background:var(--atk);transition:width .3s;}
-#enemyHpTxt{font-size:11px;color:var(--sub);font-weight:600;margin-top:3px;}
+#enemyHpTxt{font-size:11px;color:var(--sub);font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;}
 #enemyBlock{display:none;align-items:center;justify-content:center;gap:5px;margin-top:7px;font-weight:700;color:var(--def);font-size:13px;}
-#intentBox{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:8px;color:var(--sub);}
+#enemyBlock[data-active]{animation:pop .25s;}
+
+/* 意图 · 魔法书批注视觉 */
+#intentBox{
+  margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);
+  display:flex;align-items:center;justify-content:center;gap:8px;color:var(--sub);
+}
 #intentIco{font-size:22px;color:var(--accent);}
 #intentLabel{font-size:13px;font-weight:700;color:var(--ink);}
-#intentNum{font-size:15px;font-weight:800;}
+#intentNum{
+  font-size:15px;font-weight:800;min-width:44px;text-align:center;
+  background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:2px 10px;
+}
+#intentNum[data-intent="0"]{background:rgba(192,57,43,.08);border-color:var(--atk);color:var(--atk);}
+#intentNum[data-intent="1"]{background:rgba(41,128,185,.08);border-color:var(--def);color:var(--def);}
+#intentNum[data-intent="2"]{background:rgba(169,130,61,.08);border-color:var(--gold);color:var(--gold);}
 
-#qArea{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);padding:18px;margin-bottom:10px;position:relative;text-align:center;}
+/* ============================================================
+   玩家状态区
+============================================================ */
+#playerArea{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--paper-shadow);padding:12px 14px;margin-bottom:10px;
+  display:flex;justify-content:space-around;align-items:center;
+}
+.pstat{text-align:center;}
+.pstat .lbl{font-size:9px;color:var(--sub);font-weight:700;letter-spacing:1px;}
+.pstat .num{font-size:24px;font-weight:800;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums;}
+.pstat .ico{font-size:20px;color:var(--sub);}
+/* 格挡批注 */
+.pstat.def .num{color:var(--def);}
+.pstat.atk .num{color:var(--atk);}
+
+/* ============================================================
+   攻防卡牌（纯色块 + 白图标）
+============================================================ */
+#actionBar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.actionCard{
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--card);box-shadow:var(--paper-shadow);
+  padding:14px 10px;text-align:center;cursor:pointer;transition:all .12s;
+}
+.actionCard:active{transform:scale(.97);}
+.actionCard.atk{background:var(--atk);border-color:var(--atk);box-shadow:0 4px 12px -4px var(--atk);}
+.actionCard.atk:hover{filter:brightness(1.06);}
+.actionCard.def{background:var(--def);border-color:var(--def);box-shadow:0 4px 12px -4px var(--def);}
+.actionCard.def:hover{filter:brightness(1.06);}
+.actionCard .ico{font-size:30px;line-height:1;}
+.actionCard.atk .ico{color:#fff;}
+.actionCard.def .ico{color:#fff;}
+.actionCard .nm{font-size:16px;font-weight:800;margin-top:5px;color:#fff;font-family:var(--font-cn-title);}
+.actionCard .ds{font-size:10px;font-weight:600;color:rgba(255,255,255,.85);margin-top:2px;}
+.actionCard .rate{
+  font-size:10px;font-weight:700;color:#fff;margin-top:6px;display:inline-block;
+  background:rgba(255,255,255,.22);border-radius:99px;padding:2px 9px;
+}
+
+/* ============================================================
+   答题台
+============================================================ */
+#qArea{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--paper-shadow);padding:18px;margin-bottom:10px;position:relative;text-align:center;
+}
 #choiceBanner{display:inline-block;padding:3px 13px;border-radius:99px;font-weight:700;font-size:11px;margin-bottom:10px;letter-spacing:1px;}
 #choiceBanner.atk{background:var(--atk);color:#fff;}
 #choiceBanner.def{background:var(--def);color:#fff;}
 #qType{font-size:10px;color:var(--sub);font-weight:700;letter-spacing:1px;}
-#qWord{font-size:29px;font-weight:800;margin:9px 0 2px;word-break:break-word;color:var(--ink);}
+#qWord{font-size:29px;font-weight:800;margin:9px 0 2px;word-break:break-word;color:var(--ink);font-family:var(--font-cn-title);}
 #qPos{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;}
 #qHint{font-size:12px;color:var(--sub);margin:6px 0 15px;}
-#timerRing{position:absolute;top:12px;right:14px;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;line-height:34px;font-weight:800;font-size:14px;text-align:center;color:var(--accent);background:var(--card2);}
+#timerRing{
+  position:absolute;top:12px;right:14px;width:36px;height:36px;
+  border:1px solid var(--line);border-radius:50%;line-height:34px;
+  font-weight:800;font-size:14px;text-align:center;color:var(--accent);
+  background:var(--card2);transition:background .3s,color .3s;
+  font-variant-numeric:tabular-nums;
+}
+#timerRing.low{background:var(--red)!important;color:#fff!important;animation:hitPulse .5s infinite;}
 #options{display:grid;gap:9px;margin-top:4px;}
-.opt{padding:12px 13px;border:1px solid var(--line);border-radius:9px;background:var(--card2);font-size:15px;cursor:pointer;text-align:left;font-weight:600;color:var(--ink);transition:all .1s;}
+.opt{
+  padding:12px 13px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--card2);font-size:15px;cursor:pointer;text-align:left;font-weight:600;
+  color:var(--ink);transition:all .1s;
+}
 .opt:active{transform:scale(.98);}
 .opt:hover{border-color:var(--accent);}
 .opt .letter{display:inline-block;width:21px;height:21px;line-height:21px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:5px;font-size:11px;margin-right:9px;font-weight:700;color:var(--sub);}
@@ -130,93 +267,86 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
 #feedback.ok{color:var(--green);}
 #feedback.bad{color:var(--red);}
 
-#actionBar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.actionCard{border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.04);padding:14px 10px;text-align:center;cursor:pointer;transition:all .12s;}
-.actionCard:active{transform:scale(.97);}
-.actionCard.atk{background:var(--atk);border-color:var(--atk);}.actionCard.atk:hover{filter:brightness(1.05);}
-.actionCard.def{background:var(--def);border-color:var(--def);}.actionCard.def:hover{filter:brightness(1.05);}
-.actionCard .ico{font-size:30px;line-height:1;}
-.actionCard.atk .ico{color:#fff;}
-.actionCard.def .ico{color:#fff;}
-.actionCard .nm{font-size:16px;font-weight:800;margin-top:5px;color:#fff;}
-.actionCard .ds{font-size:10px;font-weight:600;color:rgba(255,255,255,.85);margin-top:2px;}
-.actionCard .rate{font-size:10px;font-weight:700;color:#fff;margin-top:6px;display:inline-block;background:rgba(255,255,255,.22);border-radius:99px;padding:2px 9px;}
-
+/* ============================================================
+   底部 · 道具 + 日志
+============================================================ */
 #toolbar{padding:14px;margin-bottom:10px;}
 #toolbar h3{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:9px;letter-spacing:1px;border-bottom:1px solid var(--line);padding-bottom:6px;}
 #tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.tool{padding:8px 3px;border:1px solid var(--line);border-radius:9px;background:var(--card2);cursor:pointer;text-align:center;font-size:10px;font-weight:700;color:var(--ink);}
+.tool{padding:8px 3px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card2);cursor:pointer;text-align:center;font-size:10px;font-weight:700;color:var(--ink);}
 .tool .ico{display:block;font-size:19px;margin-bottom:2px;color:var(--accent);}
 .tool:disabled{opacity:.4;cursor:not-allowed;}
-#log{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 13px;max-height:74px;overflow-y:auto;font-size:11.5px;color:var(--sub);font-weight:600;}
+#log{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 13px;max-height:74px;overflow-y:auto;font-size:11.5px;color:var(--sub);font-weight:600;}
 #log div{margin:2px 0;}
 #log .g{color:var(--green);}#log .r{color:var(--red);}#log .y{color:var(--gold);}#log .b{color:var(--def);}
 
+/* ============================================================
+   飘字层 / 弹窗 / Toast
+============================================================ */
 #fxLayer{position:fixed;inset:0;pointer-events:none;z-index:50;}
-.fx{position:absolute;font-weight:800;font-size:22px;color:var(--atk);animation:floatUp 1s ease-out forwards;}
+.fx{position:absolute;font-weight:800;font-size:22px;color:var(--atk);animation:floatUp 1s ease-out forwards;font-family:var(--font-serif);}
 .fx.heal{color:var(--green);}
 .fx.def{color:var(--def);}
 .fx.gold{color:var(--gold);}
 
-#overlay{position:fixed;inset:0;background:rgba(58,54,46,.4);z-index:80;display:none;align-items:center;justify-content:center;padding:20px;}
+#overlay{position:fixed;inset:0;background:rgba(58,54,46,.4);z-index:80;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);}
 #overlay.show{display:flex;}
-.overlay-card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.1);padding:20px;animation:pop .3s;}
-.oc-title{text-align:center;font-size:17px;font-weight:800;margin-bottom:4px;color:var(--ink);}
+.overlay-card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--paper-shadow-lg);padding:20px;animation:pop .3s;}
+.oc-title{text-align:center;font-size:17px;font-weight:800;margin-bottom:4px;color:var(--ink);font-family:var(--font-cn-title);}
 .oc-sub{text-align:center;font-size:12px;color:var(--sub);margin-bottom:14px;font-weight:600;}
 .relics{display:grid;gap:9px;}
-.relic{border:1px solid var(--line);border-radius:9px;padding:12px;background:var(--card2);cursor:pointer;transition:all .12s;text-align:left;}
+.relic{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;background:var(--card2);cursor:pointer;transition:all .12s;text-align:left;}
 .relic:hover{border-color:var(--accent);background:var(--card);}
 .relic:active{transform:scale(.98);}
 .relic .r-top{display:flex;align-items:center;gap:11px;}
 .relic .r-ico{color:var(--accent);display:inline-flex;flex:none;font-size:20px;}
-.relic .r-name{font-weight:800;font-size:14px;color:var(--ink);}
+.relic .r-name{font-weight:800;font-size:14px;color:var(--ink);font-family:var(--font-cn-title);}
 .relic .r-desc{font-size:12px;color:var(--sub);margin-top:3px;font-weight:600;}
 
 #resultStats{font-size:14px;font-weight:600;}
 .stat-row{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line);}
 .stat-row span:last-child{font-weight:800;color:var(--accent);}
-.big-result{font-size:23px;font-weight:800;text-align:center;margin:8px 0 12px;color:var(--ink);}
+.big-result{font-size:23px;font-weight:800;text-align:center;margin:8px 0 12px;color:var(--ink);font-family:var(--font-cn-title);}
 .upgrade-list{display:grid;gap:9px;}
-.upgrade{border:1px solid var(--line);border-radius:9px;padding:11px;background:var(--card2);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.upgrade{border:1px solid var(--line);border-radius:var(--r-sm);padding:11px;background:var(--card2);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
 .upgrade:disabled{opacity:.4;cursor:not-allowed;}
 .upgrade .u-name{font-weight:800;font-size:13px;}
 .upgrade .u-desc{font-size:10px;color:var(--sub);margin-top:2px;}
 .upgrade .u-cost{color:var(--gold);font-weight:800;}
 
-.toast{position:fixed;left:50%;top:13%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:9px;font-weight:700;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:86%;text-align:center;}
+.toast{position:fixed;left:50%;top:13%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:var(--r-sm);font-weight:700;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:86%;text-align:center;}
 .hidden{display:none!important;}
-
 </style>
 </head>
 <body>
 <div id="fxLayer"></div>
 <div id="app">
 
-  <!-- 主菜单 -->
-  <div id="screen-start" class="screen active">
+  <!-- ============ 主菜单 ============ -->
+  <main id="screen-start" class="screen active" aria-label="主菜单">
     <div class="home-hero">
       <div class="logo"><span class="glyph" data-lucide="scroll"></span></div>
-      <h1 class="title">词域远征</h1>
-      <p class="sub">答对=出手 · 答错=落空 · 读懂敌人意图</p>
+      <h1 class="title">词域<em>远征</em></h1>
+      <p class="sub">答对 = 出手 · 答错 = 落空 · 读懂敌人意图</p>
     </div>
-    <div class="panel"><h3>词库</h3><div class="chips" id="tierChips"></div></div>
-    <div class="panel"><h3>角色</h3><div class="chips" id="heroChips"></div></div>
-    <div class="panel"><h3>难度</h3><div class="chips" id="diffChips"></div></div>
-    <div class="panel"><h3>主题</h3><div class="chips" id="themeChips"><div class="chip selected" data-theme="minimal">极简线条</div><div class="chip" data-theme="pink">粉红可爱</div></div></div>
+    <section class="panel" aria-label="词库"><h3>词库</h3><div class="chips" id="tierChips"></div></section>
+    <section class="panel" aria-label="角色"><h3>角色</h3><div class="chips" id="heroChips"></div></section>
+    <section class="panel" aria-label="难度"><h3>难度</h3><div class="chips" id="diffChips"></div></section>
+    <section class="panel" aria-label="主题"><h3>主题</h3><div class="chips" id="themeChips"><div class="chip selected" data-theme="minimal">极简线条</div><div class="chip" data-theme="pink">粉红可爱</div></div></section>
     <button class="btn gold" id="btnStart">开始远征</button>
     <button class="btn ghost" id="btnMeta">局外成长</button>
-  </div>
+  </main>
 
-  <!-- 战斗 -->
-  <div id="screen-game" class="screen">
-    <div id="topbar">
+  <!-- ============ 战斗 ============ -->
+  <section id="screen-game" class="screen" aria-label="战斗">
+    <header id="topbar">
       <div class="stat"><div class="v" id="statFloor">Lv.1</div><div class="l">层数</div></div>
       <div class="stat"><div class="v" id="statHp">60</div><div class="hpbar"><i id="statHpBar"></i></div><div class="l">生命</div></div>
       <div class="stat"><div class="v" id="statGold">0</div><div class="l">金币</div></div>
       <div class="stat"><div class="v" id="combo">×0</div><div class="l">连击</div></div>
-    </div>
+    </header>
 
-    <div id="enemyArea">
+    <section id="enemyArea" aria-label="敌人">
       <span id="floorTag">第 1 层</span>
       <div id="enemyRow">
         <span id="enemyIcon" data-lucide="ghost"></span>
@@ -231,20 +361,20 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
         <span id="intentLabel">攻击</span>
         <span id="intentNum">8</span>
       </div>
-    </div>
+    </section>
 
-    <div id="playerArea">
+    <section id="playerArea" aria-label="玩家状态">
       <div class="pstat"><div class="lbl">生命</div><div class="num" id="pHp">60</div></div>
-      <div class="pstat"><div class="ico" data-lucide="shield"></div><div class="num" id="pBlock">0</div><div class="lbl">格挡</div></div>
-      <div class="pstat"><div class="ico" data-lucide="swords"></div><div class="num" id="pAtk">0</div><div class="lbl">本击</div></div>
-    </div>
+      <div class="pstat def"><div class="ico" data-lucide="shield"></div><div class="num" id="pBlock">0</div><div class="lbl">格挡</div></div>
+      <div class="pstat atk"><div class="ico" data-lucide="swords"></div><div class="num" id="pAtk">0</div><div class="lbl">本击</div></div>
+    </section>
 
-    <div id="actionBar">
+    <nav id="actionBar" aria-label="攻防选择">
       <div class="actionCard atk" id="btnAtk"><div class="ico" data-lucide="sword"></div><div class="nm">攻击</div><div class="ds">答对造成伤害</div><div class="rate" id="atkRate">0/秒</div></div>
       <div class="actionCard def" id="btnDef"><div class="ico" data-lucide="shield"></div><div class="nm">防御</div><div class="ds">答对获得格挡</div><div class="rate" id="defRate">0/秒</div></div>
-    </div>
+    </nav>
 
-    <div id="qArea">
+    <section id="qArea" aria-label="答题">
       <span id="qType">英→中</span>
       <span id="timerRing">15</span>
       <div id="choiceBanner" class="atk">攻击</div>
@@ -253,14 +383,14 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
       <div id="qHint">选择正确释义</div>
       <div id="options"></div>
       <div id="feedback"></div>
-    </div>
+    </section>
 
-    <div id="toolbar" class="panel"><h3>道具</h3><div id="tools"></div></div>
-    <div id="log" class="panel"></div>
-  </div>
+    <aside id="toolbar" class="panel" aria-label="道具"><h3>道具</h3><div id="tools"></div></aside>
+    <footer id="log" class="panel" aria-label="战斗日志"></footer>
+  </section>
 
-  <!-- 结算 -->
-  <div id="screen-result" class="screen">
+  <!-- ============ 结算 ============ -->
+  <section id="screen-result" class="screen" aria-label="结算">
     <div class="panel" style="margin-top:24px;">
       <div class="logo"><span class="glyph" id="resultGlyph" data-lucide="skull"></span></div>
       <div class="big-result" id="resultTitle">远征失败</div>
@@ -268,17 +398,17 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
       <button class="btn gold" id="btnAgain" style="margin-top:14px;">再次远征</button>
       <button class="btn ghost" id="btnHome">返回主页</button>
     </div>
-  </div>
+  </section>
 
-  <!-- 成长 -->
-  <div id="screen-meta" class="screen">
+  <!-- ============ 局外成长 ============ -->
+  <section id="screen-meta" class="screen" aria-label="局外成长">
     <div class="panel" style="margin-top:20px;">
       <h3 style="text-align:center;font-size:17px;">局外成长</h3>
       <div style="text-align:center;color:var(--gold);font-size:20px;font-weight:900;margin:8px 0;" id="metaStar">星尘: 0</div>
       <div class="upgrade-list" id="upgradeList"></div>
       <button class="btn ghost" id="btnMetaBack">返回</button>
     </div>
-  </div>
+  </section>
 </div>
 
 <div id="overlay"><div class="overlay-card"><div class="oc-title">遗物</div><div class="oc-sub">三选一强化本局</div><div class="relics" id="relicChoices"></div></div></div>
@@ -473,6 +603,7 @@ function renderIntent(){
   const num=S.intent.type===2?('×'+S.intent.val):S.intent.val;
   $('intentNum').textContent=S.intent.type===2?'(下次 ×'+(1+S.intent.val)+')':(''+num);
   $('intentNum').style.color=S.intent.type===0?'var(--atk)':(S.intent.type===1?'var(--def)':'var(--gold)');
+  $('intentNum').setAttribute('data-intent',S.intent.type);
   refreshIcons();
 }
 function nextQuestion(){
@@ -492,10 +623,10 @@ function nextQuestion(){
   startTimer();
 }
 function startTimer(){
-  const time=(S.diff.time||15)+(HEROES[S.hero].time||0);let remain=time;
-  const ring=$('timerRing');ring.textContent=remain;ring.style.background='var(--card)';
+  const time=(DIFFS[S.diff].time||15)+(HEROES[S.hero].time||0);let remain=time;
+  const ring=$('timerRing');ring.textContent=remain;ring.style.background='var(--card)';ring.classList.remove('low');
   clearInterval(S.timer);
-  S.timer=setInterval(()=>{remain--;ring.textContent=remain;if(remain<=5)ring.style.background='var(--red)';ring.style.color='#fff';if(remain<=0){clearInterval(S.timer);onTimeout();}},1000);
+  S.timer=setInterval(()=>{remain--;ring.textContent=remain;if(remain<=5){ring.style.background='var(--red)';ring.classList.add('low');}else{ring.style.color='';}ring.style.color='#fff';if(remain<=0){clearInterval(S.timer);onTimeout();}},1000);
 }
 function lockOptions(){[...document.querySelectorAll('.opt')].forEach(b=>b.disabled=true);clearInterval(S.timer);}
 
@@ -609,7 +740,7 @@ function spawnFloor(){
 function generateEnemy(){
   const idx=Math.floor(Math.random()*Math.min(ENEMIES.length,5+Math.floor(S.floor/3)));
   const e=ENEMIES[Math.min(idx,ENEMIES.length-1)];
-  const hpMul=(S.diff.hpMul||2)*(1+S.floor*0.08);
+  const hpMul=(DIFFS[S.diff].hpMul||2)*(1+S.floor*0.08);
   const hp=Math.round(e.hp*hpMul);
   return {name:e.name,icon:e.icon,hp,hpMax:hp,block:0,intents:e.intents,isBoss:false,goldGain:Math.round((10+S.floor)*1.2)};
 }
