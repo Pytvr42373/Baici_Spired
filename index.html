@@ -9,317 +9,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Manrope:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.min.css">
-<style>
-/* ============================================================
-   设计令牌 · 现代学术奇幻（双主题）
-   :root          极简·学术（默认）：米白纸底 / 墨绿主
-   :root[data-theme="pink"]  粉红·可爱
-============================================================ */
-:root{
-  /* 色板 */
-  --bg:#f4f2ec; --card:#ffffff; --card2:#faf8f3; --line:#e9e4d8;
-  --ink:#3a362e; --sub:#9a9488; --accent:#4a6b5a;
-  --atk:#c0392b; --def:#2980b9; --gold:#a9823d;
-  --green:#5f8a70; --red:#b8534a;
-  /* 纸感 */
-  --paper-shadow:0 1px 3px rgba(60,50,40,.06);
-  --paper-shadow-lg:0 8px 30px rgba(60,50,40,.12);
-  /* 字体 */
-  --font-serif:'Cormorant Garamond','Noto Serif SC',Georgia,serif;
-  --font-sans:'Manrope','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
-  --font-cn-title:'Noto Serif SC',serif;
-  /* 圆角 */
-  --r:13px; --r-sm:9px; --r-lg:18px;
-}
-:root[data-theme="pink"]{
-  --bg:#fff0f5; --card:#fff7fa; --card2:#ffe9f0; --line:#ffd9e4;
-  --ink:#7a4358; --sub:#c98da3; --accent:#e87aa0;
-  --atk:#f06292; --def:#9c6bd6; --gold:#f9a825;
-  --green:#66bb6a; --red:#ef5350;
-  --paper-shadow:0 1px 3px rgba(180,90,120,.08);
-  --paper-shadow-lg:0 8px 30px rgba(180,90,120,.16);
-  /* 粉红主题：更圆润 */
-  --r:18px; --r-sm:14px; --r-lg:22px;
-}
-:root[data-theme="pink"] h1.title{letter-spacing:2px;}
-
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html{-webkit-text-size-adjust:100%;}
-body{
-  background:var(--bg);color:var(--ink);
-  font-family:var(--font-sans);
-  min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
-  padding:16px 12px 44px;
-}
-/* 纸张背景 + 细网格纹理（克制，仅装饰） */
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;
-  background-image:
-    linear-gradient(var(--line) 1px,transparent 1px),
-    linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:34px 34px;
-}
-/* 纸张晕染 */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
-  background:radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.5),transparent 60%);
-}
-#app{width:100%;max-width:500px;position:relative;z-index:1;}
-
-/* ============================================================
-   屏幕切换 / 动效
-============================================================ */
-.screen{display:none;}
-.screen.active{display:block;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes pop{0%{opacity:0;transform:scale(.85)}70%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
-@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
-@keyframes floatUp{0%{opacity:0;transform:translateY(0)}25%{opacity:1;transform:translateY(-8px)}100%{opacity:0;transform:translateY(-52px)}}
-@keyframes hitPulse{0%{transform:scale(1)}35%{transform:scale(.96)}100%{transform:scale(1)}}
-@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
-
-/* ============================================================
-   通用组件
-============================================================ */
-h1.title{
-  font-family:var(--font-cn-title);font-size:38px;font-weight:900;
-  text-align:center;letter-spacing:3px;color:var(--accent);line-height:1.2;
-  text-shadow:0 1px 0 rgba(255,255,255,.6);
-}
-h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;color:var(--gold);}
-.sub{color:var(--sub);text-align:center;font-size:13px;margin-top:6px;letter-spacing:.5px;}
-.logo{text-align:center;margin:22px 0 8px;}
-.logo .glyph{font-size:44px;color:var(--accent);display:inline-block;}
-
-/* 纸张面板 */
-.panel,.card{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--paper-shadow);padding:18px;margin-bottom:12px;animation:fadeUp .3s;
-}
-.panel h3{font-size:12px;color:var(--sub);font-weight:700;letter-spacing:1px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--line);}
-
-/* 选择 chips */
-.chips{display:flex;flex-wrap:wrap;gap:8px;}
-.chip{
-  flex:1;min-width:82px;text-align:center;padding:10px 6px;
-  border:1px solid var(--line);border-radius:var(--r-sm);
-  background:var(--card2);color:var(--ink);font-weight:600;font-size:13px;
-  cursor:pointer;transition:all .12s;
-}
-.chip:active{transform:scale(.97);}
-.chip.selected{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px -2px var(--accent);}
-.chip .d{display:block;font-size:10px;font-weight:400;margin-top:2px;color:var(--sub);}
-.chip.selected .d{color:rgba(255,255,255,.75);}
-.chip-ico{display:inline-block;margin-right:4px;vertical-align:-4px;color:var(--accent);}
-.chip.selected .chip-ico{color:#fff;}
-
-/* 按钮 */
-.btn{
-  display:block;width:100%;padding:13px;border:none;border-radius:var(--r-sm);
-  background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
-  transition:all .12s;margin-bottom:10px;text-align:center;
-  box-shadow:0 2px 8px -3px var(--accent);
-}
-.btn:active{transform:scale(.98);opacity:.9;}
-.btn.gold{background:var(--gold);box-shadow:0 2px 8px -3px var(--gold);}
-.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none;}
-.btn.ghost:active{background:var(--card2);}
-
-/* ============================================================
-   主菜单 · staggered 入场
-============================================================ */
-.home-hero{padding:4px 0 6px;}
-#screen-start > *{animation:fadeUp .45s ease both;}
-#screen-start > *:nth-child(1){animation-delay:.04s}
-#screen-start > *:nth-child(2){animation-delay:.12s}
-#screen-start > *:nth-child(3){animation-delay:.20s}
-#screen-start > *:nth-child(4){animation-delay:.28s}
-#screen-start > *:nth-child(5){animation-delay:.36s}
-#screen-start > *:nth-child(6){animation-delay:.44s}
-#screen-start > *:nth-child(7){animation-delay:.52s}
-
-/* ============================================================
-   HUD 顶条
-============================================================ */
-#topbar{
-  display:flex;justify-content:space-between;align-items:center;
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--paper-shadow);padding:11px 14px;margin-bottom:10px;
-}
-.stat{text-align:center;min-width:50px;}
-.stat .v{font-size:17px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
-.stat .l{font-size:9px;color:var(--sub);letter-spacing:1px;font-weight:600;}
-.hpbar{width:50px;height:6px;background:var(--card2);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin:4px auto 0;}
-.hpbar i{display:block;height:100%;background:var(--red);transition:width .3s;}
-
-/* ============================================================
-   敌人区（血条 + 意图批注）
-============================================================ */
-#enemyArea{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--paper-shadow);padding:16px;margin-bottom:10px;text-align:center;
-}
-#enemyArea.hit{animation:hitPulse .3s;}
-#floorTag{display:block;font-size:10px;color:var(--sub);font-weight:700;letter-spacing:1px;margin-bottom:10px;}
-#enemyRow{display:flex;align-items:center;justify-content:center;gap:16px;}
-#enemyIcon{font-size:44px;color:var(--accent);line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.08));}
-#enemyMeta{text-align:left;}
-#enemyName{font-size:17px;font-weight:800;color:var(--ink);font-family:var(--font-cn-title);}
-#enemyHpWrap{margin-top:5px;}
-#enemyHp{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:99px;overflow:hidden;width:140px;}
-#enemyHp i{display:block;height:100%;background:var(--atk);transition:width .3s;}
-#enemyHpTxt{font-size:11px;color:var(--sub);font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;}
-#enemyBlock{display:none;align-items:center;justify-content:center;gap:5px;margin-top:7px;font-weight:700;color:var(--def);font-size:13px;}
-#enemyBlock[data-active]{animation:pop .25s;}
-
-/* 意图 · 魔法书批注视觉 */
-#intentBox{
-  margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);
-  display:flex;align-items:center;justify-content:center;gap:8px;color:var(--sub);
-}
-#intentIco{font-size:22px;color:var(--accent);}
-#intentLabel{font-size:13px;font-weight:700;color:var(--ink);}
-#intentNum{
-  font-size:15px;font-weight:800;min-width:44px;text-align:center;
-  background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:2px 10px;
-}
-#intentNum[data-intent="0"]{background:rgba(192,57,43,.08);border-color:var(--atk);color:var(--atk);}
-#intentNum[data-intent="1"]{background:rgba(41,128,185,.08);border-color:var(--def);color:var(--def);}
-#intentNum[data-intent="2"]{background:rgba(169,130,61,.08);border-color:var(--gold);color:var(--gold);}
-
-/* ============================================================
-   玩家状态区
-============================================================ */
-#playerArea{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--paper-shadow);padding:12px 14px;margin-bottom:10px;
-  display:flex;justify-content:space-around;align-items:center;
-}
-.pstat{text-align:center;}
-.pstat .lbl{font-size:9px;color:var(--sub);font-weight:700;letter-spacing:1px;}
-.pstat .num{font-size:24px;font-weight:800;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums;}
-.pstat .ico{font-size:20px;color:var(--sub);}
-/* 格挡批注 */
-.pstat.def .num{color:var(--def);}
-.pstat.atk .num{color:var(--atk);}
-
-/* ============================================================
-   攻防卡牌（纯色块 + 白图标）
-============================================================ */
-#actionBar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.actionCard{
-  border:1px solid var(--line);border-radius:var(--r);
-  background:var(--card);box-shadow:var(--paper-shadow);
-  padding:14px 10px;text-align:center;cursor:pointer;transition:all .12s;
-}
-.actionCard:active{transform:scale(.97);}
-.actionCard.atk{background:var(--atk);border-color:var(--atk);box-shadow:0 4px 12px -4px var(--atk);}
-.actionCard.atk:hover{filter:brightness(1.06);}
-.actionCard.def{background:var(--def);border-color:var(--def);box-shadow:0 4px 12px -4px var(--def);}
-.actionCard.def:hover{filter:brightness(1.06);}
-.actionCard .ico{font-size:30px;line-height:1;}
-.actionCard.atk .ico{color:#fff;}
-.actionCard.def .ico{color:#fff;}
-.actionCard .nm{font-size:16px;font-weight:800;margin-top:5px;color:#fff;font-family:var(--font-cn-title);}
-.actionCard .ds{font-size:10px;font-weight:600;color:rgba(255,255,255,.85);margin-top:2px;}
-.actionCard .rate{
-  font-size:10px;font-weight:700;color:#fff;margin-top:6px;display:inline-block;
-  background:rgba(255,255,255,.22);border-radius:99px;padding:2px 9px;
-}
-
-/* ============================================================
-   答题台
-============================================================ */
-#qArea{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--paper-shadow);padding:18px;margin-bottom:10px;position:relative;text-align:center;
-}
-#choiceBanner{display:inline-block;padding:3px 13px;border-radius:99px;font-weight:700;font-size:11px;margin-bottom:10px;letter-spacing:1px;}
-#choiceBanner.atk{background:var(--atk);color:#fff;}
-#choiceBanner.def{background:var(--def);color:#fff;}
-#qType{font-size:10px;color:var(--sub);font-weight:700;letter-spacing:1px;}
-#qWord{font-size:29px;font-weight:800;margin:9px 0 2px;word-break:break-word;color:var(--ink);font-family:var(--font-cn-title);}
-#qPos{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;}
-#qHint{font-size:12px;color:var(--sub);margin:6px 0 15px;}
-#timerRing{
-  position:absolute;top:12px;right:14px;width:36px;height:36px;
-  border:1px solid var(--line);border-radius:50%;line-height:34px;
-  font-weight:800;font-size:14px;text-align:center;color:var(--accent);
-  background:var(--card2);transition:background .3s,color .3s;
-  font-variant-numeric:tabular-nums;
-}
-#timerRing.low{background:var(--red)!important;color:#fff!important;animation:hitPulse .5s infinite;}
-#options{display:grid;gap:9px;margin-top:4px;}
-.opt{
-  padding:12px 13px;border:1px solid var(--line);border-radius:var(--r-sm);
-  background:var(--card2);font-size:15px;cursor:pointer;text-align:left;font-weight:600;
-  color:var(--ink);transition:all .1s;
-}
-.opt:active{transform:scale(.98);}
-.opt:hover{border-color:var(--accent);}
-.opt .letter{display:inline-block;width:21px;height:21px;line-height:21px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:5px;font-size:11px;margin-right:9px;font-weight:700;color:var(--sub);}
-.opt.correct{background:#eef4f0;border-color:var(--green);color:var(--green);}
-.opt.correct .letter{background:var(--green);color:#fff;border-color:var(--green);}
-.opt.wrong{background:#f8edeb;border-color:var(--red);color:var(--red);animation:shakeX .4s;}
-.opt.wrong .letter{background:var(--red);color:#fff;border-color:var(--red);}
-.opt:disabled{cursor:not-allowed;}
-#feedback{text-align:center;font-size:13px;margin-top:11px;font-weight:700;min-height:18px;}
-#feedback.ok{color:var(--green);}
-#feedback.bad{color:var(--red);}
-
-/* ============================================================
-   底部 · 道具 + 日志
-============================================================ */
-#toolbar{padding:14px;margin-bottom:10px;}
-#toolbar h3{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:9px;letter-spacing:1px;border-bottom:1px solid var(--line);padding-bottom:6px;}
-#tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.tool{padding:8px 3px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card2);cursor:pointer;text-align:center;font-size:10px;font-weight:700;color:var(--ink);}
-.tool .ico{display:block;font-size:19px;margin-bottom:2px;color:var(--accent);}
-.tool:disabled{opacity:.4;cursor:not-allowed;}
-#log{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 13px;max-height:74px;overflow-y:auto;font-size:11.5px;color:var(--sub);font-weight:600;}
-#log div{margin:2px 0;}
-#log .g{color:var(--green);}#log .r{color:var(--red);}#log .y{color:var(--gold);}#log .b{color:var(--def);}
-
-/* ============================================================
-   飘字层 / 弹窗 / Toast
-============================================================ */
-#fxLayer{position:fixed;inset:0;pointer-events:none;z-index:50;}
-.fx{position:absolute;font-weight:800;font-size:22px;color:var(--atk);animation:floatUp 1s ease-out forwards;font-family:var(--font-serif);}
-.fx.heal{color:var(--green);}
-.fx.def{color:var(--def);}
-.fx.gold{color:var(--gold);}
-
-#overlay{position:fixed;inset:0;background:rgba(58,54,46,.4);z-index:80;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);}
-#overlay.show{display:flex;}
-.overlay-card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--paper-shadow-lg);padding:20px;animation:pop .3s;}
-.oc-title{text-align:center;font-size:17px;font-weight:800;margin-bottom:4px;color:var(--ink);font-family:var(--font-cn-title);}
-.oc-sub{text-align:center;font-size:12px;color:var(--sub);margin-bottom:14px;font-weight:600;}
-.relics{display:grid;gap:9px;}
-.relic{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;background:var(--card2);cursor:pointer;transition:all .12s;text-align:left;}
-.relic:hover{border-color:var(--accent);background:var(--card);}
-.relic:active{transform:scale(.98);}
-.relic .r-top{display:flex;align-items:center;gap:11px;}
-.relic .r-ico{color:var(--accent);display:inline-flex;flex:none;font-size:20px;}
-.relic .r-name{font-weight:800;font-size:14px;color:var(--ink);font-family:var(--font-cn-title);}
-.relic .r-desc{font-size:12px;color:var(--sub);margin-top:3px;font-weight:600;}
-
-#resultStats{font-size:14px;font-weight:600;}
-.stat-row{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line);}
-.stat-row span:last-child{font-weight:800;color:var(--accent);}
-.big-result{font-size:23px;font-weight:800;text-align:center;margin:8px 0 12px;color:var(--ink);font-family:var(--font-cn-title);}
-.upgrade-list{display:grid;gap:9px;}
-.upgrade{border:1px solid var(--line);border-radius:var(--r-sm);padding:11px;background:var(--card2);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
-.upgrade:disabled{opacity:.4;cursor:not-allowed;}
-.upgrade .u-name{font-weight:800;font-size:13px;}
-.upgrade .u-desc{font-size:10px;color:var(--sub);margin-top:2px;}
-.upgrade .u-cost{color:var(--gold);font-weight:800;}
-
-.toast{position:fixed;left:50%;top:13%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:var(--r-sm);font-weight:700;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:86%;text-align:center;}
-.hidden{display:none!important;}
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="fxLayer"></div>
+
+<!-- 悬浮：返回主页（战斗时显示） -->
+<button id="btnHomeFloat" class="float-btn float-home hidden" data-sfx="button" title="返回主页"><i data-lucide="home"></i></button>
+<!-- 悬浮：主题切换 -->
+<button id="floatTheme" class="float-btn float-palette" data-sfx="button" title="切换主题"><i data-lucide="palette"></i></button>
+<div id="themePop" class="hidden">
+  <div class="t-opt" data-theme="minimal">极简线条</div>
+  <div class="t-opt" data-theme="pink">粉红可爱</div>
+  <div class="t-opt" data-theme="mech">暗色机甲</div>
+  <button id="btnMute" class="t-mute"><i data-lucide="volume-2"></i> 音效开启</button>
+</div>
+
 <div id="app">
 
   <!-- ============ 主菜单 ============ -->
@@ -332,7 +37,6 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
     <section class="panel" aria-label="词库"><h3>词库</h3><div class="chips" id="tierChips"></div></section>
     <section class="panel" aria-label="角色"><h3>角色</h3><div class="chips" id="heroChips"></div></section>
     <section class="panel" aria-label="难度"><h3>难度</h3><div class="chips" id="diffChips"></div></section>
-    <section class="panel" aria-label="主题"><h3>主题</h3><div class="chips" id="themeChips"><div class="chip selected" data-theme="minimal">极简线条</div><div class="chip" data-theme="pink">粉红可爱</div></div></section>
     <button class="btn gold" id="btnStart">开始远征</button>
     <button class="btn ghost" id="btnMeta">局外成长</button>
   </main>
@@ -341,15 +45,15 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
   <section id="screen-game" class="screen" aria-label="战斗">
     <header id="topbar">
       <div class="stat"><div class="v" id="statFloor">Lv.1</div><div class="l">层数</div></div>
-      <div class="stat"><div class="v" id="statHp">60</div><div class="hpbar"><i id="statHpBar"></i></div><div class="l">生命</div></div>
       <div class="stat"><div class="v" id="statGold">0</div><div class="l">金币</div></div>
       <div class="stat"><div class="v" id="combo">×0</div><div class="l">连击</div></div>
+      <div class="stat"><div class="v" id="statHp">60</div><div class="hpbar"><i id="statHpBar"></i></div><div class="l">生命</div></div>
     </header>
 
     <section id="enemyArea" aria-label="敌人">
       <span id="floorTag">第 1 层</span>
       <div id="enemyRow">
-        <span id="enemyIcon" data-lucide="ghost"></span>
+        <span id="enemyIcon"></span>
         <div id="enemyMeta">
           <div id="enemyName">史莱姆</div>
           <div id="enemyHpWrap"><div id="enemyHp"><i id="enemyHpFill"></i></div><div id="enemyHpTxt">30/30</div></div>
@@ -363,17 +67,6 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
       </div>
     </section>
 
-    <section id="playerArea" aria-label="玩家状态">
-      <div class="pstat"><div class="lbl">生命</div><div class="num" id="pHp">60</div></div>
-      <div class="pstat def"><div class="ico" data-lucide="shield"></div><div class="num" id="pBlock">0</div><div class="lbl">格挡</div></div>
-      <div class="pstat atk"><div class="ico" data-lucide="swords"></div><div class="num" id="pAtk">0</div><div class="lbl">本击</div></div>
-    </section>
-
-    <nav id="actionBar" aria-label="攻防选择">
-      <div class="actionCard atk" id="btnAtk"><div class="ico" data-lucide="sword"></div><div class="nm">攻击</div><div class="ds">答对造成伤害</div><div class="rate" id="atkRate">0/秒</div></div>
-      <div class="actionCard def" id="btnDef"><div class="ico" data-lucide="shield"></div><div class="nm">防御</div><div class="ds">答对获得格挡</div><div class="rate" id="defRate">0/秒</div></div>
-    </nav>
-
     <section id="qArea" aria-label="答题">
       <span id="qType">英→中</span>
       <span id="timerRing">15</span>
@@ -385,7 +78,19 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
       <div id="feedback"></div>
     </section>
 
-    <aside id="toolbar" class="panel" aria-label="道具"><h3>道具</h3><div id="tools"></div></aside>
+    <div id="thumbZone">
+      <nav id="actionBar" aria-label="攻防选择">
+        <div class="actionCard atk" id="btnAtk"><div class="ico" data-lucide="sword"></div><div class="nm">攻击</div><div class="ds">答对造成伤害</div><div class="rate" id="atkRate">0/秒</div></div>
+        <div class="actionCard def" id="btnDef"><div class="ico" data-lucide="shield"></div><div class="nm">防御</div><div class="ds">答对获得格挡</div><div class="rate" id="defRate">0/秒</div></div>
+      </nav>
+      <section id="playerArea" aria-label="玩家状态">
+        <div class="pstat"><div class="lbl">生命</div><div class="num" id="pHp">60</div></div>
+        <div class="pstat def"><div class="ico" data-lucide="shield"></div><div class="num" id="pBlock">0</div><div class="lbl">格挡</div></div>
+        <div class="pstat atk"><div class="ico" data-lucide="swords"></div><div class="num" id="pAtk">×1</div><div class="lbl">本击</div></div>
+      </section>
+      <div id="potionBar" aria-label="药水栏"></div>
+    </div>
+
     <footer id="log" class="panel" aria-label="战斗日志"></footer>
   </section>
 
@@ -404,7 +109,7 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
   <section id="screen-meta" class="screen" aria-label="局外成长">
     <div class="panel" style="margin-top:20px;">
       <h3 style="text-align:center;font-size:17px;">局外成长</h3>
-      <div style="text-align:center;color:var(--gold);font-size:20px;font-weight:900;margin:8px 0;" id="metaStar">星尘: 0</div>
+      <div class="meta-star-wrap" id="metaStar"><span class="star-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.2l1.3-6.6L2.5 9l6.6-.8z"/></svg></span><span id="metaStarNum">0</span></div>
       <div class="upgrade-list" id="upgradeList"></div>
       <button class="btn ghost" id="btnMetaBack">返回</button>
     </div>
@@ -414,444 +119,8 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
 <div id="overlay"><div class="overlay-card"><div class="oc-title">遗物</div><div class="oc-sub">三选一强化本局</div><div class="relics" id="relicChoices"></div></div></div>
 
 <script src="https://unpkg.com/lucide@latest"></script>
-<script>
-/* ============ KET 词库 ============ */
-const TIERS={ket:{name:"KET",words:[
-  {en:"able",cn:"能够的",pos:"adj."},{en:"about",cn:"关于；大约",pos:"prep./adv."},{en:"above",cn:"在……上面",pos:"prep."},
-  {en:"across",cn:"穿过",pos:"prep."},{en:"afraid",cn:"害怕的",pos:"adj."},{en:"after",cn:"在……之后",pos:"prep./conj."},
-  {en:"again",cn:"再一次",pos:"adv."},{en:"agree",cn:"同意",pos:"v."},{en:"airport",cn:"机场",pos:"n."},
-  {en:"always",cn:"总是",pos:"adv."},{en:"answer",cn:"回答；答案",pos:"v./n."},{en:"arrive",cn:"到达",pos:"v."},
-  {en:"ask",cn:"问；请求",pos:"v."},{en:"back",cn:"后面；返回",pos:"adv./n."},{en:"bad",cn:"坏的",pos:"adj."},
-  {en:"bag",cn:"包；袋子",pos:"n."},{en:"bank",cn:"银行",pos:"n."},{en:"beautiful",cn:"美丽的",pos:"adj."},
-  {en:"because",cn:"因为",pos:"conj."},{en:"become",cn:"变成",pos:"v."},{en:"before",cn:"在……之前",pos:"prep./conj."},
-  {en:"begin",cn:"开始",pos:"v."},{en:"behind",cn:"在……后面",pos:"prep."},{en:"believe",cn:"相信",pos:"v."},
-  {en:"between",cn:"在……之间",pos:"prep."},{en:"big",cn:"大的",pos:"adj."},{en:"bike",cn:"自行车",pos:"n."},
-  {en:"boring",cn:"无聊的",pos:"adj."},{en:"borrow",cn:"借入",pos:"v."},{en:"both",cn:"两者都",pos:"det./pron."},
-  {en:"break",cn:"打破；休息",pos:"v./n."},{en:"breakfast",cn:"早餐",pos:"n."},{en:"bring",cn:"带来",pos:"v."},
-  {en:"build",cn:"建造",pos:"v."},{en:"busy",cn:"忙碌的",pos:"adj."},{en:"buy",cn:"买",pos:"v."},
-  {en:"call",cn:"打电话；称呼",pos:"v."},{en:"carry",cn:"携带",pos:"v."},{en:"catch",cn:"抓住",pos:"v."},
-  {en:"change",cn:"改变；零钱",pos:"v./n."},{en:"cheap",cn:"便宜的",pos:"adj."},{en:"choose",cn:"选择",pos:"v."},
-  {en:"classroom",cn:"教室",pos:"n."},{en:"clean",cn:"干净的；打扫",pos:"adj./v."},{en:"clever",cn:"聪明的",pos:"adj."},
-  {en:"climb",cn:"爬",pos:"v."},{en:"close",cn:"关闭；近的",pos:"v./adj."},{en:"cloudy",cn:"多云的",pos:"adj."},
-  {en:"coat",cn:"外套",pos:"n."},{en:"cold",cn:"冷的；感冒",pos:"adj./n."},{en:"college",cn:"大学；学院",pos:"n."},
-  {en:"come",cn:"来",pos:"v."},{en:"cook",cn:"做饭；厨师",pos:"v./n."},{en:"country",cn:"国家；乡村",pos:"n."},
-  {en:"course",cn:"课程；路线",pos:"n."},{en:"customer",cn:"顾客",pos:"n."},{en:"cut",cn:"切；割",pos:"v."},
-  {en:"dangerous",cn:"危险的",pos:"adj."},{en:"decide",cn:"决定",pos:"v."},{en:"delicious",cn:"美味的",pos:"adj."},
-  {en:"different",cn:"不同的",pos:"adj."},{en:"difficult",cn:"困难的",pos:"adj."},{en:"dinner",cn:"晚餐",pos:"n."},
-  {en:"direction",cn:"方向",pos:"n."},{en:"doctor",cn:"医生",pos:"n."},{en:"draw",cn:"画",pos:"v."},
-  {en:"early",cn:"早的",pos:"adj./adv."},{en:"easy",cn:"容易的",pos:"adj."},{en:"eat",cn:"吃",pos:"v."},
-  {en:"else",cn:"其他的",pos:"adv."},{en:"empty",cn:"空的",pos:"adj."},{en:"enough",cn:"足够的",pos:"adj./adv."},
-  {en:"every",cn:"每一个",pos:"det."},{en:"exam",cn:"考试",pos:"n."},{en:"exercise",cn:"锻炼；练习",pos:"n./v."},
-  {en:"expensive",cn:"昂贵的",pos:"adj."},{en:"explain",cn:"解释",pos:"v."},{en:"famous",cn:"著名的",pos:"adj."},
-  {en:"favourite",cn:"最喜欢的",pos:"adj."},{en:"feel",cn:"感觉",pos:"v."},{en:"few",cn:"很少的",pos:"det./adj."},
-  {en:"finish",cn:"完成",pos:"v."},{en:"floor",cn:"地板；楼层",pos:"n."},{en:"follow",cn:"跟随",pos:"v."},
-  {en:"forget",cn:"忘记",pos:"v."},{en:"free",cn:"自由的；免费的",pos:"adj."},{en:"fresh",cn:"新鲜的",pos:"adj."},
-  {en:"fruit",cn:"水果",pos:"n."},{en:"future",cn:"未来",pos:"n."},{en:"game",cn:"游戏",pos:"n."},
-  {en:"garden",cn:"花园",pos:"n."},{en:"give",cn:"给",pos:"v."},{en:"glass",cn:"玻璃；玻璃杯",pos:"n."},
-  {en:"go",cn:"去",pos:"v."},{en:"ground",cn:"地面",pos:"n."},{en:"guess",cn:"猜测",pos:"v./n."},
-  {en:"half",cn:"一半",pos:"n./adj."},{en:"happen",cn:"发生",pos:"v."},{en:"hard",cn:"困难的；坚硬的",pos:"adj."},
-  {en:"headache",cn:"头痛",pos:"n."},{en:"healthy",cn:"健康的",pos:"adj."},{en:"heavy",cn:"重的",pos:"adj."},
-  {en:"help",cn:"帮助",pos:"v./n."},{en:"holiday",cn:"假期",pos:"n."},{en:"homework",cn:"家庭作业",pos:"n."},
-  {en:"hope",cn:"希望",pos:"v./n."},{en:"hungry",cn:"饥饿的",pos:"adj."},{en:"important",cn:"重要的",pos:"adj."},
-  {en:"invite",cn:"邀请",pos:"v."},{en:"journey",cn:"旅程",pos:"n."},{en:"keep",cn:"保持；保留",pos:"v."},
-  {en:"key",cn:"钥匙；关键",pos:"n./adj."},{en:"know",cn:"知道",pos:"v."},{en:"learn",cn:"学习",pos:"v."},
-  {en:"leave",cn:"离开",pos:"v."},{en:"lend",cn:"借出",pos:"v."},{en:"library",cn:"图书馆",pos:"n."},
-  {en:"light",cn:"光；轻的",pos:"n./adj."},{en:"lose",cn:"丢失；输",pos:"v."},{en:"lucky",cn:"幸运的",pos:"adj."},
-  {en:"lunch",cn:"午餐",pos:"n."},{en:"map",cn:"地图",pos:"n."},{en:"medicine",cn:"药；医学",pos:"n."},
-  {en:"meeting",cn:"会议",pos:"n."},{en:"menu",cn:"菜单",pos:"n."},{en:"message",cn:"消息",pos:"n."},
-  {en:"minute",cn:"分钟",pos:"n."},{en:"money",cn:"钱",pos:"n."},{en:"mountain",cn:"山",pos:"n."},
-  {en:"move",cn:"移动",pos:"v."},{en:"museum",cn:"博物馆",pos:"n."},{en:"need",cn:"需要",pos:"v."},
-  {en:"noise",cn:"噪音",pos:"n."},{en:"often",cn:"经常",pos:"adv."},{en:"only",cn:"仅仅；唯一的",pos:"adv./adj."},
-  {en:"open",cn:"打开；开着的",pos:"v./adj."},{en:"order",cn:"点餐；订单；顺序",pos:"v./n."},{en:"own",cn:"自己的；拥有",pos:"adj./v."},
-  {en:"pack",cn:"打包",pos:"v."},{en:"paper",cn:"纸；报纸",pos:"n."},{en:"pass",cn:"通过；传递",pos:"v."},
-  {en:"pay",cn:"支付",pos:"v."},{en:"people",cn:"人们",pos:"n."},{en:"perhaps",cn:"也许",pos:"adv."},
-  {en:"phone",cn:"电话",pos:"n./v."},{en:"picture",cn:"图片",pos:"n."},{en:"place",cn:"地方",pos:"n."},
-  {en:"play",cn:"玩；演奏",pos:"v."},{en:"please",cn:"请；取悦",pos:"int./v."},{en:"police",cn:"警察",pos:"n."},
-  {en:"possible",cn:"可能的",pos:"adj."},{en:"prefer",cn:"更喜欢",pos:"v."},{en:"price",cn:"价格",pos:"n."},
-  {en:"problem",cn:"问题",pos:"n."},{en:"promise",cn:"承诺",pos:"v./n."},{en:"proud",cn:"自豪的",pos:"adj."},
-  {en:"quiet",cn:"安静的",pos:"adj."},{en:"rain",cn:"雨；下雨",pos:"n./v."},{en:"remember",cn:"记得",pos:"v."},
-  {en:"repair",cn:"修理",pos:"v."},{en:"repeat",cn:"重复",pos:"v."},{en:"rest",cn:"休息",pos:"n./v."},
-  {en:"return",cn:"返回；归还",pos:"v."},{en:"ride",cn:"骑",pos:"v."},{en:"right",cn:"正确的；右边",pos:"adj./n."},
-  {en:"ring",cn:"戒指；铃声",pos:"n."},{en:"road",cn:"道路",pos:"n."},{en:"save",cn:"节省；拯救",pos:"v."},
-  {en:"school",cn:"学校",pos:"n."},{en:"season",cn:"季节",pos:"n."},{en:"sell",cn:"卖",pos:"v."},
-  {en:"send",cn:"发送",pos:"v."},{en:"shop",cn:"商店；购物",pos:"n./v."},{en:"shopping",cn:"购物",pos:"n."},
-  {en:"short",cn:"短的；矮的",pos:"adj."},{en:"show",cn:"展示",pos:"v."},{en:"sick",cn:"生病的",pos:"adj."},
-  {en:"simple",cn:"简单的",pos:"adj."},{en:"sing",cn:"唱歌",pos:"v."},{en:"sleep",cn:"睡觉",pos:"v./n."},
-  {en:"slow",cn:"慢的",pos:"adj."},{en:"small",cn:"小的",pos:"adj."},{en:"snow",cn:"雪；下雪",pos:"n./v."},
-  {en:"sometimes",cn:"有时",pos:"adv."},{en:"soon",cn:"很快",pos:"adv."},{en:"special",cn:"特别的",pos:"adj."},
-  {en:"station",cn:"车站",pos:"n."},{en:"straight",cn:"径直地；直的",pos:"adv./adj."},{en:"strange",cn:"奇怪的",pos:"adj."},
-  {en:"strong",cn:"强壮的",pos:"adj."},{en:"subject",cn:"学科；主题",pos:"n."},{en:"suggest",cn:"建议",pos:"v."},
-  {en:"summer",cn:"夏天",pos:"n."},{en:"sunny",cn:"晴朗的",pos:"adj."},{en:"surprise",cn:"惊喜；使惊讶",pos:"n./v."},
-  {en:"sweet",cn:"甜的；糖果",pos:"adj./n."},{en:"swim",cn:"游泳",pos:"v."},{en:"table",cn:"桌子；表格",pos:"n."},
-  {en:"take",cn:"拿；乘坐",pos:"v."},{en:"teach",cn:"教",pos:"v."},{en:"teacher",cn:"老师",pos:"n."},
-  {en:"tell",cn:"告诉",pos:"v."},{en:"ticket",cn:"票",pos:"n."},{en:"tired",cn:"累的",pos:"adj."},
-  {en:"together",cn:"一起",pos:"adv."},{en:"tomorrow",cn:"明天",pos:"adv./n."},{en:"train",cn:"火车；训练",pos:"n./v."},
-  {en:"travel",cn:"旅行",pos:"v./n."},{en:"trouble",cn:"麻烦",pos:"n."},{en:"true",cn:"真实的",pos:"adj."},
-  {en:"try",cn:"尝试",pos:"v."},{en:"turn",cn:"转动；轮流",pos:"v./n."},{en:"umbrella",cn:"雨伞",pos:"n."},
-  {en:"understand",cn:"理解",pos:"v."},{en:"useful",cn:"有用的",pos:"adj."},{en:"usual",cn:"通常的",pos:"adj."},
-  {en:"vegetable",cn:"蔬菜",pos:"n."},{en:"visit",cn:"参观；拜访",pos:"v."},{en:"wait",cn:"等待",pos:"v."},
-  {en:"walk",cn:"走路",pos:"v./n."},{en:"want",cn:"想要",pos:"v."},{en:"warm",cn:"温暖的",pos:"adj."},
-  {en:"wash",cn:"洗",pos:"v."},{en:"weather",cn:"天气",pos:"n."},{en:"weekend",cn:"周末",pos:"n."},
-  {en:"welcome",cn:"欢迎",pos:"v./int."},{en:"wet",cn:"湿的",pos:"adj."},{en:"win",cn:"赢",pos:"v."},
-  {en:"wind",cn:"风",pos:"n."},{en:"window",cn:"窗户",pos:"n."},{en:"winter",cn:"冬天",pos:"n."},
-  {en:"wish",cn:"愿望；希望",pos:"n./v."},{en:"wonder",cn:"想知道",pos:"v."},{en:"wonderful",cn:"精彩的",pos:"adj."},
-  {en:"work",cn:"工作",pos:"v./n."},{en:"world",cn:"世界",pos:"n."},{en:"write",cn:"写",pos:"v."},
-  {en:"wrong",cn:"错误的",pos:"adj."},{en:"yesterday",cn:"昨天",pos:"adv./n."},{en:"young",cn:"年轻的",pos:"adj."}
-]}};
-
-/* ============ 角色 ============ */
-const HEROES={
-  warrior:{name:"战士",icon:"swords",desc:"攻击系数+30%",atkMul:1.3},
-  mage:{name:"法师",icon:"wand",desc:"答题时间+3秒",time:3},
-  rogue:{name:"游侠",icon:"target",desc:"连击奖励+1金币",combo:true},
-  healer:{name:"牧师",icon:"heart",desc:"每层回4血",heal:4}
-};
-/* ============ 难度 ============ */
-const DIFFS={
-  easy:{name:"轻松",time:18,atkMul:.8,hpMul:1.5},
-  normal:{name:"标准",time:15,atkMul:1,hpMul:2},
-  hard:{name:"困难",time:11,atkMul:1.25,hpMul:2.5}
-};
-/* ============ 敌人（大血量+意图池） ============ */
-const ENEMIES=[
-  {name:"史莱姆",icon:"droplet",hp:30,intents:[[0,8],[0,10],[1,8]]},
-  {name:"蝙蝠",icon:"bird",hp:24,intents:[[0,7],[0,9],[1,6]]},
-  {name:"骷髅",icon:"skull",hp:40,intents:[[0,12],[1,12],[2,2]]},
-  {name:"石像鬼",icon:"landmark",hp:48,intents:[[0,10],[1,14],[2,2]]},
-  {name:"幽灵",icon:"ghost",hp:36,intents:[[0,13],[2,3],[1,10]]},
-  {name:"魔狼",icon:"dog",hp:52,intents:[[0,14],[0,16],[2,2]]},
-  {name:"石魔",icon:"mountain",hp:64,intents:[[1,16],[0,12],[2,3]]},
-  {name:"暗影法师",icon:"sparkles",hp:58,intents:[[0,16],[2,4],[1,12]]},
-  {name:"巨龙",icon:"flame",hp:80,intents:[[0,18],[2,3],[0,22]]}
-];
-const BOSSES=[
-  {name:"词灵·初阶",icon:"gem",hp:110,intents:[[0,16],[1,18],[2,2]]},
-  {name:"词灵·深渊",icon:"skull",hp:160,intents:[[0,22],[2,4],[1,20]]},
-  {name:"词汇魔王",icon:"trophy",hp:220,intents:[[0,26],[2,5],[1,24]]}
-];
-/* 意图: [0=攻击,1=防御,2=蓄力] */
-const INTENT_ICON=['sword','shield','flame'];
-const INTENT_LABEL=['攻击','防御','蓄力'];
-const ATK_RATE=2.2;   // 每剩余秒伤害
-const DEF_RATE=2.6;   // 每剩余秒格挡
-const META_KEY='lexicon_meta';
-let META=loadMeta();
-function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'){m.star=+m.star||0;m.maxHp=+m.maxHp||0;m.slot=+m.slot||0;m.goldStart=+m.goldStart||0;return m;}}catch(e){}return {star:0,maxHp:0,slot:0,goldStart:0};}
-function saveMeta(){localStorage.setItem(META_KEY,JSON.stringify(META));}
-
-let S={};
-const $=id=>document.getElementById(id);
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function toast(msg){let t=$('toastBox');if(!t){t=document.createElement('div');t.className='toast';t.id='toastBox';document.body.appendChild(t);}t.textContent=msg;t.style.opacity=1;t.style.display='block';clearTimeout(t._tm);t._tm=setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.style.display='none',300);},1300);}
-function log(msg,cls=''){const d=$('log');const div=document.createElement('div');div.className=cls;div.textContent=msg;d.prepend(div);while(d.children.length>9)d.removeChild(d.lastChild);}
-function fx(x,y,txt,cls=''){const el=document.createElement('div');el.className='fx '+cls;el.textContent=txt;el.style.left=x+'px';el.style.top=y+'px';$('fxLayer').appendChild(el);setTimeout(()=>el.remove(),1000);}
-function rect(id){const r=$(id).getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/3};}
-function refreshIcons(){if(window.lucide)lucide.createIcons();}
-
-/* ============ 词库 ============ */
-function getPool(){
-  const pool=[...TIERS.ket.words];
-  const wrong=pool.filter(w=>S.wrongWords[w.en]);
-  const base=shuffle(pool).slice(0,15);
-  for(const w of wrong){if(Math.random()<.6&&!base.some(x=>x.en===w.en))base.push(w);}
-  return base;
-}
-function buildOptions(target,pool,qType){
-  const dist=[...TIERS.ket.words].filter(x=>x.en!==target.en);
-  const opts=[];const used=shuffle(dist);
-  if(qType==='e2c'){
-    const p=[];for(const c of used){if(!p.includes(c.cn)&&c.cn!==target.cn){p.push(c.cn);if(p.length>=3)break;}}
-    const f2=[...TIERS.ket.words].filter(x=>!p.includes(x.cn)&&x.cn!==target.cn);for(const c of f2){if(p.length>=3)break;p.push(c.cn);}while(p.length<3)p.push('其他释义'+(p.length+1));
-    return shuffle([target.cn,...p]);
-  }else{
-    const p=[];for(const c of used){if(!p.includes(c.en)){p.push(c.en);if(p.length>=3)break;}}
-    const f3=[...TIERS.ket.words].filter(x=>!p.includes(x.en));for(const c of f3){if(p.length>=3)break;p.push(c.en);}while(p.length<3)p.push('word'+(p.length+1));
-    return shuffle([target.en,...p]);
-  }
-}
-
-/* ============ 回合 ============ */
-function startTurn(){
-  S.block=0;S.locked=false; // ★ 修复：每回合开始重置答题锁，避免上回合残留导致点击无反应
-  updatePlayer();
-  // 生成敌人意图
-  const pool=S.enemy.intents;
-  const roll=Math.random();
-  const it=pool[Math.floor(Math.random()*pool.length)];
-  S.intent={type:it[0],val:it[1]};
-  if(S.intent.type===2)S.intent.val=1+Math.floor(Math.random()*3); // 蓄力层数
-  renderIntent();
-  renderEnemy();
-  S.phase='choose';
-  $('actionBar').style.display='grid';
-  $('qArea').style.display='none';
-  log('—— 第 '+(S.turnCount+1)+' 回合 —— 敌人准备「'+INTENT_LABEL[S.intent.type]+'」','y');
-}
-function choose(mode){
-  if(S.phase!=='choose')return;
-  S.choice=mode;S.phase='question';
-  $('actionBar').style.display='none';
-  $('qArea').style.display='block';
-  const banner=$('choiceBanner');
-  banner.className=mode==='atk'?'atk':'def';
-  banner.textContent=mode==='atk'?'⚔ 攻击':'🛡 防御';
-  nextQuestion();
-}
-function renderIntent(){
-  $('intentIco').setAttribute('data-lucide',INTENT_ICON[S.intent.type]);
-  $('intentLabel').textContent=INTENT_LABEL[S.intent.type];
-  const num=S.intent.type===2?('×'+S.intent.val):S.intent.val;
-  $('intentNum').textContent=S.intent.type===2?'(下次 ×'+(1+S.intent.val)+')':(''+num);
-  $('intentNum').style.color=S.intent.type===0?'var(--atk)':(S.intent.type===1?'var(--def)':'var(--gold)');
-  $('intentNum').setAttribute('data-intent',S.intent.type);
-  refreshIcons();
-}
-function nextQuestion(){
-  const pool=getPool();if(pool.length<4)return;
-  let w=pool[Math.floor(Math.random()*pool.length)];
-  if(pool.length>1){while(w.en===S.lastWord){w=pool[Math.floor(Math.random()*pool.length)];}}
-  S.lastWord=w.en;S.currentWord=w;
-  const qType=Math.random()<.5?'e2c':'c2e';
-  S.qType=qType;S.options=buildOptions(w,pool,qType);
-  $('qType').textContent=qType==='e2c'?'英→中':'中→英';
-  $('qPos').textContent=w.pos;
-  $('qHint').textContent=qType==='e2c'?('选择「'+w.en+'」的释义'):('选择「'+w.cn+'」对应的单词');
-  $('qWord').textContent=qType==='e2c'?w.en:w.cn;
-  const box=$('options');box.innerHTML='';const letters=['A','B','C','D'];
-  S.options.forEach((o,i)=>{const b=document.createElement('div');b.className='opt';b.innerHTML='<span class="letter">'+letters[i]+'</span>'+o;b.onclick=()=>answer(i,b);box.appendChild(b);});
-  $('feedback').textContent='';$('feedback').className='';
-  startTimer();
-}
-function startTimer(){
-  const time=(DIFFS[S.diff].time||15)+(HEROES[S.hero].time||0)+(S.timeBonus||0);let remain=time;
-  const ring=$('timerRing');ring.textContent=remain;ring.style.background='var(--card)';ring.classList.remove('low');
-  clearInterval(S.timer);
-  S.timer=setInterval(()=>{remain--;ring.textContent=remain;if(remain<=5){ring.style.background='var(--red)';ring.style.color='#fff';ring.classList.add('low');}else{ring.style.background='var(--card)';ring.style.color='';ring.classList.remove('low');};if(remain<=0){clearInterval(S.timer);onTimeout();}},1000);
-}
-function lockOptions(){[...document.querySelectorAll('.opt')].forEach(b=>b.disabled=true);clearInterval(S.timer);}
-
-/* ============ 答题结算 ============ */
-function answer(i,el){
-  if(S.phase!=='question'||S.locked)return;
-  S.locked=true;lockOptions();
-  const target=S.qType==='e2c'?S.currentWord.cn:S.currentWord.en;
-  const btns=[...document.querySelectorAll('.opt')];
-  const rightBtn=btns[S.options.indexOf(target)];
-  const isRight=S.options[i]===target;
-  if(isRight){if(rightBtn)rightBtn.classList.add('correct');resolve(true);}
-  else{el.classList.add('wrong');if(rightBtn)rightBtn.classList.add('correct');resolve(false);}
-}
-function onTimeout(){if(S.phase!=='question')return;lockOptions();const target=S.qType==='e2c'?S.currentWord.cn:S.currentWord.en;const rb=[...document.querySelectorAll('.opt')][S.options.indexOf(target)];if(rb)rb.classList.add('correct');$('feedback').textContent='⏰ 超时！正确：'+target;$('feedback').className='bad';resolve(false,true);}
-function recordWrong(){if(S.currentWord)S.wrongWords[S.currentWord.en]=true;}
-function resolve(correct,timeout){
-  S.locked=true;
-  if(correct){S.correctTotal++;}else{S.wrongTotal++;recordWrong();}
-  const curTime=$('timerRing');const remain=Math.max(0,parseInt(curTime.textContent)||0);
-  S.answeredThisTurn=remain;
-  // 数值 = 剩余时间 × 系数
-  let val=correct?Math.round(remain*(S.choice==='atk'?ATK_RATE*S.atkMul:DEF_RATE*(S.defMul||1))):0;
-  if(S.choice==='atk'&&S.knowBuff&&S.intent&&S.intent.type===2)val*=2;
-  if(S.choice==='atk'){
-    if(correct){S.enemy.hp-=Math.max(val-S.enemy.block,0);const absorbed=Math.min(val,S.enemy.block);S.enemy.block-=absorbed;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;}
-    else{S.combo=0;}
-    const p=rect('enemyArea');if(val>0)fx(p.x,p.y,'-'+val,'');else if(!correct)fx(p.x,p.y,'落空','heal');
-    log((correct?('⚔ 攻击 '+val):'✗ 落空')+(timeout?'（超时）':''),correct?'':'r');
-  }else{
-    if(correct){S.block+=val;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;}
-    else{S.combo=0;}
-    if(val>0)fx(rect('playerArea').x,rect('playerArea').y,'+'+val,'def');
-    log((correct?('🛡 格挡 '+val):'✗ 防御失败')+(timeout?'（超时）':''),correct?'':'r');
-  }
-  updatePlayer();updateEnemy();updateTop();
-  $('feedback').textContent=correct?('✓ 正确 · '+(S.choice==='atk'?'伤害':'格挡')+' '+val):('✗ 答错，数值 0');
-  $('feedback').className=correct?'ok':'bad';
-  setTimeout(()=>{
-    // ★ 玩家先手，攻击打死敌人则敌人不再行动，直接击杀
-    if(S.enemy.hp<=0){onKill();return;}
-    enemyTurn();
-  },800);
-}
-function enemyTurn(){
-  S.phase='enemy';
-  const it=S.intent;
-  if(it.type===0){ // 攻击
-    const dmg=it.val*(S.enemyBuff?S.enemyBuff:1);
-    S.enemyBuff=0;
-    const absorbed=Math.min(dmg,S.block);const real=dmg-absorbed;
-    S.block-=absorbed;S.hp-=real;
-    log('👹 敌人攻击 '+dmg+'（格挡抵 '+absorbed+'，掉 '+real+' 血）',real>0?'r':'g');
-    const p=rect('playerArea');if(real>0)fx(p.x,p.y,'-'+real,'');
-    if(S.thorn){S.enemy.hp-=4;log('🌵 荆棘反弹 4 伤害','b');}
-  }else if(it.type===1){ // 防御
-    S.enemy.block+=it.val;log('👹 敌人防御 +'+it.val,'b');
-  }else{ // 蓄力
-    S.enemyBuff=(S.enemyBuff||1)+it.val;log('👹 敌人蓄力，下次攻击 ×'+(S.enemyBuff),'y');
-  }
-  updatePlayer();updateEnemy();
-  // 判定
-  if(S.hp<=0){setTimeout(()=>endRun(false),700);return;}
-  if(S.enemy.hp<=0){setTimeout(()=>onKill(),700);return;}
-  // 新回合
-  setTimeout(()=>{S.turnCount++;S.locked=false;startTurn();},900);
-}
-
-/* ============ 击杀/层 ============ */
-function onKill(){
-  S.killedTotal++;S.gold+=Math.round((S.enemy.goldGain||0)*(S.goldMul||1));
-  S.enemiesInFloor--;S.combo=0;
-  if(S.enemy.isBoss){S.bossIndex=(S.bossIndex||0)+1;}
-  toast('🎉 击败「'+S.enemy.name+'」');
-  updateTop();
-  setTimeout(()=>{
-    if(S.enemiesInFloor<=0){floorClear();}
-    else{spawnNextEnemy();}
-  },600);
-}
-function floorClear(){
-  log('✅ 本层敌人清空！','g');
-  if(HEROES[S.hero].heal){S.hp=Math.min(S.maxHp,S.hp+HEROES[S.hero].heal);updatePlayer();}
-  if(S.floor%5===0&&S.bossIndex>=BOSSES.length){endRun(true);return;}
-  if(S.floor%5===0){S.floor++;spawnFloor();return;}
-  giveRelic();
-}
-function giveRelic(){
-  S.phase='relic';
-  const box=$('relicChoices');box.innerHTML='';
-  const choices=shuffle(RELICS).slice(0,3);
-  choices.forEach(r=>{const d=document.createElement('div');d.className='relic';d.innerHTML='<div class="r-top"><span class="r-ico">'+iconHTML(r.icon)+'</span><div><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.desc+'</div></div></div>';d.onclick=()=>{r.apply();toast('获得 '+r.name);$('overlay').classList.remove('show');S.floor++;spawnFloor();};box.appendChild(d);});
-  $('overlay').classList.add('show');refreshIcons();
-}
-const RELICS=[
-  {name:'锋利之刃',icon:'sword',desc:'攻击系数 +20%',apply:()=>{S.atkMul=(S.atkMul||1)*1.2;}},
-  {name:'坚固之盾',icon:'shield',desc:'防御系数 +20%',apply:()=>{S.defMul=(S.defMul||1)*1.2;}},
-  {name:'聚宝盆',icon:'coins',desc:'金币 +50%',apply:()=>{S.goldMul=(S.goldMul||1)*1.5;}},
-  {name:'生命之石',icon:'gem',desc:'最大生命 +15 并回 15',apply:()=>{S.maxHp+=15;S.hp=Math.min(S.maxHp,S.hp+15);updatePlayer();}},
-  {name:'蓄力预知',icon:'eye',desc:'看到敌人蓄力时，下次攻击翻倍',apply:()=>{S.knowBuff=true;}},
-  {name:'时间之沙',icon:'hourglass',desc:'答题时间 +3 秒',apply:()=>{S.timeBonus=(S.timeBonus||0)+3;}},
-  {name:'荆棘',icon:'svg-thorns',desc:'敌人攻击你时反弹 4 伤害',apply:()=>{S.thorn=true;}},
-  {name:'连击之心',icon:'flame',desc:'连击每 3 次额外 +2 金币',apply:()=>{S.comboGold=true;}}
-];
-function iconHTML(name){
-  if(name==='svg-thorns')return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.2 4.2 1.6-3.1 3.1 1.1 4.9L12 14.5 8.2 16.8l1.1-4.9-3.1-3.1 4.2-1.6z"/><path d="M12 20v1"/></svg>';
-  return '<i data-lucide="'+name+'"></i>';
-}
-function spawnFloor(){
-  S.turnCount=0;S.locked=false;S.enemyBuff=0;
-  if(S.floor%5===0){spawnBoss();return;}
-  S.enemiesInFloor=1+Math.floor(Math.random()*2)+(S.floor>3?1:0);
-  spawnNextEnemy();
-}
-function generateEnemy(){
-  const idx=Math.floor(Math.random()*Math.min(ENEMIES.length,5+Math.floor(S.floor/3)));
-  const e=ENEMIES[Math.min(idx,ENEMIES.length-1)];
-  const hpMul=(DIFFS[S.diff].hpMul||2)*(1+S.floor*0.08);
-  const hp=Math.round(e.hp*hpMul);
-  return {name:e.name,icon:e.icon,hp,hpMax:hp,block:0,intents:e.intents,isBoss:false,goldGain:Math.round((10+S.floor)*1.2)};
-}
-function spawnNextEnemy(){
-  S.enemy=generateEnemy();
-  renderEnemy();updateEnemy();
-  startTurn();
-}
-function spawnBoss(){
-  const b=BOSSES[Math.min(S.bossIndex||0,BOSSES.length-1)];
-  const hpMul=1+(S.floor/5-1)*0.35;
-  S.enemy={name:b.name,icon:b.icon,hp:Math.round(b.hp*hpMul),hpMax:Math.round(b.hp*hpMul),block:0,intents:b.intents,isBoss:true,goldGain:60+S.floor*3};
-  S.enemiesInFloor=1;$('floorTag').textContent='☠ BOSS · 第 '+S.floor+' 层';
-  renderEnemy();updateEnemy();
-  toast('👹 BOSS '+S.enemy.name+' 现身！');
-  startTurn();
-}
-
-/* ============ 渲染 ============ */
-function renderEnemy(){
-  $('enemyIcon').setAttribute('data-lucide',S.enemy.icon);
-  $('enemyName').textContent=S.enemy.name;
-  refreshIcons();
-  updateEnemy();
-}
-function updateEnemy(){
-  const pct=Math.max(0,S.enemy.hp/S.enemy.hpMax*100);
-  $('enemyHpFill').style.width=pct+'%';
-  $('enemyHpTxt').textContent=Math.max(0,S.enemy.hp)+'/'+S.enemy.hpMax;
-  if(S.enemy.block>0){$('enemyBlock').style.display='flex';$('enemyBlockNum').textContent=S.enemy.block;}
-  else{$('enemyBlock').style.display='none';}
-}
-function updatePlayer(){
-  $('pHp').textContent=Math.max(0,S.hp);
-  $('pBlock').textContent=S.block||0;
-  $('pAtk').textContent=S.choice==='atk'?('?'):'';
-  $('statHp').textContent=Math.max(0,S.hp);
-  $('statHpBar').style.width=(S.hp/S.maxHp*100)+'%';
-  refreshIcons();
-}
-function updateTop(){
-  $('statFloor').textContent='Lv.'+S.floor;
-  $('statGold').textContent=S.gold;
-  $('combo').textContent='×'+S.combo;
-}
-
-/* ============ 开局/结算 ============ */
-function startRun(){
-  Object.assign(S,{
-    floor:1,gold:META.goldStart||0,combo:0,maxCombo:0,hp:0,maxHp:0,
-    correctTotal:0,wrongTotal:0,killedTotal:0,atkMul:1,defMul:1,goldMul:1,
-    bossIndex:0,timeBonus:0,enemyBuff:0,block:0,choice:'atk',locked:false,
-    wrongWords:{},turnCount:0,enemiesInFloor:1,enemy:null,thorn:false,comboGold:false,knowBuff:false
-  });
-  S.atkMul=(HEROES[S.hero].atkMul||1)*(S.atkMul||1);
-  S.maxHp=60+META.maxHp*8;S.hp=S.maxHp;
-  $('atkRate').textContent='~'+Math.round(ATK_RATE*(S.atkMul||1))+'/秒';
-  $('defRate').textContent='~'+DEF_RATE+'/秒';
-  showScreen('game');$('log').innerHTML='';
-  spawnFloor();updatePlayer();updateTop();
-}
-function endRun(win){
-  clearInterval(S.timer);
-  const star=Math.max(1,Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20));
-  META.star+=star;saveMeta();
-  showScreen('result');
-  $('resultGlyph').setAttribute('data-lucide',win?'trophy':'skull');refreshIcons();
-  $('resultTitle').textContent=win?'远征通关！':'远征失败';
-  $('resultStats').innerHTML=
-    '<div class="stat-row"><span>到达层数</span><span>第 '+S.floor+' 层</span></div>'+
-    '<div class="stat-row"><span>答对 / 答错</span><span>'+S.correctTotal+' / '+S.wrongTotal+'</span></div>'+
-    '<div class="stat-row"><span>击败敌人</span><span>'+S.killedTotal+'</span></div>'+
-    '<div class="stat-row"><span>最高连击</span><span>×'+S.maxCombo+'</span></div>'+
-    '<div class="stat-row"><span>获得金币</span><span>'+S.gold+'</span></div>'+
-    '<div class="stat-row"><span>✨ 星尘</span><span>+'+star+'</span></div>';
-}
-function renderMeta(){
-  $('metaStar').textContent='星尘: '+META.star;
-  const list=$('upgradeList');list.innerHTML='';
-  const ups=[
-    {k:'maxHp',name:'❤ 生命强化',desc:'每级 +8 最大生命',cost:n=>6+n*3,lv:META.maxHp,max:8},
-    {k:'goldStart',name:'🪙 开局金币',desc:'每级 +5 金币',cost:n=>8+n*4,lv:META.goldStart,max:5}
-  ];
-  ups.forEach(u=>{const cost=u.cost(u.lv);const d=document.createElement('div');d.className='upgrade';d.innerHTML='<div><div class="u-name">'+u.name+' <span style="color:var(--gold)">Lv.'+u.lv+'</span></div><div class="u-desc">'+u.desc+'</div></div><div class="u-cost">✨'+cost+'</div>';if(META.star<cost||u.lv>=u.max)d.disabled=true;d.onclick=()=>{if(META.star>=cost&&u.lv<u.max){META.star-=cost;META[u.k]++;saveMeta();renderMeta();}};list.appendChild(d);});
-}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+id).classList.add('active');if(id==='meta')renderMeta();refreshIcons();}
-function init(){
-  // ★ 双主题：极简线条 / 粉红可爱（localStorage 记忆）
-  let _th='minimal';try{_th=localStorage.getItem('lexicon_theme')||'minimal';}catch(e){}S.theme=_th;
-  document.documentElement.setAttribute('data-theme',S.theme);
-  document.querySelectorAll('#themeChips .chip').forEach(c=>{
-    c.classList.toggle('selected',c.dataset.theme===S.theme);
-    c.onclick=()=>{S.theme=c.dataset.theme;document.documentElement.setAttribute('data-theme',S.theme);localStorage.setItem('lexicon_theme',S.theme);document.querySelectorAll('#themeChips .chip').forEach(x=>x.classList.toggle('selected',x.dataset.theme===S.theme));};
-  });
-  const tc=$('tierChips');tc.innerHTML='<div class="chip selected">KET<span class="d">剑桥 A2 核心词</span></div>';S.tier='ket';
-  const hc=$('heroChips');Object.keys(HEROES).forEach((h,i)=>{const c=document.createElement('div');c.className='chip'+(h==='warrior'?' selected':'');c.innerHTML='<span class="chip-ico"><i data-lucide="'+HEROES[h].icon+'"></i></span>'+HEROES[h].name+'<span class="d">'+HEROES[h].desc+'</span>';c.onclick=()=>{S.hero=h;document.querySelectorAll('#heroChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};hc.appendChild(c);});S.hero='warrior';
-  const dc=$('diffChips');Object.keys(DIFFS).forEach((d,i)=>{const c=document.createElement('div');c.className='chip'+(d==='normal'?' selected':'');c.innerHTML=DIFFS[d].name;c.onclick=()=>{S.diff=d;document.querySelectorAll('#diffChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};dc.appendChild(c);});S.diff='normal';
-  $('btnStart').onclick=()=>startRun();
-  $('btnMeta').onclick=()=>showScreen('meta');
-  $('btnMetaBack').onclick=()=>showScreen('start');
-  $('btnAgain').onclick=()=>showScreen('start');
-  $('btnHome').onclick=()=>showScreen('start');
-  $('btnAtk').onclick=()=>choose('atk');
-  $('btnDef').onclick=()=>choose('def');
-  refreshIcons();
-}
-init();
-</script>
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
