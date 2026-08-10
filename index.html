@@ -37,8 +37,11 @@
 :root[data-theme="pink"] h1.title{letter-spacing:2px;}
 :root[data-theme="pink"] body{background:var(--bg);}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--ink);font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px 12px 44px;}
-#app{width:100%;max-width:500px;}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px 12px 44px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.14;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:34px 34px;}
+#app{width:100%;max-width:500px;position:relative;z-index:1;}
 .screen{display:none;}
 .screen.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -57,6 +60,7 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
 .chip:active{transform:scale(.97);}
 .chip.selected{background:var(--accent);color:#fff;border-color:var(--accent);}
 .chip .d{display:block;font-size:10px;font-weight:400;margin-top:2px;color:var(--sub);}
+.chip-ico{display:inline-block;margin-right:4px;vertical-align:-4px;color:var(--accent);}
 .chip.selected .d{color:rgba(255,255,255,.75);}
 .btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .12s;margin-bottom:10px;text-align:center;}
 .btn:active{transform:scale(.98);opacity:.9;}
@@ -64,6 +68,14 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
 .btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
 .btn.ghost:active{background:var(--card2);}
 .home-hero{padding:4px 0 6px;}
+#screen-start > *{animation:fadeUp .45s ease both;}
+#screen-start > *:nth-child(1){animation-delay:.04s}
+#screen-start > *:nth-child(2){animation-delay:.12s}
+#screen-start > *:nth-child(3){animation-delay:.20s}
+#screen-start > *:nth-child(4){animation-delay:.28s}
+#screen-start > *:nth-child(5){animation-delay:.36s}
+#screen-start > *:nth-child(6){animation-delay:.44s}
+#screen-start > *:nth-child(7){animation-delay:.52s}
 
 #topbar{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);padding:11px 14px;margin-bottom:10px;}
 .stat{text-align:center;min-width:50px;}
@@ -154,6 +166,8 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
 .relic{border:1px solid var(--line);border-radius:9px;padding:12px;background:var(--card2);cursor:pointer;transition:all .12s;text-align:left;}
 .relic:hover{border-color:var(--accent);background:var(--card);}
 .relic:active{transform:scale(.98);}
+.relic .r-top{display:flex;align-items:center;gap:11px;}
+.relic .r-ico{color:var(--accent);display:inline-flex;flex:none;font-size:20px;}
 .relic .r-name{font-weight:800;font-size:14px;color:var(--ink);}
 .relic .r-desc{font-size:12px;color:var(--sub);margin-top:3px;font-weight:600;}
 
@@ -568,19 +582,23 @@ function giveRelic(){
   S.phase='relic';
   const box=$('relicChoices');box.innerHTML='';
   const choices=shuffle(RELICS).slice(0,3);
-  choices.forEach(r=>{const d=document.createElement('div');d.className='relic';d.innerHTML='<div class="r-name">'+r.name+'</div><div class="r-desc">'+r.desc+'</div>';d.onclick=()=>{r.apply();toast('获得 '+r.name);$('overlay').classList.remove('show');S.floor++;spawnFloor();};box.appendChild(d);});
-  $('overlay').classList.add('show');
+  choices.forEach(r=>{const d=document.createElement('div');d.className='relic';d.innerHTML='<div class="r-top"><span class="r-ico">'+iconHTML(r.icon)+'</span><div><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.desc+'</div></div></div>';d.onclick=()=>{r.apply();toast('获得 '+r.name);$('overlay').classList.remove('show');S.floor++;spawnFloor();};box.appendChild(d);});
+  $('overlay').classList.add('show');refreshIcons();
 }
 const RELICS=[
-  {name:'锋利之刃',desc:'攻击系数 +20%',apply:()=>{S.atkMul=(S.atkMul||1)*1.2;}},
-  {name:'坚固之盾',desc:'防御系数 +20%',apply:()=>{S.defMul=(S.defMul||1)*1.2;}},
-  {name:'聚宝盆',desc:'金币 +50%',apply:()=>{S.goldMul=(S.goldMul||1)*1.5;}},
-  {name:'生命之石',desc:'最大生命 +15 并回 15',apply:()=>{S.maxHp+=15;S.hp=Math.min(S.maxHp,S.hp+15);updatePlayer();}},
-  {name:'蓄力预知',desc:'看到敌人蓄力时，下次攻击翻倍',apply:()=>{S.knowBuff=true;}},
-  {name:'时间之沙',desc:'答题时间 +3 秒',apply:()=>{S.timeBonus=(S.timeBonus||0)+3;}},
-  {name:'荆棘',desc:'敌人攻击你时反弹 4 伤害',apply:()=>{S.thorn=true;}},
-  {name:'连击之心',desc:'连击每 3 次额外 +2 金币',apply:()=>{S.comboGold=true;}}
+  {name:'锋利之刃',icon:'sword',desc:'攻击系数 +20%',apply:()=>{S.atkMul=(S.atkMul||1)*1.2;}},
+  {name:'坚固之盾',icon:'shield',desc:'防御系数 +20%',apply:()=>{S.defMul=(S.defMul||1)*1.2;}},
+  {name:'聚宝盆',icon:'coins',desc:'金币 +50%',apply:()=>{S.goldMul=(S.goldMul||1)*1.5;}},
+  {name:'生命之石',icon:'gem',desc:'最大生命 +15 并回 15',apply:()=>{S.maxHp+=15;S.hp=Math.min(S.maxHp,S.hp+15);updatePlayer();}},
+  {name:'蓄力预知',icon:'eye',desc:'看到敌人蓄力时，下次攻击翻倍',apply:()=>{S.knowBuff=true;}},
+  {name:'时间之沙',icon:'hourglass',desc:'答题时间 +3 秒',apply:()=>{S.timeBonus=(S.timeBonus||0)+3;}},
+  {name:'荆棘',icon:'svg-thorns',desc:'敌人攻击你时反弹 4 伤害',apply:()=>{S.thorn=true;}},
+  {name:'连击之心',icon:'flame',desc:'连击每 3 次额外 +2 金币',apply:()=>{S.comboGold=true;}}
 ];
+function iconHTML(name){
+  if(name==='svg-thorns')return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.2 4.2 1.6-3.1 3.1 1.1 4.9L12 14.5 8.2 16.8l1.1-4.9-3.1-3.1 4.2-1.6z"/><path d="M12 20v1"/></svg>';
+  return '<i data-lucide="'+name+'"></i>';
+}
 function spawnFloor(){
   S.turnCount=0;S.locked=false;S.enemyBuff=0;
   if(S.floor%5===0){spawnBoss();return;}
@@ -686,7 +704,7 @@ function init(){
     c.onclick=()=>{S.theme=c.dataset.theme;document.documentElement.setAttribute('data-theme',S.theme);localStorage.setItem('lexicon_theme',S.theme);document.querySelectorAll('#themeChips .chip').forEach(x=>x.classList.toggle('selected',x.dataset.theme===S.theme));};
   });
   const tc=$('tierChips');tc.innerHTML='<div class="chip selected">KET<span class="d">剑桥 A2 核心词</span></div>';S.tier='ket';
-  const hc=$('heroChips');Object.keys(HEROES).forEach((h,i)=>{const c=document.createElement('div');c.className='chip'+(h==='warrior'?' selected':'');c.innerHTML=HEROES[h].name+'<span class="d">'+HEROES[h].desc+'</span>';c.onclick=()=>{S.hero=h;document.querySelectorAll('#heroChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};hc.appendChild(c);});S.hero='warrior';
+  const hc=$('heroChips');Object.keys(HEROES).forEach((h,i)=>{const c=document.createElement('div');c.className='chip'+(h==='warrior'?' selected':'');c.innerHTML='<span class="chip-ico"><i data-lucide="'+HEROES[h].icon+'"></i></span>'+HEROES[h].name+'<span class="d">'+HEROES[h].desc+'</span>';c.onclick=()=>{S.hero=h;document.querySelectorAll('#heroChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};hc.appendChild(c);});S.hero='warrior';
   const dc=$('diffChips');Object.keys(DIFFS).forEach((d,i)=>{const c=document.createElement('div');c.className='chip'+(d==='normal'?' selected':'');c.innerHTML=DIFFS[d].name;c.onclick=()=>{S.diff=d;document.querySelectorAll('#diffChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};dc.appendChild(c);});S.diff='normal';
   $('btnStart').onclick=()=>startRun();
   $('btnMeta').onclick=()=>showScreen('meta');
