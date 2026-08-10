@@ -442,7 +442,7 @@ function buildOptions(target,pool,qType){
 
 /* ============ 回合 ============ */
 function startTurn(){
-  S.block=0; // 玩家格挡清零（新回合开始）
+  S.block=0;S.locked=false; // ★ 修复：每回合开始重置答题锁，避免上回合残留导致点击无反应
   updatePlayer();
   // 生成敌人意图
   const pool=S.enemy.intents;
