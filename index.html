@@ -20,6 +20,22 @@
   --green:#5f8a70;
   --red:#b8534a;
 }
+:root[data-theme="pink"]{
+  --bg:#fff0f5; --card:#fff7fa; --card2:#ffe9f0; --line:#ffd9e4;
+  --ink:#7a4358; --sub:#c98da3; --accent:#e87aa0;
+  --atk:#f06292; --def:#9c6bd6; --gold:#f9a825; --green:#66bb6a; --red:#ef5350;
+}
+:root[data-theme="pink"] .panel{border-radius:20px;}
+:root[data-theme="pink"] .chip{border-radius:15px;}
+:root[data-theme="pink"] .btn{border-radius:16px;}
+:root[data-theme="pink"] .actionCard{border-radius:18px;}
+:root[data-theme="pink"] #topbar{border-radius:18px;}
+:root[data-theme="pink"] #enemyArea{border-radius:18px;}
+:root[data-theme="pink"] #qArea{border-radius:18px;}
+:root[data-theme="pink"] #playerArea{border-radius:18px;}
+:root[data-theme="pink"] #log{border-radius:18px;}
+:root[data-theme="pink"] h1.title{letter-spacing:2px;}
+:root[data-theme="pink"] body{background:var(--bg);}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--ink);font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px 12px 44px;}
 #app{width:100%;max-width:500px;}
@@ -171,6 +187,7 @@ h1.title{font-size:36px;font-weight:800;text-align:center;letter-spacing:2px;col
     <div class="panel"><h3>词库</h3><div class="chips" id="tierChips"></div></div>
     <div class="panel"><h3>角色</h3><div class="chips" id="heroChips"></div></div>
     <div class="panel"><h3>难度</h3><div class="chips" id="diffChips"></div></div>
+    <div class="panel"><h3>主题</h3><div class="chips" id="themeChips"><div class="chip selected" data-theme="minimal">极简线条</div><div class="chip" data-theme="pink">粉红可爱</div></div></div>
     <button class="btn gold" id="btnStart">开始远征</button>
     <button class="btn ghost" id="btnMeta">局外成长</button>
   </div>
@@ -661,6 +678,13 @@ function renderMeta(){
 }
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+id).classList.add('active');if(id==='meta')renderMeta();refreshIcons();}
 function init(){
+  // ★ 双主题：极简线条 / 粉红可爱（localStorage 记忆）
+  S.theme=localStorage.getItem('lexicon_theme')||'minimal';
+  document.documentElement.setAttribute('data-theme',S.theme);
+  document.querySelectorAll('#themeChips .chip').forEach(c=>{
+    c.classList.toggle('selected',c.dataset.theme===S.theme);
+    c.onclick=()=>{S.theme=c.dataset.theme;document.documentElement.setAttribute('data-theme',S.theme);localStorage.setItem('lexicon_theme',S.theme);document.querySelectorAll('#themeChips .chip').forEach(x=>x.classList.toggle('selected',x.dataset.theme===S.theme));};
+  });
   const tc=$('tierChips');tc.innerHTML='<div class="chip selected">KET<span class="d">剑桥 A2 核心词</span></div>';S.tier='ket';
   const hc=$('heroChips');Object.keys(HEROES).forEach((h,i)=>{const c=document.createElement('div');c.className='chip'+(h==='warrior'?' selected':'');c.innerHTML=HEROES[h].name+'<span class="d">'+HEROES[h].desc+'</span>';c.onclick=()=>{S.hero=h;document.querySelectorAll('#heroChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};hc.appendChild(c);});S.hero='warrior';
   const dc=$('diffChips');Object.keys(DIFFS).forEach((d,i)=>{const c=document.createElement('div');c.className='chip'+(d==='normal'?' selected':'');c.innerHTML=DIFFS[d].name;c.onclick=()=>{S.diff=d;document.querySelectorAll('#diffChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};dc.appendChild(c);});S.diff='normal';
