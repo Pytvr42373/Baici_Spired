@@ -125,13 +125,20 @@ function wireSfx(){
 /* ============ 配乐（WebAudio 程序化合成 + 阶段切换 + 优雅降级） ============ */
 let TON=null,_musicLoop=null,musicPhase='',musicOn=false;
 function _tone(){ if(TON)return TON; if(window.Tone)TON=window.Tone; return TON; }
+function _resolvePhase(phase){
+  if(phase==='battle'){
+    const r=(S&&S.maxHp)?S.hp/S.maxHp:1;
+    return r<=0.5?'battle_intense':'battle_calm';
+  }
+  return phase;
+}
 function playMusic(phase){
   if(S.muted){stopMusic();return;}
   const T=_tone(); if(!T){stopMusic();return;}
   if(phase===musicPhase&&musicOn)return;
   stopMusic();
-  const cfg=MUSIC[phase];if(!cfg)return;
-  musicPhase=phase;musicOn=true;
+  const _ph=_resolvePhase(phase);const cfg=MUSIC[_ph];if(!cfg)return;
+  musicPhase=_ph;musicOn=true;
   try{ if(T.context&&T.context.state==='suspended')T.start(); }catch(e){}
   try{
     T.Transport.bpm.value=cfg.bpm;

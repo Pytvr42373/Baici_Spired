@@ -175,7 +175,8 @@ const SFX={
 /* ============ 配乐配置（WebAudio 程序化合成，更丰富更长的旋律） ============ */
 const MUSIC={
   menu:{bpm:80,mode:'major',drums:0,roots:[60,67,57,65]},
-  battle:{bpm:126,mode:'minor',drums:2,roots:[57,53,48,55]},
+  battle_calm:{bpm:92,mode:'major',drums:1,roots:[60,65,67,60]},
+  battle_intense:{bpm:142,mode:'minor',drums:3,roots:[57,53,48,55]},
   boss:{bpm:152,mode:'minor',drums:3,roots:[52,52,53,52]},
   result:{bpm:100,mode:'major',drums:1,roots:[60,65,67,60]}
 };
