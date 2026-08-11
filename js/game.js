@@ -43,32 +43,44 @@ function buildOptions(target,pool,qType){
   }
 }
 
+/* ============ 意图生成（攻击 / 非攻击各半） ============ */
+function genIntent(pool){
+  // 50% 攻击意图，50% 非攻击意图（防御/蓄力）
+  const atkPool=pool.filter(i=>i[0]===0);
+  const nonAtkPool=pool.filter(i=>i[0]!==0);
+  let it;
+  if(Math.random()<0.5&&atkPool.length){
+    it=atkPool[Math.floor(Math.random()*atkPool.length)];
+  }else if(nonAtkPool.length){
+    it=nonAtkPool[Math.floor(Math.random()*nonAtkPool.length)];
+  }else{
+    it=pool[Math.floor(Math.random()*pool.length)];
+  }
+  return {type:it[0],val:it[1]};
+}
+
 /* ============ 回合 ============ */
 function startTurn(){
   S.block=0;S.locked=false; // ★ 修复：每回合开始重置答题锁，避免上回合残留导致点击无反应
   if(S.enemy)S.enemy.block=0; // ★ M4 修复：敌人格挡每回合重置（对齐尖塔）
   updatePlayer();
-  // 生成敌人意图
-  const pool=S.enemy.intents;
-  const roll=Math.random();
-  const it=pool[Math.floor(Math.random()*pool.length)];
-  S.intent={type:it[0],val:it[1]};
+  // 生成敌人意图（攻击/非攻击各半）
+  const it=genIntent(S.enemy.intents);
+  S.intent={type:it.type,val:it.val};
   if(S.intent.type===2)S.intent.val=1+Math.floor(Math.random()*3); // 蓄力层数
   renderIntent();
   renderEnemy();
   S.phase='choose';
-  $('actionBar').style.display='grid';
-  $('qArea').style.display='none';
+  const qo=$('quizOverlay');if(qo)qo.classList.remove('show');
   log('—— 第 '+(S.turnCount+1)+' 回合 —— 敌人准备「'+INTENT_LABEL[S.intent.type]+'」','y');
 }
 function choose(mode){
   if(S.phase!=='choose')return;
   S.choice=mode;S.phase='question';
-  $('actionBar').style.display='none';
-  $('qArea').style.display='block';
   const banner=$('choiceBanner');
   banner.className=mode==='atk'?'atk':'def';
   banner.textContent=mode==='atk'?'⚔ 攻击':'🛡 防御';
+  const qo=$('quizOverlay');if(qo)qo.classList.add('show');
   nextQuestion();
 }
 function renderIntent(){
@@ -141,6 +153,8 @@ function resolve(correct,timeout){
   $('feedback').textContent=correct?('✓ 正确 · '+(S.choice==='atk'?'伤害':'格挡')+' '+val):('✗ 答错，数值 0');
   $('feedback').className=correct?'ok':'bad';
   setTimeout(()=>{
+    // ★ 关闭答题弹窗，回到战斗视图
+    const qo=$('quizOverlay');if(qo)qo.classList.remove('show');
     // ★ 玩家先手，攻击打死敌人则敌人不再行动，直接击杀
     if(S.enemy.hp<=0){onKill();return;}
     enemyTurn();

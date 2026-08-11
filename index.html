@@ -43,53 +43,50 @@
 
   <!-- ============ 战斗 ============ -->
   <section id="screen-game" class="screen" aria-label="战斗">
+    <!-- 顶栏：层数 / 生命 / 金币 / 连击 + 药水栏 -->
     <header id="topbar">
-      <div class="stat"><div class="v" id="statFloor">Lv.1</div><div class="l">层数</div></div>
-      <div class="stat"><div class="v" id="statGold">0</div><div class="l">金币</div></div>
-      <div class="stat"><div class="v" id="combo">×0</div><div class="l">连击</div></div>
-      <div class="stat"><div class="v" id="statHp">60</div><div class="hpbar"><i id="statHpBar"></i></div><div class="l">生命</div></div>
+      <div class="top-stat-row">
+        <div class="stat"><div class="v" id="statFloor">Lv.1</div><div class="l">层数</div></div>
+        <div class="stat hpstat"><div class="v" id="statHp">60</div><div class="hpbar"><i id="statHpBar"></i></div><div class="l">生命</div></div>
+        <div class="stat"><div class="v" id="statGold">0</div><div class="l">金币</div></div>
+        <div class="stat"><div class="v" id="combo">×0</div><div class="l">连击</div></div>
+      </div>
+      <div id="potionBar" aria-label="药水栏"></div>
     </header>
 
-    <section id="enemyArea" aria-label="敌人">
-      <span id="floorTag">第 1 层</span>
-      <div id="enemyRow">
-        <span id="enemyIcon"></span>
-        <div id="enemyMeta">
-          <div id="enemyName">史莱姆</div>
-          <div id="enemyHpWrap"><div id="enemyHp"><i id="enemyHpFill"></i></div><div id="enemyHpTxt">30/30</div></div>
-          <div id="enemyBlock"><span data-lucide="shield"></span><span id="enemyBlockNum">0</span></div>
+    <!-- 战斗台：左右分屏（左玩家 / 右敌人），意图放敌人头顶 -->
+    <section id="battleField" aria-label="战场">
+      <!-- 左：玩家区（HP/格挡/本击 + 攻防按钮） -->
+      <div id="playerArea" aria-label="玩家状态">
+        <div class="pstats">
+          <div class="pstat"><div class="lbl">生命</div><div class="num" id="pHp">60</div></div>
+          <div class="pstat def"><div class="ico" data-lucide="shield"></div><div class="num" id="pBlock">0</div><div class="lbl">格挡</div></div>
+          <div class="pstat atk"><div class="ico" data-lucide="swords"></div><div class="num" id="pAtk">×1</div><div class="lbl">本击</div></div>
+        </div>
+        <nav id="actionBar" aria-label="攻防选择">
+          <div class="actionCard atk" id="btnAtk"><div class="ico" data-lucide="sword"></div><div class="nm">攻击</div><div class="ds">答对造成伤害</div><div class="rate" id="atkRate">0/秒</div></div>
+          <div class="actionCard def" id="btnDef"><div class="ico" data-lucide="shield"></div><div class="nm">防御</div><div class="ds">答对获得格挡</div><div class="rate" id="defRate">0/秒</div></div>
+        </nav>
+      </div>
+
+      <!-- 右：敌人区（意图在头顶 + 怪物 + 血条 + 格挡） -->
+      <div id="enemyArea" aria-label="敌人">
+        <div id="intentBox">
+          <span id="intentIco" data-lucide="sword"></span>
+          <span id="intentLabel">攻击</span>
+          <span id="intentNum">8</span>
+        </div>
+        <span id="floorTag">第 1 层</span>
+        <div id="enemyRow">
+          <span id="enemyIcon"></span>
+          <div id="enemyMeta">
+            <div id="enemyName">史莱姆</div>
+            <div id="enemyHpWrap"><div id="enemyHp"><i id="enemyHpFill"></i></div><div id="enemyHpTxt">30/30</div></div>
+            <div id="enemyBlock"><span data-lucide="shield"></span><span id="enemyBlockNum">0</span></div>
+          </div>
         </div>
       </div>
-      <div id="intentBox">
-        <span id="intentIco" data-lucide="sword"></span>
-        <span id="intentLabel">攻击</span>
-        <span id="intentNum">8</span>
-      </div>
     </section>
-
-    <section id="qArea" aria-label="答题">
-      <span id="qType">英→中</span>
-      <span id="timerRing">15</span>
-      <div id="choiceBanner" class="atk">攻击</div>
-      <div id="qWord">abandon</div>
-      <div id="qPos">v.</div>
-      <div id="qHint">选择正确释义</div>
-      <div id="options"></div>
-      <div id="feedback"></div>
-    </section>
-
-    <div id="thumbZone">
-      <nav id="actionBar" aria-label="攻防选择">
-        <div class="actionCard atk" id="btnAtk"><div class="ico" data-lucide="sword"></div><div class="nm">攻击</div><div class="ds">答对造成伤害</div><div class="rate" id="atkRate">0/秒</div></div>
-        <div class="actionCard def" id="btnDef"><div class="ico" data-lucide="shield"></div><div class="nm">防御</div><div class="ds">答对获得格挡</div><div class="rate" id="defRate">0/秒</div></div>
-      </nav>
-      <section id="playerArea" aria-label="玩家状态">
-        <div class="pstat"><div class="lbl">生命</div><div class="num" id="pHp">60</div></div>
-        <div class="pstat def"><div class="ico" data-lucide="shield"></div><div class="num" id="pBlock">0</div><div class="lbl">格挡</div></div>
-        <div class="pstat atk"><div class="ico" data-lucide="swords"></div><div class="num" id="pAtk">×1</div><div class="lbl">本击</div></div>
-      </section>
-      <div id="potionBar" aria-label="药水栏"></div>
-    </div>
 
     <footer id="log" class="panel" aria-label="战斗日志"></footer>
   </section>
@@ -116,6 +113,23 @@
   </section>
 </div>
 
+<!-- 答题弹窗（攻击/防御 → 弹出答题） -->
+<div id="quizOverlay">
+  <div class="quiz-card">
+    <section id="qArea" aria-label="答题">
+      <span id="qType">英→中</span>
+      <span id="timerRing">15</span>
+      <div id="choiceBanner" class="atk">攻击</div>
+      <div id="qWord">abandon</div>
+      <div id="qPos">v.</div>
+      <div id="qHint">选择正确释义</div>
+      <div id="options"></div>
+      <div id="feedback"></div>
+    </section>
+  </div>
+</div>
+
+<!-- 遗物三选一弹窗 -->
 <div id="overlay"><div class="overlay-card"><div class="oc-title">遗物</div><div class="oc-sub">三选一强化本局</div><div class="relics" id="relicChoices"></div></div></div>
 
 <script src="https://unpkg.com/lucide@latest"></script>
