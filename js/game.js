@@ -18,15 +18,31 @@ function rect(id){const r=$(id).getBoundingClientRect();return{x:r.left+r.width/
 function kebabToPascal(name){
   return name.split('-').map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join('');
 }
+const SVG_NS='http://www.w3.org/2000/svg';
 function refreshIcons(){
-  if(!window.lucide||!lucide.createElement)return;
+  if(!window.lucide||!lucide.icons||!document.createElementNS)return;
   document.querySelectorAll('[data-lucide]').forEach(el=>{
     const name=el.getAttribute('data-lucide');
     if(!name)return;
     try{
-      const pascal=kebabToPascal(name);
-      const svg=lucide.createElement(pascal,{width:24,height:24});
-      if(svg){ el.innerHTML=''; el.appendChild(svg); }
+      const nodes=lucide.icons[kebabToPascal(name)];
+      if(!nodes)return;
+      const svg=document.createElementNS(SVG_NS,'svg');
+      svg.setAttribute('width','24');svg.setAttribute('height','24');
+      svg.setAttribute('viewBox','0 0 24 24');
+      svg.setAttribute('fill','none');
+      svg.setAttribute('stroke','currentColor');
+      svg.setAttribute('stroke-width','2');
+      svg.setAttribute('stroke-linecap','round');
+      svg.setAttribute('stroke-linejoin','round');
+      svg.classList.add('lucide');
+      nodes.forEach(pair=>{
+        const n=document.createElementNS(SVG_NS,pair[0]);
+        const a=pair[1]||{};
+        for(const k in a)n.setAttribute(k,a[k]);
+        svg.appendChild(n);
+      });
+      el.innerHTML=''; el.appendChild(svg);
     }catch(e){}
   });
 }
