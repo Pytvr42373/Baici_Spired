@@ -25,12 +25,16 @@ const _themedIconNames=new Set();
 Object.keys(ICON_THEMES).forEach(k=>Object.values(ICON_THEMES[k]).forEach(v=>_themedIconNames.add(v)));
 let _iconObserver=null;
 /* 按主题重映射全部 data-lucide 图标（记录原始名于 data-base，幂等） */
+function captureBaseIcons(){
+  document.querySelectorAll('[data-lucide]').forEach(el=>{
+    if(!el.dataset.base) el.dataset.base=el.getAttribute('data-lucide')||'';
+  });
+}
 function rethemeIcons(theme){
   const map=ICON_THEMES[theme]||{};
   document.querySelectorAll('[data-lucide]').forEach(el=>{
     const cur=el.getAttribute('data-lucide')||'';
-    // 当前为原始（非主题）名时更新 base；已主题化的值（如 heart）不改 base
-    if(!_themedIconNames.has(cur)) el.dataset.base=cur;
+    // ★ base 只在首次记录原始名，此后永不更新（杜绝跨主题切换被污染）
     if(!el.dataset.base) el.dataset.base=cur;
     const themed=map[el.dataset.base]||el.dataset.base;
     if(el.getAttribute('data-lucide')!==themed) el.setAttribute('data-lucide',themed);
@@ -224,6 +228,7 @@ function init(){
   let _th='minimal';try{_th=localStorage.getItem('lexicon_theme')||'minimal';}catch(e){}
   let _mu=0;try{_mu=localStorage.getItem('lexicon_muted')==='1'?1:0;}catch(e){}
   S.muted=!!_mu;S.theme=_th;
+  captureBaseIcons();
   applyTheme(_th);
   setupIconObserver();
 

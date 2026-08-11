@@ -649,3 +649,17 @@ svg.lucide{ stroke-width:var(--icon-stroke); }
 /* 返回游戏主页链接按钮 */
 a.home-link{display:block;width:100%;text-decoration:none;text-align:center;cursor:pointer;}
 a.home-link i{vertical-align:-3px;margin-right:6px;}
+
+/* ===== pink 战斗界面对比增强（加强视觉重点，解决同色系偏粉） ===== */
+:root[data-theme="pink"] body{background:#f6cfdc;}
+:root[data-theme="pink"] .panel,:root[data-theme="pink"] #topbar,:root[data-theme="pink"] #enemyArea,:root[data-theme="pink"] #playerArea,:root[data-theme="pink"] #qArea,:root[data-theme="pink"] #potionBar,:root[data-theme="pink"] .quiz-card,:root[data-theme="pink"] .overlay-card{background:#ffffff;border:2px solid #f0a7c2;box-shadow:0 5px 16px rgba(232,122,160,.20);}
+:root[data-theme="pink"] .stat .v,:root[data-theme="pink"] .pstat .num{color:#6b2d46;}
+:root[data-theme="pink"] #pHp{color:#d63031;}
+:root[data-theme="pink"] #pBlock{color:#2e6fd6;}
+:root[data-theme="pink"] #enemyHp i{background:#d63031;}
+:root[data-theme="pink"] #enemyName{color:#6b2d46;font-weight:900;}
+:root[data-theme="pink"] #intentNum{font-size:18px;font-weight:900;}
+:root[data-theme="pink"] #statHpBar{background:#d63031;}
+:root[data-theme="pink"] .actionCard.atk{background:linear-gradient(160deg,#ff5e8a,#e91e63);}
+:root[data-theme="pink"] .actionCard.def{background:linear-gradient(160deg,#7f8cff,#3f51b5);}
+:root[data-theme="pink"] .opt{background:#fff;border-color:#e8b8cc;}

@@ -90,7 +90,7 @@ function choose(mode){
   nextQuestion();
 }
 function renderIntent(){
-  $('intentIco').setAttribute('data-lucide',INTENT_ICON[S.intent.type]);
+  const _ici=INTENT_ICON[S.intent.type];$('intentIco').setAttribute('data-lucide',_ici);$('intentIco').dataset.base=_ici;
   $('intentLabel').textContent=INTENT_LABEL[S.intent.type];
   const num=S.intent.type===2?('×'+S.intent.val):S.intent.val;
   $('intentNum').textContent=S.intent.type===2?'(下次 ×'+(1+S.intent.val)+')':(''+num);
@@ -301,7 +301,7 @@ function endRun(win){
   const star=Math.max(1,Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20));
   META.star+=star;saveMeta();
   showScreen('result');
-  $('resultGlyph').setAttribute('data-lucide',win?'trophy':'skull');refreshIcons();
+  const _g=win?'trophy':'skull';$('resultGlyph').setAttribute('data-lucide',_g);$('resultGlyph').dataset.base=_g;refreshIcons();
   $('resultTitle').textContent=win?'远征通关！':'远征失败';
   $('resultStats').innerHTML=
     '<div class="stat-row"><span>到达层数</span><span>第 '+S.floor+' 层</span></div>'+
