@@ -123,38 +123,44 @@ function wireSfx(){
 }
 
 /* ============ 配乐（WebAudio 程序化合成 + 阶段切换 + 优雅降级） ============ */
-let musicTimer=null,musicStep=0,musicPhase='',musicOn=false;
+let TON=null,_musicLoop=null,musicPhase='',musicOn=false;
+function _tone(){ if(TON)return TON; if(window.Tone)TON=window.Tone; return TON; }
 function playMusic(phase){
   if(S.muted){stopMusic();return;}
+  const T=_tone(); if(!T){stopMusic();return;}
   if(phase===musicPhase&&musicOn)return;
   stopMusic();
   const cfg=MUSIC[phase];if(!cfg)return;
-  musicPhase=phase;musicOn=true;musicStep=0;
-  try{ if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){return;}
-  const tick=()=>{
-    if(!musicOn)return;
-    const notes=cfg.notes;const note=notes[musicStep%notes.length];
-    playNote(note.f,note.dur,cfg.type,cfg.vol);
-    musicStep++;
-    musicTimer=setTimeout(tick,cfg.bpm);
-  };
-  tick();
-}
-function stopMusic(){musicOn=false;if(musicTimer){clearTimeout(musicTimer);musicTimer=null;}}
-function playNote(freq,dur,type,vol){
-  if(!AC)return;
+  musicPhase=phase;musicOn=true;
+  try{ if(T.context&&T.context.state==='suspended')T.start(); }catch(e){}
   try{
-    const o=AC.createOscillator();const g=AC.createGain();
-    o.type=type||'triangle';o.frequency.value=freq;
-    o.connect(g);g.connect(AC.destination);
-    const t=AC.currentTime;
-    g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(vol||0.1,t+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.start(t);o.stop(t+dur+0.05);
+    T.Transport.bpm.value=cfg.bpm;
+    const reverb=new T.Reverb({decay:2.2,wet:0.32}).toDestination();
+    const mel=new T.Synth({oscillator:{type:cfg.mode==='major'?'triangle':'sawtooth'},envelope:{attack:0.01,decay:0.25,sustain:0.22,release:0.4}}).connect(reverb);
+    const bass=new T.Synth({oscillator:{type:'sine'},envelope:{attack:0.01,decay:0.4,sustain:0.12,release:0.3}}).toDestination();
+    const hat=new T.NoiseSynth({noise:{type:'white'},envelope:{attack:0.001,decay:0.06,sustain:0,release:0.02}}).toDestination();
+    const kick=new T.MembraneSynth({pitchDecay:0.05,octaves:6,envelope:{attack:0.001,decay:0.4,sustain:0,release:0.2}}).toDestination();
+    let step=0;
+    _musicLoop=new T.Loop(time=>{
+      const r=cfg.roots[Math.floor(step/8)%cfg.roots.length];
+      const s8=step%8;
+      if(s8===0)bass.triggerAttackRelease(T.Frequency(r-12,'midi').toNote(),'1n',time);
+      const arp=cfg.mode==='major'?[0,7,12,16,12,7,0,7]:[0,3,7,12,7,3,0,3];
+      mel.triggerAttackRelease(T.Frequency(r+arp[s8],'midi').toNote(),'8n',time);
+      if(cfg.drums>=1&&s8%2===0)hat.triggerAttackRelease('16n',time);
+      if(cfg.drums>=2&&s8===0)kick.triggerAttackRelease('8n',time);
+      if(cfg.drums>=3&&s8===4)kick.triggerAttackRelease('8n',time);
+      step++;
+    },'8n');
+    _musicLoop.start(0);
+    T.Transport.start();
   }catch(e){}
 }
-
+function stopMusic(){
+  musicOn=false;musicPhase='';
+  if(_musicLoop){try{_musicLoop.stop();_musicLoop.dispose&&_musicLoop.dispose();}catch(e){} _musicLoop=null;}
+  if(TON){try{TON.Transport.stop();}catch(e){}}
+}
 
 /* ============ 药水系统（仿杀戮尖塔） ============ */
 function randomPotion(){

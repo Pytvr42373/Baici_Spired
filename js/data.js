@@ -174,25 +174,10 @@ const SFX={
 
 /* ============ 配乐配置（WebAudio 程序化合成，更丰富更长的旋律） ============ */
 const MUSIC={
-  menu:{bpm:540,type:'sine',vol:0.07,notes:[
-    {f:261.6,dur:1.2},{f:329.6,dur:1.2},{f:392.0,dur:1.0},{f:440.0,dur:1.0},
-    {f:392.0,dur:0.9},{f:329.6,dur:1.2},{f:261.6,dur:1.2},{f:293.7,dur:1.0},
-    {f:349.2,dur:1.0},{f:440.0,dur:1.2},{f:523.3,dur:1.4},{f:440.0,dur:1.0},
-    {f:392.0,dur:1.0},{f:329.6,dur:1.4}]},
-  battle:{bpm:240,type:'square',vol:0.045,notes:[
-    {f:220,dur:0.35},{f:220,dur:0.35},{f:261.6,dur:0.35},{f:293.7,dur:0.35},
-    {f:261.6,dur:0.35},{f:220,dur:0.35},{f:196,dur:0.35},{f:220,dur:0.5},
-    {f:246.9,dur:0.35},{f:293.7,dur:0.35},{f:329.6,dur:0.5},{f:293.7,dur:0.35},
-    {f:246.9,dur:0.35},{f:220,dur:0.7},{f:196,dur:0.35},{f:220,dur:0.7}]},
-  boss:{bpm:160,type:'sawtooth',vol:0.04,notes:[
-    {f:110,dur:0.4},{f:116.5,dur:0.4},{f:123.5,dur:0.4},{f:116.5,dur:0.4},
-    {f:110,dur:0.4},{f:103.8,dur:0.4},{f:98,dur:0.6},{f:103.8,dur:0.4},
-    {f:110,dur:0.6},{f:98,dur:0.4},{f:92.5,dur:0.7},{f:110,dur:0.5},
-    {f:116.5,dur:0.5},{f:123.5,dur:0.6},{f:110,dur:0.8}]},
-  result:{bpm:360,type:'triangle',vol:0.09,notes:[
-    {f:392,dur:0.4},{f:523.3,dur:0.4},{f:659.3,dur:0.6},{f:784,dur:0.6},
-    {f:659.3,dur:0.4},{f:587.3,dur:0.4},{f:523.3,dur:0.8},{f:440,dur:0.4},
-    {f:523.3,dur:0.4},{f:659.3,dur:0.6},{f:880,dur:0.9}]}
+  menu:{bpm:80,mode:'major',drums:0,roots:[60,67,57,65]},
+  battle:{bpm:126,mode:'minor',drums:2,roots:[57,53,48,55]},
+  boss:{bpm:152,mode:'minor',drums:3,roots:[52,52,53,52]},
+  result:{bpm:100,mode:'major',drums:1,roots:[60,65,67,60]}
 };
 
 /* ============ 自绘 SVG 线条怪物（单色描边，随主题 currentColor 着色） ============ */
