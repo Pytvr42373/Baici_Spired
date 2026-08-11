@@ -15,11 +15,19 @@ function toast(msg){let t=$('toastBox');if(!t){t=document.createElement('div');t
 function log(msg,cls=''){const d=$('log');const div=document.createElement('div');div.className=cls;div.textContent=msg;d.prepend(div);while(d.children.length>9)d.removeChild(d.lastChild);}
 function fx(x,y,txt,cls=''){const el=document.createElement('div');el.className='fx '+cls;el.textContent=txt;el.style.left=x+'px';el.style.top=y+'px';$('fxLayer').appendChild(el);setTimeout(()=>el.remove(),1000);}
 function rect(id){const r=$(id).getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/3};}
+function kebabToPascal(name){
+  return name.split('-').map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join('');
+}
 function refreshIcons(){
-  if(!window.lucide||!lucide.icons)return;
+  if(!window.lucide||!lucide.createElement)return;
   document.querySelectorAll('[data-lucide]').forEach(el=>{
-    const ic=lucide.icons[el.getAttribute('data-lucide')];
-    if(ic)el.innerHTML=ic.toSvg();
+    const name=el.getAttribute('data-lucide');
+    if(!name)return;
+    try{
+      const pascal=kebabToPascal(name);
+      const svg=lucide.createElement(pascal,{width:24,height:24});
+      if(svg){ el.innerHTML=''; el.appendChild(svg); }
+    }catch(e){}
   });
 }
 function iconHTML(name){
