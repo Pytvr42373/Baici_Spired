@@ -441,3 +441,211 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
 
 :root[data-theme="mech"] #topbar,#enemyArea,#qArea,#playerArea,#log{box-shadow:var(--paper-shadow);}
 :root[data-theme="mech"] #intentBox{background:var(--card2);}
+
+/* ============================================================
+   ▼▼▼ 三主题深度差异化 design language（追加，覆盖早期规则）▼▼▼
+   minimal 学术极简 / pink 粉红可爱 / mech 暗色机甲
+   不只是换色：差异 = 圆角/描边/阴影/间距/背景纹理/动效/发光/字体形态/icon
+============================================================ */
+
+/* ---------- 差异化 token（各主题在 :root 覆盖） ---------- */
+:root{
+  --border-w:1px;
+  --r:8px; --r-sm:5px; --r-lg:14px;   /* minimal 学术极简：细线 + 小圆角 */
+  --anim-in:fadeUp .35s ease both;
+  --anim-card:fadeUp .3s ease;
+  --accent-soft:rgba(74,107,90,.07);
+  --btn-radius:8px;
+  --chip-radius:8px;
+  --pill-radius:99px;
+  --icon-stroke:1.6;                  /* 线性细描边 icon */
+  --btn-clip:none;
+  --chip-clip:none;
+}
+/* token 统一落地 */
+.panel,.card,.chip,.opt,.actionCard,
+#topbar,#playerArea,#enemyArea,#qArea,#potionBar,#log,
+#intentBox,#themePop,.overlay-card,.quiz-card,.float-btn,
+.relic,.upgrade{ border-width:var(--border-w); }
+.panel,.card{ animation:var(--anim-card); }
+.screen.active .panel,.screen.active .card{ animation:var(--anim-card); }
+.chip{ border-radius:var(--chip-radius); }
+.btn{ border-radius:var(--btn-radius); }
+svg.lucide{ stroke-width:var(--icon-stroke); }
+
+/* ============================================================
+   ◆◆◆ minimal 学术极简：克制淡入淡出 / 纸张 / 方正留白 ◆◆◆
+============================================================ */
+:root[data-theme="minimal"]{
+  --border-w:1px; --icon-stroke:1.6;
+  --anim-in:fadeUp .35s ease both; --anim-card:fadeUp .3s ease;
+}
+:root[data-theme="minimal"] h1.title{letter-spacing:4px;font-weight:700;color:var(--accent);}
+:root[data-theme="minimal"] .btn{box-shadow:0 2px 8px -3px var(--accent);}
+:root[data-theme="minimal"] .chip.selected{box-shadow:0 2px 8px -2px var(--accent);}
+
+/* ============================================================
+   ◆◆◆ pink 粉红可爱：大圆角/粗描边/圆润/可爱点缀/弹跳动效 ◆◆◆
+============================================================ */
+:root[data-theme="pink"]{
+  --border-w:2px;
+  --r:18px; --r-sm:14px; --r-lg:22px;
+  --anim-in:popIn .42s cubic-bezier(.34,1.56,.64,1) both;
+  --anim-card:popIn .42s cubic-bezier(.34,1.56,.64,1);
+  --accent-soft:rgba(232,122,160,.12);
+  --btn-radius:99px;
+  --chip-radius:16px;
+  --pill-radius:99px;
+  --icon-stroke:2.2;
+}
+/* 背景：圆点纸 + 柔和粉 */
+:root[data-theme="pink"] body::before{
+  background-image:radial-gradient(var(--line) 2.2px,transparent 2.4px);
+  background-size:26px 26px;opacity:.55;
+}
+:root[data-theme="pink"] body::after{
+  background:radial-gradient(120% 90% at 50% 0%,rgba(255,183,213,.5),transparent 60%);
+}
+/* 圆润卡片 + 柔和粉影 */
+:root[data-theme="pink"] .panel,
+:root[data-theme="pink"] .card{
+  background:linear-gradient(180deg,#fffdfe,var(--card));
+  box-shadow:0 6px 18px -6px rgba(232,122,160,.30);
+}
+:root[data-theme="pink"] .panel h3{border-bottom-width:2px;}
+/* 主菜单 hero：可爱漂浮点缀 */
+:root[data-theme="pink"] .home-hero{position:relative;}
+:root[data-theme="pink"] .home-hero::before{
+  content:'♡';position:absolute;left:6%;top:8%;font-size:24px;color:var(--accent);
+  opacity:.5;animation:spinFloat 5s ease-in-out infinite;pointer-events:none;
+}
+:root[data-theme="pink"] .home-hero::after{
+  content:'✿';position:absolute;right:8%;top:2%;font-size:22px;color:var(--gold);
+  opacity:.5;animation:spinFloat 6s ease-in-out infinite reverse;pointer-events:none;
+}
+:root[data-theme="pink"] h1.title{letter-spacing:2px;font-size:40px;text-shadow:0 2px 0 rgba(255,255,255,.7);}
+:root[data-theme="pink"] .logo .glyph{filter:drop-shadow(0 3px 6px rgba(232,122,160,.35));}
+/* 圆润按钮 + 弹跳 */
+:root[data-theme="pink"] .btn{box-shadow:0 4px 14px -4px var(--accent);font-weight:800;}
+:root[data-theme="pink"] .btn:active{transform:scale(.94);}
+:root[data-theme="pink"] .chip{border-width:2px;}
+:root[data-theme="pink"] .chip:active{transform:scale(.95);}
+:root[data-theme="pink"] .chip.selected{transform:scale(1.04);}
+/* 攻防卡：圆润泡泡 */
+:root[data-theme="pink"] .actionCard{border-radius:var(--r-lg);border-width:2px;}
+:root[data-theme="pink"] .actionCard:active{transform:scale(.94);}
+/* 意图胶囊 */
+:root[data-theme="pink"] #intentBox{border-radius:var(--pill-radius);border-width:2px;background:linear-gradient(180deg,#fff,#ffe9f0);}
+:root[data-theme="pink"] #intentNum{border-radius:var(--pill-radius);}
+/* 答题弹窗圆润 */
+:root[data-theme="pink"] .quiz-card,.overlay-card{border-radius:var(--r-lg);border-width:2px;}
+:root[data-theme="pink"] .opt{border-radius:14px;border-width:2px;}
+:root[data-theme="pink"] .opt.correct{border-radius:14px;}
+:root[data-theme="pink"] .opt.wrong{border-radius:14px;}
+/* 敌人区圆润 + 柔和投影 */
+:root[data-theme="pink"] #enemyArea{border-radius:var(--r-lg);}
+:root[data-theme="pink"] #enemyIcon{filter:drop-shadow(0 4px 8px rgba(232,122,160,.35));}
+:root[data-theme="pink"] #topbar,#playerArea,#qArea,#potionBar,#log{border-radius:var(--r);}
+:root[data-theme="pink"] .float-btn{border-width:2px;}
+:root[data-theme="pink"] .relic,.upgrade{border-width:2px;}
+
+/* ============================================================
+   ◆◆◆ mech 暗色机甲：方角/斜切/几何/霓虹发光/扫描线/脉冲 ◆◆◆
+============================================================ */
+:root[data-theme="mech"]{
+  --border-w:2px;
+  --r:3px; --r-sm:2px; --r-lg:4px;     /* 硬朗方角 */
+  --anim-in:clipIn .32s ease-out both;
+  --anim-card:clipIn .3s ease-out;
+  --accent-soft:rgba(0,216,255,.10);
+  --btn-radius:2px;
+  --chip-radius:2px;
+  --pill-radius:2px;
+  --icon-stroke:2;
+  --btn-clip:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  --chip-clip:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+/* 背景：扫描线 + 霓虹渐变 */
+:root[data-theme="mech"] body::before{
+  background-image:
+    repeating-linear-gradient(0deg,rgba(0,216,255,.05) 0 1px,transparent 1px 3px);
+  background-size:100% 3px;opacity:.9;
+}
+:root[data-theme="mech"] body::after{background:radial-gradient(120% 90% at 50% 0%,rgba(0,216,255,.10),transparent 55%);}
+/* 硬朗面板：直角 + 霓虹内发光 + 斜切角装饰 */
+:root[data-theme="mech"] .panel,
+:root[data-theme="mech"] .card{
+  position:relative;
+  border-color:rgba(0,216,255,.28);
+  border-radius:var(--r);
+  box-shadow:var(--paper-shadow),inset 0 0 18px rgba(0,216,255,.06);
+}
+:root[data-theme="mech"] .panel::before,
+:root[data-theme="mech"] .card::before{
+  content:'';position:absolute;top:0;right:0;width:15px;height:15px;
+  background:linear-gradient(225deg,var(--accent),transparent 62%);
+  opacity:.55;pointer-events:none;
+}
+:root[data-theme="mech"] .panel h3{border-bottom-color:var(--line);border-bottom-width:2px;letter-spacing:2px;}
+/* 主菜单 hero：霓虹 + 机械浮动 */
+:root[data-theme="mech"] .home-hero{position:relative;}
+:root[data-theme="mech"] .logo .glyph{filter:drop-shadow(0 0 10px rgba(0,216,255,.75));animation:mechFloat 3s ease-in-out infinite;}
+:root[data-theme="mech"] h1.title{color:var(--accent);letter-spacing:5px;text-shadow:0 0 16px rgba(0,216,255,.55);}
+/* 几何斜切按钮 + 霓虹 */
+:root[data-theme="mech"] .btn{clip-path:var(--btn-clip);letter-spacing:2px;font-weight:800;text-transform:uppercase;}
+:root[data-theme="mech"] .btn.gold{clip-path:var(--btn-clip);}
+:root[data-theme="mech"] .btn.ghost{clip-path:var(--btn-clip);}
+:root[data-theme="mech"] .chip{
+  clip-path:var(--chip-clip);border:none;
+  background:linear-gradient(160deg,#16202e,#0f1722);border-left:2px solid var(--line);
+}
+:root[data-theme="mech"] .chip.selected{
+  background:linear-gradient(160deg,#00d8ff,#0a8fd0);color:#031018;
+  box-shadow:0 0 12px rgba(0,216,255,.55);animation:pulseGlow 1.6s ease-in-out infinite;
+}
+:root[data-theme="mech"] .chip.selected .d{color:rgba(3,16,24,.7);}
+/* 答题选项：几何斜切 + 左侧霓虹条 */
+:root[data-theme="mech"] .opt{
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  border:none;background:linear-gradient(160deg,#16202e,#0f1722);
+  border-left:3px solid var(--accent);
+}
+:root[data-theme="mech"] .opt:hover{border-left-color:var(--accent);}
+:root[data-theme="mech"] .opt.correct{background:linear-gradient(160deg,#123,#0a2a1a);border-left-color:var(--green);}
+:root[data-theme="mech"] .opt.wrong{background:linear-gradient(160deg,#2a1214,#1a0a0c);border-left-color:var(--red);}
+:root[data-theme="mech"] .opt .letter{border-radius:2px;}
+/* 攻防卡：霓虹发光（沿用顶部渐变） */
+:root[data-theme="mech"] .actionCard{border-radius:2px;}
+/* 意图：霓虹胶囊面板 */
+:root[data-theme="mech"] #intentBox{background:var(--card2);border-color:var(--accent);box-shadow:0 0 8px rgba(0,216,255,.3);border-radius:2px;}
+:root[data-theme="mech"] #intentNum{border-radius:2px;border-color:var(--accent);}
+/* 答题/遗物弹窗：霓虹边框 */
+:root[data-theme="mech"] .quiz-card,.overlay-card{border-radius:3px;border-color:rgba(0,216,255,.3);box-shadow:0 0 30px rgba(0,216,255,.15),var(--paper-shadow-lg);}
+/* 敌人区：方角 + 扫描线扫过 */
+:root[data-theme="mech"] #enemyArea{border-radius:3px;overflow:hidden;}
+:root[data-theme="mech"] #enemyArea::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:44px;
+  background:linear-gradient(90deg,transparent,rgba(0,216,255,.14),transparent);
+  animation:scanSweep 3s linear infinite;pointer-events:none;
+}
+:root[data-theme="mech"] #enemyIcon{filter:drop-shadow(0 0 8px rgba(0,216,255,.55));}
+:root[data-theme="mech"] #topbar,#playerArea,#qArea,#potionBar,#log{border-color:rgba(0,216,255,.22);border-radius:3px;}
+:root[data-theme="mech"] .relic,.upgrade{border-color:rgba(0,216,255,.22);border-radius:2px;}
+:root[data-theme="mech"] .float-btn{box-shadow:0 0 10px rgba(0,216,255,.35);}
+:root[data-theme="mech"] #timerRing{border-color:var(--accent);}
+
+/* ============================================================
+   ★ 主题专属动效关键帧
+============================================================ */
+/* pink：弹跳 / 软萌 */
+@keyframes popIn{0%{opacity:0;transform:scale(.82)}60%{transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
+@keyframes spinFloat{0%,100%{transform:rotate(0) translateY(0)}50%{transform:rotate(20deg) translateY(-6px)}}
+/* mech：硬朗 clip 切换 / 扫描 / 霓虹脉冲 / 机械浮动 */
+@keyframes clipIn{0%{opacity:0;clip-path:inset(0 100% 0 0)}55%{opacity:1}100%{opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes scanSweep{0%{transform:translateX(-60px)}100%{transform:translateX(120%)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 6px rgba(0,216,255,.2)}50%{box-shadow:0 0 16px rgba(0,216,255,.6)}}
+@keyframes mechFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* 返回游戏主页链接按钮 */
+a.home-link{display:block;width:100%;text-decoration:none;text-align:center;cursor:pointer;}
+a.home-link i{vertical-align:-3px;margin-right:6px;}

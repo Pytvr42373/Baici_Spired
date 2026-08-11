@@ -4,12 +4,52 @@
 ============================================================ */
 
 /* ============ 主题（三主题：minimal / pink / mech） ============ */
+
+/* ★ 主题 icon 差异：pink 可爱系 / mech 机械系 / minimal 细线原样
+   映射键 = 原始 lucide 图标名，值为该主题下的替身图标 */
+const ICON_THEMES={
+  minimal:{},
+  pink:{
+    scroll:'sparkles',sword:'heart',shield:'shield-heart',flame:'heart',
+    heart:'heart',target:'star',wand:'wand-2',gem:'flower',skull:'ghost',
+    trophy:'crown',swords:'heart-pulse',coins:'coins',eye:'eye',hourglass:'hourglass'
+  },
+  mech:{
+    scroll:'cpu',sword:'zap',shield:'radar',flame:'flame',
+    heart:'cpu',target:'crosshair',wand:'zap',gem:'diamond',skull:'skull',
+    trophy:'award',swords:'crosshair',coins:'coins',eye:'scan',hourglass:'timer'
+  }
+};
+/* 主题替身名集合：用于区分「原始名」与「已主题化名」 */
+const _themedIconNames=new Set();
+Object.keys(ICON_THEMES).forEach(k=>Object.values(ICON_THEMES[k]).forEach(v=>_themedIconNames.add(v)));
+let _iconObserver=null;
+/* 按主题重映射全部 data-lucide 图标（记录原始名于 data-base，幂等） */
+function rethemeIcons(theme){
+  const map=ICON_THEMES[theme]||{};
+  document.querySelectorAll('[data-lucide]').forEach(el=>{
+    const cur=el.getAttribute('data-lucide')||'';
+    // 当前为原始（非主题）名时更新 base；已主题化的值（如 heart）不改 base
+    if(!_themedIconNames.has(cur)) el.dataset.base=cur;
+    if(!el.dataset.base) el.dataset.base=cur;
+    const themed=map[el.dataset.base]||el.dataset.base;
+    if(el.getAttribute('data-lucide')!==themed) el.setAttribute('data-lucide',themed);
+  });
+  refreshIcons();
+}
+/* MutationObserver：game.js 动态改图标（意图/结算）后自动按当前主题重映射 */
+function setupIconObserver(){
+  if(_iconObserver)return;
+  _iconObserver=new MutationObserver(()=>{ rethemeIcons(S.theme||'minimal'); });
+  _iconObserver.observe(document.body,{attributes:true,attributeFilter:['data-lucide'],subtree:true});
+}
 function applyTheme(t){
   S.theme=t;
   document.documentElement.setAttribute('data-theme',t);
   try{localStorage.setItem('lexicon_theme',t);}catch(e){}
   const opts=document.querySelectorAll('.t-opt');
   opts.forEach(o=>o.classList.toggle('selected',o.dataset.theme===t));
+  rethemeIcons(t);   // ★ 切换主题时同步替换关键 icon
 }
 
 /* ============ 音效（WebAudio 程序化合成） ============ */
@@ -185,6 +225,7 @@ function init(){
   let _mu=0;try{_mu=localStorage.getItem('lexicon_muted')==='1'?1:0;}catch(e){}
   S.muted=!!_mu;S.theme=_th;
   applyTheme(_th);
+  setupIconObserver();
 
   // 主题选择浮层
   document.querySelectorAll('.t-opt').forEach(o=>{
