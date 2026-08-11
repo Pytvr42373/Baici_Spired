@@ -209,7 +209,7 @@ function toggleMute(){
 function updateMuteBtn(){
   const b=$('btnMute');
   if(b)b.innerHTML=S.muted?'<i data-lucide="volume-x"></i> 音效关闭':'<i data-lucide="volume-2"></i> 音效开启';
-  if(window.lucide)lucide.createIcons();
+  refreshIcons();
 }
 function goHome(){
   clearInterval(S.timer);

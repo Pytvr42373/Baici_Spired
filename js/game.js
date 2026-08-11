@@ -15,7 +15,13 @@ function toast(msg){let t=$('toastBox');if(!t){t=document.createElement('div');t
 function log(msg,cls=''){const d=$('log');const div=document.createElement('div');div.className=cls;div.textContent=msg;d.prepend(div);while(d.children.length>9)d.removeChild(d.lastChild);}
 function fx(x,y,txt,cls=''){const el=document.createElement('div');el.className='fx '+cls;el.textContent=txt;el.style.left=x+'px';el.style.top=y+'px';$('fxLayer').appendChild(el);setTimeout(()=>el.remove(),1000);}
 function rect(id){const r=$(id).getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/3};}
-function refreshIcons(){if(window.lucide)lucide.createIcons();}
+function refreshIcons(){
+  if(!window.lucide||!lucide.icons)return;
+  document.querySelectorAll('[data-lucide]').forEach(el=>{
+    const ic=lucide.icons[el.getAttribute('data-lucide')];
+    if(ic)el.innerHTML=ic.toSvg();
+  });
+}
 function iconHTML(name){
   if(name==='svg-thorns')return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.2 4.2 1.6-3.1 3.1 1.1 4.9L12 14.5 8.2 16.8l1.1-4.9-3.1-3.1 4.2-1.6z"/><path d="M12 20v1"/></svg>';
   return '<i data-lucide="'+name+'"></i>';
