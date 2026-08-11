@@ -663,3 +663,106 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 :root[data-theme="pink"] .actionCard.atk{background:linear-gradient(160deg,#ff5e8a,#e91e63);}
 :root[data-theme="pink"] .actionCard.def{background:linear-gradient(160deg,#7f8cff,#3f51b5);}
 :root[data-theme="pink"] .opt{background:#fff;border-color:#e8b8cc;}
+
+/* ============================================================
+   ★ 遗物栏 + 统一悬浮弹窗（tooltip）+ PC 宽屏布局
+   （追加，置于文件末尾覆盖旧规则；移动端优先，PC 为增强）
+============================================================ */
+
+/* ---- 遗物栏：实时显示已获取遗物（图标一排） ---- */
+#relicBar{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--paper-shadow);padding:7px 12px;margin-bottom:10px;
+}
+#relicBar .rbar-title{font-size:10px;color:var(--sub);font-weight:700;letter-spacing:1px;margin-right:3px;flex:none;}
+#relicBar .rbar-empty{font-size:10px;color:var(--sub);font-weight:600;}
+.rbar-icon{
+  width:34px;height:34px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--card2);display:inline-flex;align-items:center;justify-content:center;
+  color:var(--accent);cursor:pointer;transition:all .12s;flex:none;
+}
+.rbar-icon:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 3px 8px -3px var(--accent);}
+.rbar-icon:active{transform:scale(.93);}
+.rbar-icon svg,.rbar-icon .lucide{width:19px;height:19px;}
+:root[data-theme="pink"] .rbar-icon{border-width:2px;border-radius:14px;}
+:root[data-theme="mech"] .rbar-icon{border-radius:2px;border-color:rgba(0,216,255,.28);}
+:root[data-theme="mech"] #relicBar{border-color:rgba(0,216,255,.22);}
+
+/* ---- 统一悬浮弹窗（遗物/药水） ---- */
+#tooltip{
+  position:fixed;z-index:120;max-width:250px;pointer-events:none;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);
+  box-shadow:var(--paper-shadow-lg);padding:9px 12px;animation:pop .18s;
+}
+#tooltip .tt-name{font-size:13px;font-weight:800;color:var(--ink);font-family:var(--font-cn-title);}
+#tooltip .tt-desc{font-size:11.5px;color:var(--sub);margin-top:3px;font-weight:600;line-height:1.45;}
+:root[data-theme="pink"] #tooltip{border-width:2px;border-radius:14px;}
+:root[data-theme="mech"] #tooltip{border-radius:2px;border-color:rgba(0,216,255,.3);box-shadow:0 0 14px rgba(0,216,255,.22),var(--paper-shadow-lg);}
+:root[data-theme="mech"] #tooltip .tt-name{color:var(--accent);}
+
+/* ============================================================
+   ★ PC 宽屏布局（桌面增强，移动端不变）
+============================================================ */
+@media (min-width:900px){
+  body{padding:30px 36px 56px;}
+  #app{max-width:1060px;}
+  h1.title{font-size:52px;}
+  .logo .glyph{font-size:56px;}
+  .panel,.card{padding:26px;}
+  .chip{font-size:14px;padding:13px 10px;}
+  .btn{padding:16px;font-size:15px;}
+  .sub{font-size:14px;}
+  #screen-start{max-width:780px;margin:0 auto;}
+  #screen-meta .panel,#screen-result .panel{max-width:620px;margin-left:auto;margin-right:auto;}
+
+  /* 顶栏：统计行舒展 */
+  #topbar{padding:14px 24px;gap:12px;}
+  #topbar .stat .v{font-size:20px;}
+  #topbar .stat .l{font-size:11px;}
+  #topbar .hpbar{max-width:100px;}
+  #topbar #potionBar{padding:10px;gap:10px;}
+  #topbar .potion-slot{min-height:46px;}
+  #topbar .potion-slot svg{width:24px;height:24px;}
+  #topbar .potion-slot .p-name{font-size:10px;}
+
+  /* 遗物栏舒展 */
+  #relicBar{padding:10px 16px;gap:9px;margin-bottom:14px;}
+  #relicBar .rbar-title{font-size:11px;}
+  .rbar-icon{width:44px;height:44px;}
+  .rbar-icon svg,.rbar-icon .lucide{width:24px;height:24px;}
+
+  /* 战场：左右分屏更宽 */
+  #battleField{grid-template-columns:1fr 1.12fr;gap:20px;margin-bottom:16px;}
+  #playerArea{padding:18px;}
+  #playerArea .pstat .num{font-size:26px;}
+  #playerArea .pstat .lbl{font-size:11px;}
+  #playerArea .actionCard{padding:16px 12px;}
+  #playerArea .actionCard .ico{font-size:32px;}
+  #playerArea .actionCard .nm{font-size:19px;}
+  #playerArea .actionCard .ds{font-size:11px;}
+  #playerArea .actionCard .rate{font-size:11px;}
+  #enemyArea{padding:20px 22px;padding-top:44px;}
+  #enemyIcon{width:90px;height:90px;}
+  #enemyIcon svg{width:90px;height:90px;}
+  #enemyName{font-size:23px;}
+  #enemyHp{max-width:240px;height:10px;}
+  #enemyHpTxt{font-size:13px;}
+  #intentBox{padding:5px 16px;}
+  #intentIco{font-size:20px;}
+  #intentLabel{font-size:13px;}
+  #intentNum{font-size:14px;min-width:40px;}
+  #floorTag{font-size:12px;}
+
+  /* 答题台舒展 */
+  #qArea{padding:26px;}
+  #qWord{font-size:40px;}
+  #qHint{font-size:14px;}
+  #options{gap:12px;}
+  .opt{padding:15px 16px;font-size:17px;}
+  #feedback{font-size:15px;}
+  #timerRing{width:42px;height:42px;line-height:40px;font-size:16px;}
+
+  /* 日志 */
+  #log{max-height:150px;font-size:13px;}
+}

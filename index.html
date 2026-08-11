@@ -54,6 +54,9 @@
       <div id="potionBar" aria-label="药水栏"></div>
     </header>
 
+    <!-- 遗物栏：实时显示已获取遗物 -->
+    <div id="relicBar" aria-label="遗物栏"><span class="rbar-title">遗物</span><span class="rbar-empty">暂无</span></div>
+
     <!-- 战斗台：左右分屏（左玩家 / 右敌人），意图放敌人头顶 -->
     <section id="battleField" aria-label="战场">
       <!-- 左：玩家区（HP/格挡/本击 + 攻防按钮） -->
@@ -131,6 +134,9 @@
 
 <!-- 遗物三选一弹窗 -->
 <div id="overlay"><div class="overlay-card"><div class="oc-title">遗物</div><div class="oc-sub">三选一强化本局</div><div class="relics" id="relicChoices"></div></div></div>
+
+<!-- 统一悬浮弹窗（遗物/药水 tooltip） -->
+<div id="tooltip" class="hidden" role="tooltip"></div>
 
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="js/data.js"></script>

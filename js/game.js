@@ -241,7 +241,7 @@ function giveRelic(){
   S.phase='relic';
   const box=$('relicChoices');box.innerHTML='';
   const choices=shuffle(RELICS).slice(0,3);
-  choices.forEach(r=>{const d=document.createElement('div');d.className='relic';d.innerHTML='<div class="r-top"><span class="r-ico">'+iconHTML(r.icon)+'</span><div><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.desc+'</div></div></div>';d.onclick=()=>{r.apply();toast('获得 '+r.name);$('overlay').classList.remove('show');spawnFloor();};box.appendChild(d);});
+  choices.forEach(r=>{const d=document.createElement('div');d.className='relic';d.innerHTML='<div class="r-top"><span class="r-ico">'+iconHTML(r.icon)+'</span><div><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.desc+'</div></div></div>';d.onclick=()=>{S.relics.push(r);if(typeof renderRelicBar==='function')renderRelicBar();r.apply();toast('获得 '+r.name);$('overlay').classList.remove('show');spawnFloor();};box.appendChild(d);});
   $('overlay').classList.add('show');refreshIcons();
 }
 function spawnFloor(){
@@ -301,6 +301,25 @@ function updateTop(){
   $('combo').textContent='×'+S.combo;
 }
 
+/* ============ 遗物栏：实时渲染已获取遗物 ============ */
+function renderRelicBar(){
+  const bar=$('relicBar'); if(!bar)return;
+  if(!S.relics||!S.relics.length){
+    bar.innerHTML='<span class="rbar-title">遗物</span><span class="rbar-empty">暂无</span>';
+    return;
+  }
+  bar.innerHTML='<span class="rbar-title">遗物</span>';
+  S.relics.forEach(r=>{
+    const d=document.createElement('div');
+    d.className='rbar-icon';
+    d.setAttribute('data-tt','1');
+    d.innerHTML=iconHTML(r.icon);
+    bar.appendChild(d);
+    if(typeof bindTooltip==='function')bindTooltip(d,r.name,r.desc,true);
+  });
+  refreshIcons();
+}
+
 /* ============ 开局/结算 ============ */
 function startRun(){
   Object.assign(S,{
@@ -310,7 +329,9 @@ function startRun(){
     wrongWords:{},turnCount:0,enemiesInFloor:1,enemy:null,thorn:false,comboGold:false,knowBuff:false,
     /* 药水状态 */
     potions:[null,null,null],potionDrop:0.4,potionPity:0,
-    doubleAtk:false,chargeAtk:false,genie:false
+    doubleAtk:false,chargeAtk:false,genie:false,
+    /* 已获取遗物 */
+    relics:[]
   });
   S.atkMul=(HEROES[S.hero].atkMul||1)*(S.atkMul||1);
   S.maxHp=60+META.maxHp*8;S.hp=S.maxHp;
@@ -318,6 +339,7 @@ function startRun(){
   $('defRate').textContent='~'+DEF_RATE+'/秒';
   showScreen('game');$('log').innerHTML='';
   if(typeof updatePotionBar==='function')updatePotionBar();
+  if(typeof renderRelicBar==='function')renderRelicBar();
   spawnFloor();updatePlayer();updateTop();
 }
 function endRun(win){
@@ -357,5 +379,6 @@ function showScreen(id){
   if(id==='game'&&typeof playMusic==='function')playMusic('battle');
   if(id==='result'&&typeof playMusic==='function')playMusic('result');
   if((id==='game'||id==='start')&&typeof updatePotionBar==='function')updatePotionBar();
+  if(id==='game'&&typeof renderRelicBar==='function')renderRelicBar();
   refreshIcons();
 }

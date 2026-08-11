@@ -56,6 +56,43 @@ function applyTheme(t){
   rethemeIcons(t);   // ★ 切换主题时同步替换关键 icon
 }
 
+/* ============ 统一悬浮弹窗（遗物/药水 tooltip） ============ */
+function positionTooltip(el,title,desc){
+  const t=$('tooltip'); if(!t)return;
+  t.innerHTML='<div class="tt-name">'+title+'</div><div class="tt-desc">'+desc+'</div>';
+  t.classList.remove('hidden');
+  const r=el.getBoundingClientRect();
+  const tw=t.offsetWidth||200, th=t.offsetHeight||60;
+  let x=r.left+r.width/2-tw/2, y=r.top-th-10;
+  if(y<8)y=r.bottom+10;
+  x=Math.max(8,Math.min(x,window.innerWidth-tw-8));
+  y=Math.max(8,Math.min(y,window.innerHeight-th-8));
+  t.style.left=x+'px'; t.style.top=y+'px';
+}
+function hideTooltip(){
+  const t=$('tooltip'); if(!t)return;
+  t.classList.add('hidden'); t._owner=null;
+}
+/* 通用绑定：PC 悬浮 + 手机长按；tap=true 时点击切换（用于无点击行为的遗物图标） */
+function bindTooltip(el,title,desc,tap){
+  if(!el)return;
+  el.removeAttribute('title');
+  el.setAttribute('data-tt','1');
+  el.addEventListener('mouseenter',()=>positionTooltip(el,title,desc));
+  el.addEventListener('mouseleave',hideTooltip);
+  let lp=null;
+  el.addEventListener('touchstart',()=>{lp=setTimeout(()=>positionTooltip(el,title,desc),420);},{passive:true});
+  el.addEventListener('touchmove',()=>{if(lp){clearTimeout(lp);lp=null;}},{passive:true});
+  el.addEventListener('touchend',()=>{if(lp){clearTimeout(lp);lp=null;}});
+  if(tap){
+    el.addEventListener('click',()=>{
+      const t=$('tooltip');
+      if(t&&!t.classList.contains('hidden')&&t._owner===el)hideTooltip();
+      else{positionTooltip(el,title,desc);if(t)t._owner=el;}
+    });
+  }
+}
+
 /* ============ 音效（WebAudio 程序化合成） ============ */
 let AC=null;
 function sfx(name){
@@ -189,8 +226,8 @@ function updatePotionBar(){
       s.style.setProperty('--p-color',P.color);
       s.setAttribute('data-rarity',P.rarity);
       s.innerHTML=potionSVG(P.color)+'<span class="p-name">'+P.name+'</span>';
-      s.title=P.name+'：'+P.desc;
-      s.onclick=()=>{usePotion(i);};
+      bindTooltip(s,P.name,P.desc,false);
+      s.onclick=()=>{hideTooltip();usePotion(i);};
     }else{
       s.innerHTML='<span class="p-empty">空</span>';
     }
@@ -263,5 +300,10 @@ function init(){
   updatePotionBar();
   wireSfx();
   refreshIcons();
+
+  // 点击任意非 tip 元素关闭悬浮弹窗
+  document.addEventListener('click',(e)=>{
+    if(!e.target.closest('[data-tt]')&&!e.target.closest('#tooltip'))hideTooltip();
+  });
 }
 document.addEventListener('DOMContentLoaded',init);
