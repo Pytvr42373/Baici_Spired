@@ -139,7 +139,8 @@ function playMusic(phase){
   stopMusic();
   const _ph=_resolvePhase(phase);const cfg=MUSIC[_ph];if(!cfg)return;
   musicPhase=_ph;musicOn=true;
-  try{ if(T.context&&T.context.state==='suspended')T.start(); }catch(e){}
+  // 未解锁(无用户手势)时仅记录阶段，等手势解锁后由 ensureMusic 重放
+  if(T.context&&T.context.state==='suspended')return;
   try{
     T.Transport.bpm.value=cfg.bpm;
     const reverb=new T.Reverb({decay:2.6,wet:0.42}).toDestination();
@@ -328,7 +329,7 @@ function init(){
   refreshIcons();
   if(typeof playMusic==='function')playMusic('menu');
   let _musicStarted=false;
-  const ensureMusic=()=>{const T=_tone();if(!T||_musicStarted)return;if(T.context&&T.context.state==='suspended'){try{T.start();}catch(e){}}if(musicPhase&&!S.muted){const ph=musicPhase;stopMusic();if(ph)playMusic(ph);_musicStarted=true;}};
+  const ensureMusic=async()=>{const T=_tone();if(!T||_musicStarted)return;if(T.context&&T.context.state==='suspended'){try{await T.start();}catch(e){}}if(!S.muted){const ph=musicPhase||'menu';stopMusic();if(ph)playMusic(ph);_musicStarted=true;}};
   document.addEventListener('pointerdown',ensureMusic);
   document.addEventListener('touchstart',ensureMusic);
   document.addEventListener('mousedown',ensureMusic);
