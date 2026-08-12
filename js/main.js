@@ -142,26 +142,29 @@ function playMusic(phase){
   try{ if(T.context&&T.context.state==='suspended')T.start(); }catch(e){}
   try{
     T.Transport.bpm.value=cfg.bpm;
-    const reverb=new T.Reverb({decay:2.2,wet:0.32}).toDestination();
+    const reverb=new T.Reverb({decay:2.6,wet:0.42}).toDestination();
     const mel=new T.Synth({oscillator:{type:cfg.mode==='major'?'triangle':'sawtooth'},envelope:{attack:0.01,decay:0.25,sustain:0.22,release:0.4}}).connect(reverb);
-    mel.volume.value=-6;
+    mel.volume.value=-9;
     const bass=new T.Synth({oscillator:{type:'sine'},envelope:{attack:0.01,decay:0.4,sustain:0.12,release:0.3}}).toDestination();
-    bass.volume.value=-8;
+    bass.volume.value=-11;
     const hat=new T.NoiseSynth({noise:{type:'white'},envelope:{attack:0.001,decay:0.06,sustain:0,release:0.02}}).toDestination();
-    hat.volume.value=-12;
+    hat.volume.value=-16;
     const kick=new T.MembraneSynth({pitchDecay:0.05,octaves:6,envelope:{attack:0.001,decay:0.4,sustain:0,release:0.2}}).toDestination();
-    kick.volume.value=-9;
-    const pad=new T.PolySynth(T.Synth,{oscillator:{type:'triangle'},envelope:{attack:0.3,decay:0.5,sustain:0.35,release:1.4}}).connect(reverb);
-    pad.volume.value=-11;
+    kick.volume.value=-13;
+    const pad=new T.PolySynth(T.Synth,{oscillator:{type:'triangle'},envelope:{attack:0.7,decay:0.6,sustain:0.3,release:1.6}}).connect(reverb);
+    pad.volume.value=-14;
     let step=0;
     _musicLoop=new T.Loop(time=>{
       const r=cfg.roots[Math.floor(step/8)%cfg.roots.length];
       const s8=step%8;
       if(s8===0){
         bass.triggerAttackRelease(T.Frequency(r-12,'midi').toNote(),'1n',time);
-        if(cfg.pad){const chord=cfg.mode==='major'?[0,4,7]:[0,3,7];pad.triggerAttackRelease([r,r+chord[1],r+chord[2]].map(n=>T.Frequency(n,'midi').toNote()),'2n',time);}
+        if(cfg.pad){const chord=cfg.mode==='major'?[0,4,7,11]:[0,3,7,10];pad.triggerAttackRelease(chord.map(o=>T.Frequency(r+o,'midi').toNote()),'2n',time);}
       }
-      const arp=cfg.mode==='major'?[0,7,12,16,12,7,0,7]:[0,3,7,12,7,3,0,3];
+      const bar=Math.floor(step/8)%cfg.roots.length;
+      const arpA=cfg.mode==='major'?[0,7,12,16,12,7,0,7]:[0,3,7,12,7,3,0,3];
+      const arpB=cfg.mode==='major'?[12,7,16,12,7,4,7,12]:[12,7,3,7,12,10,7,3];
+      const arp=(bar%2===0)?arpA:arpB;
       mel.triggerAttackRelease(T.Frequency(r+arp[s8],'midi').toNote(),'8n',time);
       if(cfg.drums>=1&&s8%2===0)hat.triggerAttackRelease('16n',time);
       if(cfg.drums>=2&&s8===0)kick.triggerAttackRelease('8n',time);
@@ -266,7 +269,8 @@ function toggleThemePop(){
 function toggleMute(){
   S.muted=!S.muted;
   try{localStorage.setItem('lexicon_muted',S.muted?'1':'0');}catch(e){}
-  if(S.muted)stopMusic();else sfx('button');
+  if(S.muted){S._pausedPhase=musicPhase;stopMusic();}
+  else{ if(S._pausedPhase){const ph=S._pausedPhase;S._pausedPhase='';playMusic(ph);} else sfx('button'); }
   updateMuteBtn();
 }
 function updateMuteBtn(){
@@ -322,6 +326,10 @@ function init(){
   updatePotionBar();
   wireSfx();
   refreshIcons();
+  if(typeof playMusic==='function')playMusic('menu');
+  const unlock=()=>{const T=_tone();if(T&&T.context&&T.context.state==='suspended'){T.start();}if(musicPhase&&!S.muted){const ph=musicPhase;stopMusic();if(ph)playMusic(ph);}};
+  document.addEventListener('pointerdown',unlock,{once:true});
+  document.addEventListener('click',unlock,{once:true});
 
   // 点击任意非 tip 元素关闭悬浮弹窗
   document.addEventListener('click',(e)=>{
