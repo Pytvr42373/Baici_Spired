@@ -144,15 +144,15 @@ function playMusic(phase){
     T.Transport.bpm.value=cfg.bpm;
     const reverb=new T.Reverb({decay:2.6,wet:0.42}).toDestination();
     const mel=new T.Synth({oscillator:{type:cfg.mode==='major'?'triangle':'sawtooth'},envelope:{attack:0.01,decay:0.25,sustain:0.22,release:0.4}}).connect(reverb);
-    mel.volume.value=-17;
+    mel.volume.value=-60;mel.volume.rampTo(-17,2);
     const bass=new T.Synth({oscillator:{type:'sine'},envelope:{attack:0.01,decay:0.4,sustain:0.12,release:0.3}}).toDestination();
-    bass.volume.value=-19;
+    bass.volume.value=-60;bass.volume.rampTo(-19,2);
     const hat=new T.NoiseSynth({noise:{type:'white'},envelope:{attack:0.001,decay:0.06,sustain:0,release:0.02}}).toDestination();
-    hat.volume.value=-24;
+    hat.volume.value=-60;hat.volume.rampTo(-24,2);
     const kick=new T.MembraneSynth({pitchDecay:0.05,octaves:6,envelope:{attack:0.001,decay:0.4,sustain:0,release:0.2}}).toDestination();
-    kick.volume.value=-21;
+    kick.volume.value=-60;kick.volume.rampTo(-21,2);
     const pad=new T.PolySynth(T.Synth,{oscillator:{type:'triangle'},envelope:{attack:0.7,decay:0.6,sustain:0.3,release:1.6}}).connect(reverb);
-    pad.volume.value=-22;
+    pad.volume.value=-60;pad.volume.rampTo(-22,2);
     let step=0;
     _musicLoop=new T.Loop(time=>{
       const r=cfg.roots[Math.floor(step/8)%cfg.roots.length];
@@ -327,9 +327,12 @@ function init(){
   wireSfx();
   refreshIcons();
   if(typeof playMusic==='function')playMusic('menu');
-  const unlock=()=>{const T=_tone();if(T&&T.context&&T.context.state==='suspended'){T.start();}if(musicPhase&&!S.muted){const ph=musicPhase;stopMusic();if(ph)playMusic(ph);}};
-  document.addEventListener('pointerdown',unlock,{once:true});
-  document.addEventListener('click',unlock,{once:true});
+  let _musicStarted=false;
+  const ensureMusic=()=>{const T=_tone();if(!T||_musicStarted)return;if(T.context&&T.context.state==='suspended'){try{T.start();}catch(e){}}if(musicPhase&&!S.muted){const ph=musicPhase;stopMusic();if(ph)playMusic(ph);_musicStarted=true;}};
+  document.addEventListener('pointerdown',ensureMusic);
+  document.addEventListener('touchstart',ensureMusic);
+  document.addEventListener('mousedown',ensureMusic);
+  document.addEventListener('keydown',ensureMusic);
 
   // 点击任意非 tip 元素关闭悬浮弹窗
   document.addEventListener('click',(e)=>{
