@@ -344,7 +344,7 @@ function startRun(){
 }
 function endRun(win){
   clearInterval(S.timer);
-  const star=Math.max(1,Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20));
+  const _rate=(TIERS[S.tier]&&TIERS[S.tier].rate)||1;const star=Math.max(1,Math.round((Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20))*_rate));
   META.star+=star;saveMeta();
   showScreen('result');
   const _g=win?'trophy':'skull';$('resultGlyph').setAttribute('data-lucide',_g);$('resultGlyph').dataset.base=_g;refreshIcons();
