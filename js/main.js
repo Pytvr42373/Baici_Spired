@@ -294,7 +294,7 @@ function init(){
   $('btnHomeFloat').addEventListener('click',goHome);
 
   // 词库
-  const tc=$('tierChips');tc.innerHTML='<div class="chip selected">KET<span class="d">剑桥 A2 核心词</span></div>';S.tier='ket';
+  const tc=$('tierChips');tc.innerHTML='';Object.keys(TIERS).forEach((t,i)=>{const c=document.createElement('div');c.className='chip'+(i===0?' selected':'');c.innerHTML=TIERS[t].name+'<span class="d">'+TIERS[t].desc+'</span>';c.onclick=()=>{S.tier=t;document.querySelectorAll('#tierChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};tc.appendChild(c);if(i===0)S.tier=t;});
   // 角色
   const hc=$('heroChips');Object.keys(HEROES).forEach((h,i)=>{const c=document.createElement('div');c.className='chip'+(h==='warrior'?' selected':'');c.innerHTML='<span class="chip-ico"><i data-lucide="'+HEROES[h].icon+'"></i></span>'+HEROES[h].name+'<span class="d">'+HEROES[h].desc+'</span>';c.onclick=()=>{S.hero=h;document.querySelectorAll('#heroChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};hc.appendChild(c);});S.hero='warrior';
   // 难度

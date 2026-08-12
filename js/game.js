@@ -53,22 +53,22 @@ function iconHTML(name){
 
 /* ============ 词库 ============ */
 function getPool(){
-  const pool=[...TIERS.ket.words];
+  const pool=[...TIERS[S.tier].words];
   const wrong=pool.filter(w=>S.wrongWords[w.en]);
   const base=shuffle(pool).slice(0,15);
   for(const w of wrong){if(Math.random()<.6&&!base.some(x=>x.en===w.en))base.push(w);}
   return base;
 }
 function buildOptions(target,pool,qType){
-  const dist=[...TIERS.ket.words].filter(x=>x.en!==target.en);
+  const dist=[...TIERS[S.tier].words].filter(x=>x.en!==target.en);
   const opts=[];const used=shuffle(dist);
   if(qType==='e2c'){
     const p=[];for(const c of used){if(!p.includes(c.cn)&&c.cn!==target.cn){p.push(c.cn);if(p.length>=3)break;}}
-    const f2=[...TIERS.ket.words].filter(x=>!p.includes(x.cn)&&x.cn!==target.cn);for(const c of f2){if(p.length>=3)break;p.push(c.cn);}while(p.length<3)p.push('其他释义'+(p.length+1));
+    const f2=[...TIERS[S.tier].words].filter(x=>!p.includes(x.cn)&&x.cn!==target.cn);for(const c of f2){if(p.length>=3)break;p.push(c.cn);}while(p.length<3)p.push('其他释义'+(p.length+1));
     return shuffle([target.cn,...p]);
   }else{
     const p=[];for(const c of used){if(!p.includes(c.en)){p.push(c.en);if(p.length>=3)break;}}
-    const f3=[...TIERS.ket.words].filter(x=>!p.includes(x.en));for(const c of f3){if(p.length>=3)break;p.push(c.en);}while(p.length<3)p.push('word'+(p.length+1));
+    const f3=[...TIERS[S.tier].words].filter(x=>!p.includes(x.en));for(const c of f3){if(p.length>=3)break;p.push(c.en);}while(p.length<3)p.push('word'+(p.length+1));
     return shuffle([target.en,...p]);
   }
 }
