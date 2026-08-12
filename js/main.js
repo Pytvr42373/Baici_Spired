@@ -144,9 +144,13 @@ function playMusic(phase){
     T.Transport.bpm.value=cfg.bpm;
     const reverb=new T.Reverb({decay:2.2,wet:0.32}).toDestination();
     const mel=new T.Synth({oscillator:{type:cfg.mode==='major'?'triangle':'sawtooth'},envelope:{attack:0.01,decay:0.25,sustain:0.22,release:0.4}}).connect(reverb);
+    mel.volume.value=-6;
     const bass=new T.Synth({oscillator:{type:'sine'},envelope:{attack:0.01,decay:0.4,sustain:0.12,release:0.3}}).toDestination();
+    bass.volume.value=-8;
     const hat=new T.NoiseSynth({noise:{type:'white'},envelope:{attack:0.001,decay:0.06,sustain:0,release:0.02}}).toDestination();
+    hat.volume.value=-12;
     const kick=new T.MembraneSynth({pitchDecay:0.05,octaves:6,envelope:{attack:0.001,decay:0.4,sustain:0,release:0.2}}).toDestination();
+    kick.volume.value=-9;
     let step=0;
     _musicLoop=new T.Loop(time=>{
       const r=cfg.roots[Math.floor(step/8)%cfg.roots.length];
