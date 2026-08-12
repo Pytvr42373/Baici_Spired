@@ -151,11 +151,16 @@ function playMusic(phase){
     hat.volume.value=-12;
     const kick=new T.MembraneSynth({pitchDecay:0.05,octaves:6,envelope:{attack:0.001,decay:0.4,sustain:0,release:0.2}}).toDestination();
     kick.volume.value=-9;
+    const pad=new T.PolySynth(T.Synth,{oscillator:{type:'triangle'},envelope:{attack:0.3,decay:0.5,sustain:0.35,release:1.4}}).connect(reverb);
+    pad.volume.value=-11;
     let step=0;
     _musicLoop=new T.Loop(time=>{
       const r=cfg.roots[Math.floor(step/8)%cfg.roots.length];
       const s8=step%8;
-      if(s8===0)bass.triggerAttackRelease(T.Frequency(r-12,'midi').toNote(),'1n',time);
+      if(s8===0){
+        bass.triggerAttackRelease(T.Frequency(r-12,'midi').toNote(),'1n',time);
+        if(cfg.pad){const chord=cfg.mode==='major'?[0,4,7]:[0,3,7];pad.triggerAttackRelease([r,r+chord[1],r+chord[2]].map(n=>T.Frequency(n,'midi').toNote()),'2n',time);}
+      }
       const arp=cfg.mode==='major'?[0,7,12,16,12,7,0,7]:[0,3,7,12,7,3,0,3];
       mel.triggerAttackRelease(T.Frequency(r+arp[s8],'midi').toNote(),'8n',time);
       if(cfg.drums>=1&&s8%2===0)hat.triggerAttackRelease('16n',time);

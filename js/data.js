@@ -174,11 +174,11 @@ const SFX={
 
 /* ============ 配乐配置（WebAudio 程序化合成，更丰富更长的旋律） ============ */
 const MUSIC={
-  menu:{bpm:80,mode:'major',drums:0,roots:[60,67,57,65]},
-  battle_calm:{bpm:92,mode:'major',drums:1,roots:[60,65,67,60]},
-  battle_intense:{bpm:142,mode:'minor',drums:3,roots:[57,53,48,55]},
-  boss:{bpm:152,mode:'minor',drums:3,roots:[52,52,53,52]},
-  result:{bpm:100,mode:'major',drums:1,roots:[60,65,67,60]}
+  menu:{bpm:80,mode:'major',drums:0,pad:1,roots:[60,64,67,72,69,65,62,60]},
+  battle_calm:{bpm:96,mode:'major',drums:1,pad:1,roots:[60,65,67,60,55,60,65,67]},
+  battle_intense:{bpm:142,mode:'minor',drums:3,pad:0,roots:[57,53,48,55,57,53,52,55]},
+  boss:{bpm:152,mode:'minor',drums:3,pad:1,roots:[52,52,53,52,50,52,53,52]},
+  result:{bpm:100,mode:'major',drums:1,pad:1,roots:[60,65,67,72,69,67,72,60]}
 };
 
 /* ============ 自绘 SVG 线条怪物（单色描边，随主题 currentColor 着色） ============ */
