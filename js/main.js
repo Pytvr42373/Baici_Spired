@@ -225,7 +225,16 @@ function usePotion(idx){
     case 'gold':{const g=Math.round(15+S.floor*2);S.gold+=g;log('🧪 金币药 +'+g+' 金币','y');updateTop();break;}
     case 'genie':S.genie=true;log('🧪 瓶中精灵 免死一次','y');break;
     case 'juice':S.maxHp+=12;S.hp+=12;log('🧪 果汁 最大生命 +12','g');break;
-    case 'chaos':{addPotion(randomPotion());addPotion(randomPotion());log('🧪 混沌药 随机再得 2 瓶','y');break;}
+    case 'chaos':{
+      const cn=1+Math.floor(Math.random()*3);let got=0;
+      for(let i=0;i<cn;i++){ if(addPotion(randomPotion()))got++; }
+      log('🧪 混沌药 随机获得 '+got+' 瓶药水','y');
+      const cr=Math.random();
+      if(cr<0.3){const cg=Math.round(12+S.floor*2);S.gold+=cg;log('⚡ 混沌余波 +'+cg+' 金币','y');}
+      else if(cr<0.6){S.maxHp+=5;S.hp=Math.min(S.maxHp,S.hp+5);log('💫 混沌余波 最大生命+5','g');}
+      else if(cr<0.8){S.block=(S.block||0)+6;log('🛡 混沌余波 格挡+6','b');}
+      else log('🌀 混沌平静 无事发生','y');
+      break;}
     case 'charge':S.chargeAtk=true;log('🧪 蓄力药 敌人蓄力时攻击 ×2','y');break;
   }
   S.potions[idx]=null;
@@ -334,6 +343,7 @@ function init(){
   document.addEventListener('touchstart',ensureMusic);
   document.addEventListener('mousedown',ensureMusic);
   document.addEventListener('keydown',ensureMusic);
+  const lw=$('logWrap'),lh=$('logHeader');if(lw&&lh)lh.addEventListener('click',()=>lw.classList.toggle('open'));
 
   // 点击任意非 tip 元素关闭悬浮弹窗
   document.addEventListener('click',(e)=>{
