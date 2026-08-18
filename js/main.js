@@ -132,13 +132,18 @@ function _resolvePhase(phase){
   }
   return phase;
 }
-const MUSIC_FILES={menu:'assets/audio/menu.mp3',battle_calm:'assets/audio/battle.mp3',battle_intense:'assets/audio/battle.mp3',boss:'assets/audio/boss.mp3',result:'assets/audio/result.mp3'};
+const MUSIC_FILES={
+  minimal:{menu:'assets/audio/menu.mp3',battle_calm:'assets/audio/battle.mp3',battle_intense:'assets/audio/battle.mp3',boss:'assets/audio/boss.mp3',result:'assets/audio/result.mp3'},
+  pink:{menu:'assets/audio/pink_menu.mp3',battle_calm:'assets/audio/pink_battle.mp3',battle_intense:'assets/audio/pink_battle.mp3',boss:'assets/audio/pink_boss.mp3',result:'assets/audio/pink_result.mp3'},
+  mech:{menu:'assets/audio/mech_menu.mp3',battle_calm:'assets/audio/mech_battle.mp3',battle_intense:'assets/audio/mech_battle.mp3',boss:'assets/audio/mech_boss.mp3',result:'assets/audio/mech_result.mp3'}
+};
 let _bgm=null,_bgmFade=null;
 function playMusic(phase){
   if(S.muted){stopMusic();return;}
   const _ph=_resolvePhase(phase);
-  musicPhase=_ph;musicOn=!!MUSIC_FILES[_ph];
-  const src=MUSIC_FILES[_ph]||MUSIC_FILES.menu;
+  const _tf=MUSIC_FILES[S.theme]||MUSIC_FILES.minimal;
+  musicPhase=_ph;musicOn=!!_tf[_ph];
+  const src=_tf[_ph]||_tf.menu;
   if(_bgm&&_bgm.dataset.src===src)return;
   stopMusic();
   try{
