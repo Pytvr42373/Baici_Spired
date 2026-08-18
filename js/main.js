@@ -255,6 +255,7 @@ function updatePotionBar(){
 function toggleThemePop(){
   const pop=$('themePop');
   pop.classList.toggle('hidden');
+  const sp=$('settingsPop');if(sp)sp.classList.add('hidden');
   sfx('button');
 }
 function toggleMute(){
@@ -278,11 +279,16 @@ function saveGame(){
 }
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
 function hasSave(){try{return !!localStorage.getItem(SAVE_KEY);}catch(e){return false;}}
+function updateContinueBtn(){
+  const bc=$('btnContinue');
+  if(bc)bc.classList.toggle('hidden',!hasSave());
+}
 function continueGame(){
   let sv=null;try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){}
   if(!sv)return;clearSave();
   Object.assign(S,sv);
   showScreen('game');$('log').innerHTML='';
+  updateContinueBtn();
   if(typeof updatePotionBar==='function')updatePotionBar();
   if(typeof renderRelicBar==='function')renderRelicBar();
   if(typeof spawnFloor==='function')spawnFloor();
@@ -292,6 +298,7 @@ function continueGame(){
 function goHome(){
   clearInterval(S.timer);
   saveGame();   // ★ 保存本次游玩进度
+  updateContinueBtn();
   showScreen('start');
   if(typeof updatePotionBar==='function')updatePotionBar();
   sfx('button');
@@ -348,13 +355,16 @@ function init(){
   document.addEventListener('keydown',ensureMusic);
   const lw=$('logWrap'),lh=$('logHeader');if(lw&&lh)lh.addEventListener('click',()=>lw.classList.toggle('open'));
   // 设置浮层
-  const bs=$('btnSettings'),sp=$('settingsPop');
-  if(bs&&sp)bs.addEventListener('click',()=>{sfx('button');sp.classList.toggle('hidden');});
+  const bs=$('btnSettings'),sp=$('settingsPop'),tp=$('themePop');
+  if(bs&&sp)bs.addEventListener('click',()=>{sfx('button');sp.classList.toggle('hidden');if(tp)tp.classList.add('hidden');});
   const sc=$('btnSettingsClose');if(sc&&sp)sc.addEventListener('click',()=>sp.classList.add('hidden'));
   const bv=$('bgmVol');if(bv){bv.value=Math.round((S.bgmVol||0.32)*100);bv.addEventListener('input',()=>{S.bgmVol=bv.value/100;try{localStorage.setItem('lexicon_bgm_vol',S.bgmVol);}catch(e){}if(_bgm)_bgm.volume=S.bgmVol;});}
   // 继续战斗
-  const bc=$('btnContinue');if(bc&&hasSave())bc.classList.remove('hidden');
-  if(bc)bc.addEventListener('click',()=>{sfx('button');continueGame();});
+  updateContinueBtn();
+  const bc=$('btnContinue');if(bc)bc.addEventListener('click',()=>{sfx('button');continueGame();});
+
+  // 页面刷新/关闭时自动保存（战斗中）
+  window.addEventListener('pagehide',()=>{if(S&&S.floor>=1&&S.hp>0)saveGame();});
 
   // 点击任意非 tip 元素关闭悬浮弹窗
   document.addEventListener('click',(e)=>{

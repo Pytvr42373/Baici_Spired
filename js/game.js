@@ -323,6 +323,7 @@ function renderRelicBar(){
 /* ============ 开局/结算 ============ */
 function startRun(){
   clearSave();
+  if(typeof updateContinueBtn==='function')updateContinueBtn();
   Object.assign(S,{
     floor:1,gold:META.goldStart||0,combo:0,maxCombo:0,hp:0,maxHp:0,
     correctTotal:0,wrongTotal:0,killedTotal:0,atkMul:1,defMul:1,goldMul:1,
@@ -345,6 +346,7 @@ function startRun(){
 }
 function endRun(win){
   clearSave();
+  if(typeof updateContinueBtn==='function')updateContinueBtn();
   clearInterval(S.timer);
   const _rate=(TIERS[S.tier]&&TIERS[S.tier].rate)||1;const star=Math.max(1,Math.round((Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20))*_rate));
   META.star+=star;saveMeta();
