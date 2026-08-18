@@ -9,13 +9,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Manrope:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260818e">
+<link rel="stylesheet" href="css/style.css?v=20260818f">
 </head>
 <body>
 <div id="fxLayer"></div>
 
 <!-- 悬浮：返回主页（战斗时显示） -->
-<button id="btnHomeFloat" class="float-btn float-home hidden" data-sfx="button" title="返回主页"><i data-lucide="home"></i></button>
+<button id="btnHomeFloat" class="float-btn float-home hidden" data-sfx="button" title="保存并返回主页"><i data-lucide="home"></i></button>
+<!-- 悬浮：放弃远征（结算） -->
+<button id="btnAbandonFloat" class="float-btn float-abandon hidden" data-sfx="button" title="放弃远征并结算"><i data-lucide="flag"></i></button>
 <!-- 悬浮：主题切换 -->
 <button id="floatTheme" class="float-btn float-palette" data-sfx="button" title="切换主题"><i data-lucide="palette"></i></button>
 <button id="btnSettings" class="float-btn float-gear" data-sfx="button" title="设置"><i data-lucide="settings"></i></button>
@@ -127,6 +129,18 @@
   </section>
 </div>
 
+<!-- 通用确认弹窗（继续远征 / 放弃远征） -->
+<div id="confirmPop" class="hidden">
+  <div class="overlay-card">
+    <div class="oc-title" id="confirmTitle">确认</div>
+    <div class="oc-sub" id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="btn ghost" id="confirmCancel">取消</button>
+      <button class="btn gold" id="confirmOk">确定</button>
+    </div>
+  </div>
+</div>
+
 <!-- 答题弹窗（攻击/防御 → 弹出答题） -->
 <div id="quizOverlay">
   <div class="quiz-card">
@@ -152,8 +166,8 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://unpkg.com/tone@15/build/Tone.js"></script>
 <script>window.addEventListener("load",function(){if(!window.Tone){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tone@15/build/Tone.js";document.head.appendChild(s);setTimeout(function(){if(window.Tone&&typeof playMusic==="function"&&typeof ensureMusic==="function")ensureMusic();},900);}});</script>
-<script src="js/data.js?v=20260818e"></script>
-<script src="js/game.js?v=20260818e"></script>
-<script src="js/main.js?v=20260818e"></script>
+<script src="js/data.js?v=20260818f"></script>
+<script src="js/game.js?v=20260818f"></script>
+<script src="js/main.js?v=20260818f"></script>
 </body>
 </html>

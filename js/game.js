@@ -228,6 +228,10 @@ function onKill(){
     else{spawnNextEnemy();}
   },600);
 }
+function updateFloorTag(){
+  const ft=$('floorTag');if(!ft)return;
+  ft.textContent=(S.enemy&&S.enemy.isBoss)?('☠ BOSS · 第 '+S.floor+' 层'):('第 '+S.floor+' 层 · 剩 '+(S.enemiesInFloor||1)+' 怪');
+}
 function floorClear(){
   log('✅ 本层敌人清空！','g');
   if(HEROES[S.hero].heal){S.hp=Math.min(S.maxHp,S.hp+HEROES[S.hero].heal);updatePlayer();}
@@ -235,6 +239,8 @@ function floorClear(){
   if(typeof dropPotionAfterBattle==='function')dropPotionAfterBattle();
   if(S.floor%5===0&&S.bossIndex>=BOSSES.length){endRun(true);return;}
   S.floor++;
+  updateFloorTag();
+  if(typeof updateTop==='function')updateTop();
   giveRelic(); // ★ M5：BOSS 层击杀同样发遗物
 }
 function giveRelic(){
@@ -249,7 +255,9 @@ function spawnFloor(){
   if(S.floor%5===0){spawnBoss();return;}
   if(typeof playMusic==='function')playMusic('battle');
   S.enemiesInFloor=1+Math.floor(Math.random()*2)+(S.floor>3?1:0);
+  updateFloorTag();
   spawnNextEnemy();
+  if(typeof updateTop==='function')updateTop();
 }
 function generateEnemy(){
   const idx=Math.floor(Math.random()*Math.min(ENEMIES.length,5+Math.floor(S.floor/3)));
@@ -260,6 +268,7 @@ function generateEnemy(){
 }
 function spawnNextEnemy(){
   S.enemy=generateEnemy();
+  updateFloorTag();
   renderEnemy();updateEnemy();
   startTurn();
 }
@@ -267,10 +276,11 @@ function spawnBoss(){
   const b=BOSSES[Math.min(S.bossIndex||0,BOSSES.length-1)];
   const hpMul=1+(S.floor/5-1)*0.35;
   S.enemy={name:b.name,icon:b.icon,monster:b.monster,hp:Math.round(b.hp*hpMul),hpMax:Math.round(b.hp*hpMul),block:0,intents:b.intents,isBoss:true,goldGain:60+S.floor*3};
-  S.enemiesInFloor=1;$('floorTag').textContent='☠ BOSS · 第 '+S.floor+' 层';
+  S.enemiesInFloor=1;updateFloorTag();
   renderEnemy();updateEnemy();
   toast('👹 BOSS '+S.enemy.name+' 现身！');
   if(typeof playMusic==='function')playMusic('boss');
+  if(typeof updateTop==='function')updateTop();
   startTurn();
 }
 
@@ -344,22 +354,30 @@ function startRun(){
   if(typeof renderRelicBar==='function')renderRelicBar();
   spawnFloor();updatePlayer();updateTop();
 }
-function endRun(win){
+function endRun(win,abandon){
   clearSave();
   if(typeof updateContinueBtn==='function')updateContinueBtn();
   clearInterval(S.timer);
-  const _rate=(TIERS[S.tier]&&TIERS[S.tier].rate)||1;const star=Math.max(1,Math.round((Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20))*_rate));
+  const _rate=(TIERS[S.tier]&&TIERS[S.tier].rate)||1;
+  let star;
+  if(abandon){star=Math.max(1,Math.round((Math.floor(S.floor/2)+Math.floor(S.correctTotal/20))*0.5*_rate));}
+  else{star=Math.max(1,Math.round((Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20))*_rate));}
   META.star+=star;saveMeta();
   showScreen('result');
-  const _g=win?'trophy':'skull';$('resultGlyph').setAttribute('data-lucide',_g);$('resultGlyph').dataset.base=_g;refreshIcons();
-  $('resultTitle').textContent=win?'远征通关！':'远征失败';
+  const _g=abandon?'flag':(win?'trophy':'skull');$('resultGlyph').setAttribute('data-lucide',_g);$('resultGlyph').dataset.base=_g;refreshIcons();
+  $('resultTitle').textContent=abandon?'已放弃远征':(win?'远征通关！':'远征失败');
   $('resultStats').innerHTML=
+    '<div class="stat-row"><span>结算方式</span><span>'+(abandon?'中途放弃':'—')+'</span></div>'+
     '<div class="stat-row"><span>到达层数</span><span>第 '+S.floor+' 层</span></div>'+
     '<div class="stat-row"><span>答对 / 答错</span><span>'+S.correctTotal+' / '+S.wrongTotal+'</span></div>'+
     '<div class="stat-row"><span>击败敌人</span><span>'+S.killedTotal+'</span></div>'+
     '<div class="stat-row"><span>最高连击</span><span>×'+S.maxCombo+'</span></div>'+
     '<div class="stat-row"><span>获得金币</span><span>'+S.gold+'</span></div>'+
     '<div class="stat-row"><span>✨ 星尘</span><span>+'+star+'</span></div>';
+}
+function abandonRun(){
+  // 中途放弃：按当前进度折半结算星尘
+  endRun(false,true);
 }
 function renderMeta(){
   $('metaStar').innerHTML='<span class="star-ico">'+starSVG()+'</span><span id="metaStarNum">'+META.star+'</span>';
@@ -376,8 +394,9 @@ function starSVG(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+id).classList.add('active');
   if(id==='meta')renderMeta();
-  // 返回主页按钮：仅战斗时显示
+  // 返回主页/放弃按钮：仅战斗时显示
   const bh=$('btnHomeFloat');if(bh)bh.classList.toggle('hidden',id!=='game');
+  const ba=$('btnAbandonFloat');if(ba)ba.classList.toggle('hidden',id!=='game');
   // 配乐按阶段切换
   if(id==='start'&&typeof playMusic==='function')playMusic('menu');
   if(id==='game'&&typeof playMusic==='function')playMusic('battle');

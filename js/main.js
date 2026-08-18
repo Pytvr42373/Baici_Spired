@@ -274,7 +274,7 @@ const SAVE_KEY='lexicon_save';
 function saveGame(){
   if(!S||!S.floor||S.floor<1||S.hp<=0)return;
   const copy={};
-  ['floor','gold','hp','maxHp','combo','maxCombo','correctTotal','wrongTotal','killedTotal','atkMul','defMul','goldMul','bossIndex','timeBonus','enemyBuff','block','turnCount','enemiesInFloor','thorn','comboGold','knowBuff','potions','potionDrop','potionPity','doubleAtk','chargeAtk','genie','relics','hero','tier','diff','wrongWords'].forEach(k=>{if(S[k]!==undefined)copy[k]=S[k];});
+  ['floor','gold','hp','maxHp','combo','maxCombo','correctTotal','wrongTotal','killedTotal','atkMul','defMul','goldMul','bossIndex','timeBonus','enemyBuff','block','turnCount','enemiesInFloor','thorn','comboGold','knowBuff','potions','potionDrop','potionPity','doubleAtk','chargeAtk','genie','relics','hero','tier','diff','wrongWords','enemy'].forEach(k=>{if(S[k]!==undefined)copy[k]=S[k];});
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(copy));}catch(e){}
 }
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
@@ -282,6 +282,18 @@ function hasSave(){try{return !!localStorage.getItem(SAVE_KEY);}catch(e){return 
 function updateContinueBtn(){
   const bc=$('btnContinue');
   if(bc)bc.classList.toggle('hidden',!hasSave());
+}
+function showConfirm(title,msg,onOk){
+  const cp=$('confirmPop');if(!cp)return;
+  const t=$('confirmTitle');if(t)t.textContent=title;
+  const m=$('confirmMsg');if(m)m.innerHTML=msg;
+  cp.classList.add('show');
+  const ok=$('confirmOk'),ca=$('confirmCancel');
+  const clear=()=>cp.classList.remove('show');
+  if(ca)ca.onclick=()=>{clear();sfx('button');};
+  if(ok)ok.onclick=()=>{clear();sfx('button');if(typeof onOk==='function')onOk();};
+  // 点击遮罩关闭
+  cp.onclick=(e)=>{if(e.target===cp)clear();};
 }
 function continueGame(){
   let sv=null;try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){}
@@ -291,8 +303,17 @@ function continueGame(){
   updateContinueBtn();
   if(typeof updatePotionBar==='function')updatePotionBar();
   if(typeof renderRelicBar==='function')renderRelicBar();
-  if(typeof spawnFloor==='function')spawnFloor();
-  updatePlayer();updateTop();
+  // 恢复当前敌人（与存档一致），无存档敌人则重新生成本层
+  if(S.enemy&&S.enemy.hp>0){
+    if(typeof updateFloorTag==='function')updateFloorTag();
+    if(typeof renderEnemy==='function')renderEnemy();
+    if(typeof updateEnemy==='function')updateEnemy();
+    if(typeof updatePlayer==='function')updatePlayer();
+    if(typeof updateTop==='function')updateTop();
+    if(S.enemy.isBoss){if(typeof playMusic==='function')playMusic('boss');}
+    else{if(typeof playMusic==='function')playMusic('battle');}
+    if(typeof startTurn==='function')startTurn();
+  }else if(typeof spawnFloor==='function')spawnFloor();
   toast('⚔ 已恢复上次远征');
 }
 function goHome(){
@@ -359,9 +380,21 @@ function init(){
   if(bs&&sp)bs.addEventListener('click',()=>{sfx('button');sp.classList.toggle('hidden');if(tp)tp.classList.add('hidden');});
   const sc=$('btnSettingsClose');if(sc&&sp)sc.addEventListener('click',()=>sp.classList.add('hidden'));
   const bv=$('bgmVol');if(bv){bv.value=Math.round((S.bgmVol||0.32)*100);bv.addEventListener('input',()=>{S.bgmVol=bv.value/100;try{localStorage.setItem('lexicon_bgm_vol',S.bgmVol);}catch(e){}if(_bgm)_bgm.volume=S.bgmVol;});}
-  // 继续战斗
+  // 继续战斗（弹确认）
   updateContinueBtn();
-  const bc=$('btnContinue');if(bc)bc.addEventListener('click',()=>{sfx('button');continueGame();});
+  const bc=$('btnContinue');if(bc)bc.addEventListener('click',()=>{
+    sfx('button');
+    let sv=null;try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){}
+    if(!sv)return;
+    const hero=(HEROES[sv.hero]&&HEROES[sv.hero].name)||sv.hero||'战士';
+    const tier=(TIERS[sv.tier]&&TIERS[sv.tier].name)||sv.tier||'KET';
+    showConfirm('⚔ 继续远征', '职业：<b>'+hero+'</b>\n词书：<b>'+tier+'</b>\n层数：<b>第 '+sv.floor+' 层</b> · 金币 <b>'+sv.gold+'</b>\n血量 <b>'+sv.hp+'/'+sv.maxHp+'</b>\n\n继续上次进度？', ()=>continueGame());
+  });
+  // 放弃远征（结算）
+  const ba=$('btnAbandonFloat');if(ba)ba.addEventListener('click',()=>{
+    sfx('button');
+    showConfirm('🏳 放弃远征', '将按当前进度结算星尘（中途放弃获得 <b>50%</b> 奖励），\n并清除本次存档返回主页。确定放弃？', ()=>abandonRun());
+  });
 
   // 页面刷新/关闭时自动保存（战斗中）
   window.addEventListener('pagehide',()=>{if(S&&S.floor>=1&&S.hp>0)saveGame();});
