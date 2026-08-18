@@ -54,6 +54,8 @@ function applyTheme(t){
   const opts=document.querySelectorAll('.t-opt');
   opts.forEach(o=>o.classList.toggle('selected',o.dataset.theme===t));
   rethemeIcons(t);   // ★ 切换主题时同步替换关键 icon
+  // 配乐随主题切换
+  if(musicPhase&&!S.muted){const ph=musicPhase;stopMusic();playMusic(ph);}
 }
 
 /* ============ 统一悬浮弹窗（遗物/药水 tooltip） ============ */
@@ -151,7 +153,7 @@ function playMusic(phase){
     a.loop=true;a.volume=0;a.dataset.src=src;
     _bgm=a;
     a.play().then(()=>{
-      const target=0.32;let v=0;
+      const target=S.bgmVol||0.32;let v=0;
       _bgmFade=setInterval(()=>{v=Math.min(target,v+0.015);a.volume=v;if(v>=target){clearInterval(_bgmFade);_bgmFade=null;}},70);
     }).catch(()=>{});
   }catch(e){}
@@ -267,8 +269,29 @@ function updateMuteBtn(){
   if(b)b.innerHTML=S.muted?'<i data-lucide="volume-x"></i> 音效关闭':'<i data-lucide="volume-2"></i> 音效开启';
   refreshIcons();
 }
+const SAVE_KEY='lexicon_save';
+function saveGame(){
+  if(!S||!S.floor||S.floor<1||S.hp<=0)return;
+  const copy={};
+  ['floor','gold','hp','maxHp','combo','maxCombo','correctTotal','wrongTotal','killedTotal','atkMul','defMul','goldMul','bossIndex','timeBonus','enemyBuff','block','turnCount','enemiesInFloor','thorn','comboGold','knowBuff','potions','potionDrop','potionPity','doubleAtk','chargeAtk','genie','relics','hero','tier','diff','wrongWords'].forEach(k=>{if(S[k]!==undefined)copy[k]=S[k];});
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(copy));}catch(e){}
+}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+function hasSave(){try{return !!localStorage.getItem(SAVE_KEY);}catch(e){return false;}}
+function continueGame(){
+  let sv=null;try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){}
+  if(!sv)return;clearSave();
+  Object.assign(S,sv);
+  showScreen('game');$('log').innerHTML='';
+  if(typeof updatePotionBar==='function')updatePotionBar();
+  if(typeof renderRelicBar==='function')renderRelicBar();
+  if(typeof spawnFloor==='function')spawnFloor();
+  updatePlayer();updateTop();
+  toast('⚔ 已恢复上次远征');
+}
 function goHome(){
   clearInterval(S.timer);
+  saveGame();   // ★ 保存本次游玩进度
   showScreen('start');
   if(typeof updatePotionBar==='function')updatePotionBar();
   sfx('button');
@@ -280,6 +303,7 @@ function init(){
   let _th='minimal';try{_th=localStorage.getItem('lexicon_theme')||'minimal';}catch(e){}
   let _mu=0;try{_mu=localStorage.getItem('lexicon_muted')==='1'?1:0;}catch(e){}
   S.muted=!!_mu;S.theme=_th;
+  S.bgmVol=parseFloat(localStorage.getItem('lexicon_bgm_vol'))||0.32;
   captureBaseIcons();
   applyTheme(_th);
   setupIconObserver();
@@ -323,6 +347,14 @@ function init(){
   document.addEventListener('mousedown',ensureMusic);
   document.addEventListener('keydown',ensureMusic);
   const lw=$('logWrap'),lh=$('logHeader');if(lw&&lh)lh.addEventListener('click',()=>lw.classList.toggle('open'));
+  // 设置浮层
+  const bs=$('btnSettings'),sp=$('settingsPop');
+  if(bs&&sp)bs.addEventListener('click',()=>{sfx('button');sp.classList.toggle('hidden');});
+  const sc=$('btnSettingsClose');if(sc&&sp)sc.addEventListener('click',()=>sp.classList.add('hidden'));
+  const bv=$('bgmVol');if(bv){bv.value=Math.round((S.bgmVol||0.32)*100);bv.addEventListener('input',()=>{S.bgmVol=bv.value/100;try{localStorage.setItem('lexicon_bgm_vol',S.bgmVol);}catch(e){}if(_bgm)_bgm.volume=S.bgmVol;});}
+  // 继续战斗
+  const bc=$('btnContinue');if(bc&&hasSave())bc.classList.remove('hidden');
+  if(bc)bc.addEventListener('click',()=>{sfx('button');continueGame();});
 
   // 点击任意非 tip 元素关闭悬浮弹窗
   document.addEventListener('click',(e)=>{

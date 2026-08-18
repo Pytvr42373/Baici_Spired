@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Manrope:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260818c">
+<link rel="stylesheet" href="css/style.css?v=20260818d">
 </head>
 <body>
 <div id="fxLayer"></div>
@@ -18,8 +18,13 @@
 <button id="btnHomeFloat" class="float-btn float-home hidden" data-sfx="button" title="返回主页"><i data-lucide="home"></i></button>
 <!-- 悬浮：主题切换 -->
 <button id="floatTheme" class="float-btn float-palette" data-sfx="button" title="切换主题"><i data-lucide="palette"></i></button>
+<button id="btnSettings" class="float-btn float-gear" data-sfx="button" title="设置"><i data-lucide="settings"></i></button>
 <div id="themePop" class="hidden">
-  <div class="t-opt" data-theme="minimal">极简线条</div>
+  <div class="t-opt" data-theme="minimal">极简线条</div><div id="settingsPop" class="hidden">
+      <div class="set-title">⚙ 设置</div>
+      <div class="set-row"><span>音乐音量</span><input type="range" id="bgmVol" min="0" max="100" value="32"></div>
+      <button class="btn ghost set-close" id="btnSettingsClose">关闭</button>
+    </div>
   <div class="t-opt" data-theme="pink">粉红可爱</div>
   <div class="t-opt" data-theme="mech">暗色机甲</div>
   <button id="btnMute" class="t-mute"><i data-lucide="volume-2"></i> 音效开启</button>
@@ -36,6 +41,7 @@
     <section class="panel" aria-label="词库"><h3>词库</h3><div class="chips" id="tierChips"></div></section>
     <section class="panel" aria-label="角色"><h3>角色</h3><div class="chips" id="heroChips"></div></section>
     <section class="panel" aria-label="难度"><h3>难度</h3><div class="chips" id="diffChips"></div></section>
+    <button class="btn gold hidden" id="btnContinue">⚔ 继续远征</button>
     <button class="btn gold" id="btnStart">开始远征</button>
     <button class="btn ghost" id="btnMeta">局外成长</button>
     <a class="btn ghost home-link" href="https://kiki-game.de5.net"><i data-lucide="house"></i> 返回游戏主页</a>
@@ -144,8 +150,8 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://unpkg.com/tone@15/build/Tone.js"></script>
 <script>window.addEventListener("load",function(){if(!window.Tone){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tone@15/build/Tone.js";document.head.appendChild(s);setTimeout(function(){if(window.Tone&&typeof playMusic==="function"&&typeof ensureMusic==="function")ensureMusic();},900);}});</script>
-<script src="js/data.js?v=20260818c"></script>
-<script src="js/game.js?v=20260818c"></script>
-<script src="js/main.js?v=20260818c"></script>
+<script src="js/data.js?v=20260818d"></script>
+<script src="js/game.js?v=20260818d"></script>
+<script src="js/main.js?v=20260818d"></script>
 </body>
 </html>
