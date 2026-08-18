@@ -132,54 +132,28 @@ function _resolvePhase(phase){
   }
   return phase;
 }
+const MUSIC_FILES={menu:'assets/audio/menu.mp3',battle_calm:'assets/audio/battle.mp3',battle_intense:'assets/audio/battle.mp3',boss:'assets/audio/boss.mp3',result:'assets/audio/result.mp3'};
+let _bgm=null,_bgmFade=null;
 function playMusic(phase){
   if(S.muted){stopMusic();return;}
-  const T=_tone(); if(!T){stopMusic();return;}
-  if(phase===musicPhase&&musicOn)return;
+  const _ph=_resolvePhase(phase);
+  musicPhase=_ph;musicOn=!!MUSIC_FILES[_ph];
+  const src=MUSIC_FILES[_ph]||MUSIC_FILES.menu;
+  if(_bgm&&_bgm.dataset.src===src)return;
   stopMusic();
-  const _ph=_resolvePhase(phase);const cfg=MUSIC[_ph];if(!cfg)return;
-  musicPhase=_ph;musicOn=true;
-  // 未解锁(无用户手势)时仅记录阶段，等手势解锁后由 ensureMusic 重放
-  if(T.context&&T.context.state==='suspended')return;
   try{
-    T.Transport.bpm.value=cfg.bpm;
-    const reverb=new T.Reverb({decay:2.6,wet:0.42}).toDestination();
-    const mel=new T.Synth({oscillator:{type:cfg.mode==='major'?'triangle':'sawtooth'},envelope:{attack:0.01,decay:0.25,sustain:0.22,release:0.4}}).connect(reverb);
-    mel.volume.value=-60;mel.volume.rampTo(-17,2);
-    const bass=new T.Synth({oscillator:{type:'sine'},envelope:{attack:0.01,decay:0.4,sustain:0.12,release:0.3}}).toDestination();
-    bass.volume.value=-60;bass.volume.rampTo(-19,2);
-    const hat=new T.NoiseSynth({noise:{type:'white'},envelope:{attack:0.001,decay:0.06,sustain:0,release:0.02}}).toDestination();
-    hat.volume.value=-60;hat.volume.rampTo(-24,2);
-    const kick=new T.MembraneSynth({pitchDecay:0.05,octaves:6,envelope:{attack:0.001,decay:0.4,sustain:0,release:0.2}}).toDestination();
-    kick.volume.value=-60;kick.volume.rampTo(-21,2);
-    const pad=new T.PolySynth(T.Synth,{oscillator:{type:'triangle'},envelope:{attack:0.7,decay:0.6,sustain:0.3,release:1.6}}).connect(reverb);
-    pad.volume.value=-60;pad.volume.rampTo(-22,2);
-    let step=0;
-    _musicLoop=new T.Loop(time=>{
-      const r=cfg.roots[Math.floor(step/8)%cfg.roots.length];
-      const s8=step%8;
-      if(s8===0){
-        bass.triggerAttackRelease(T.Frequency(r-12,'midi').toNote(),'1n',time);
-        if(cfg.pad){const chord=cfg.mode==='major'?[0,4,7,11]:[0,3,7,10];pad.triggerAttackRelease(chord.map(o=>T.Frequency(r+o,'midi').toNote()),'2n',time);}
-      }
-      const bar=Math.floor(step/8)%cfg.roots.length;
-      const arpA=cfg.mode==='major'?[0,7,12,16,12,7,0,7]:[0,3,7,12,7,3,0,3];
-      const arpB=cfg.mode==='major'?[12,7,16,12,7,4,7,12]:[12,7,3,7,12,10,7,3];
-      const arp=(bar%2===0)?arpA:arpB;
-      mel.triggerAttackRelease(T.Frequency(r+arp[s8],'midi').toNote(),'8n',time);
-      if(cfg.drums>=1&&s8%2===0)hat.triggerAttackRelease('16n',time);
-      if(cfg.drums>=2&&s8===0)kick.triggerAttackRelease('8n',time);
-      if(cfg.drums>=3&&s8===4)kick.triggerAttackRelease('8n',time);
-      step++;
-    },'8n');
-    _musicLoop.start(0);
-    T.Transport.start();
+    const a=new Audio(src);
+    a.loop=true;a.volume=0;a.dataset.src=src;
+    _bgm=a;
+    a.play().then(()=>{
+      const target=0.32;let v=0;
+      _bgmFade=setInterval(()=>{v=Math.min(target,v+0.015);a.volume=v;if(v>=target){clearInterval(_bgmFade);_bgmFade=null;}},70);
+    }).catch(()=>{});
   }catch(e){}
 }
 function stopMusic(){
-  musicOn=false;musicPhase='';
-  if(_musicLoop){try{_musicLoop.stop();_musicLoop.dispose&&_musicLoop.dispose();}catch(e){} _musicLoop=null;}
-  if(TON){try{TON.Transport.stop();}catch(e){}}
+  if(_bgmFade){clearInterval(_bgmFade);_bgmFade=null;}
+  if(_bgm){try{_bgm.pause();_bgm=null;}catch(e){}}
 }
 
 /* ============ 药水系统（仿杀戮尖塔） ============ */
@@ -338,7 +312,7 @@ function init(){
   refreshIcons();
   if(typeof playMusic==='function')playMusic('menu');
   let _musicStarted=false;
-  const ensureMusic=async()=>{const T=_tone();if(!T||_musicStarted)return;if(T.context&&T.context.state==='suspended'){try{await T.start();}catch(e){}}if(!S.muted){const ph=musicPhase||'menu';stopMusic();if(ph)playMusic(ph);_musicStarted=true;}};
+  const ensureMusic=()=>{if(_musicStarted)return;if(!S.muted){const ph=musicPhase||'menu';stopMusic();if(ph)playMusic(ph);_musicStarted=true;}};
   document.addEventListener('pointerdown',ensureMusic);
   document.addEventListener('touchstart',ensureMusic);
   document.addEventListener('mousedown',ensureMusic);
