@@ -18,6 +18,11 @@ const ICON_THEMES={
     scroll:'cpu',sword:'zap',shield:'radar',flame:'flame',
     heart:'cpu',target:'crosshair',wand:'zap',gem:'diamond',skull:'skull',
     trophy:'award',swords:'crosshair',coins:'coins',eye:'scan',hourglass:'timer'
+  },
+  egg:{
+    scroll:'sparkles',sword:'wand',shield:'shield',flame:'flower',
+    heart:'heart',target:'sparkle',wand:'wand-2',gem:'gem',skull:'ghost',
+    trophy:'crown',swords:'sparkles',coins:'coins',eye:'eye',hourglass:'hourglass'
   }
 };
 /* 主题替身名集合：用于区分「原始名」与「已主题化名」 */
@@ -137,7 +142,8 @@ function _resolvePhase(phase){
 const MUSIC_FILES={
   minimal:{menu:'assets/audio/menu.mp3',battle_calm:'assets/audio/battle.mp3',battle_intense:'assets/audio/battle.mp3',boss:'assets/audio/boss.mp3',result:'assets/audio/result.mp3'},
   pink:{menu:'assets/audio/pink_menu.mp3',battle_calm:'assets/audio/pink_battle.mp3',battle_intense:'assets/audio/pink_battle.mp3',boss:'assets/audio/pink_boss.mp3',result:'assets/audio/pink_result.mp3'},
-  mech:{menu:'assets/audio/mech_menu.mp3',battle_calm:'assets/audio/mech_battle.mp3',battle_intense:'assets/audio/mech_battle.mp3',boss:'assets/audio/mech_boss.mp3',result:'assets/audio/mech_result.mp3'}
+  mech:{menu:'assets/audio/mech_menu.mp3',battle_calm:'assets/audio/mech_battle.mp3',battle_intense:'assets/audio/mech_battle.mp3',boss:'assets/audio/mech_boss.mp3',result:'assets/audio/mech_result.mp3'},
+  egg:{menu:'assets/audio/egg_menu.mp3',battle_calm:'assets/audio/egg_battle.mp3',battle_intense:'assets/audio/egg_battle.mp3',boss:'assets/audio/egg_boss.mp3',result:'assets/audio/egg_result.mp3'}
 };
 let _bgm=null,_bgmFade=null;
 function playMusic(phase){
