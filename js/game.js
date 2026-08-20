@@ -332,6 +332,7 @@ function renderRelicBar(){
 
 /* ============ 开局/结算 ============ */
 function startRun(){
+  S._settled=false;  // 新开局重置结算标记
   clearSave();
   if(typeof updateContinueBtn==='function')updateContinueBtn();
   Object.assign(S,{
@@ -355,6 +356,7 @@ function startRun(){
   spawnFloor();updatePlayer();updateTop();
 }
 function endRun(win,abandon){
+  S._settled=true;  // 本局已结算，pagehide 不再自动存档
   clearSave();
   if(typeof updateContinueBtn==='function')updateContinueBtn();
   clearInterval(S.timer);

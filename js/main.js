@@ -403,7 +403,7 @@ function init(){
   });
 
   // 页面刷新/关闭时自动保存（战斗中）
-  window.addEventListener('pagehide',()=>{if(S&&S.floor>=1&&S.hp>0)saveGame();});
+  window.addEventListener('pagehide',()=>{if(S&&!S._settled&&S.floor>=1&&S.hp>0)saveGame();});
 
   // 点击任意非 tip 元素关闭悬浮弹窗
   document.addEventListener('click',(e)=>{
