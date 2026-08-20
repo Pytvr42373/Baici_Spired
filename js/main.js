@@ -293,9 +293,11 @@ function showConfirm(title,msg,onOk){
   const cp=$('confirmPop');if(!cp)return;
   const t=$('confirmTitle');if(t)t.textContent=title;
   const m=$('confirmMsg');if(m)m.innerHTML=msg;
+  // ★ confirmPop 初始带 .hidden(display:none!important)，必须显式移除，否则 .show 永远被压住
+  cp.classList.remove('hidden');
   cp.classList.add('show');
   const ok=$('confirmOk'),ca=$('confirmCancel');
-  const clear=()=>cp.classList.remove('show');
+  const clear=()=>{cp.classList.remove('show');cp.classList.add('hidden');};
   if(ca)ca.onclick=()=>{clear();sfx('button');};
   if(ok)ok.onclick=()=>{clear();sfx('button');if(typeof onOk==='function')onOk();};
   // 点击遮罩关闭
