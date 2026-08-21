@@ -5,7 +5,7 @@
 
 /* ============ 局外成长持久化 ============ */
 let META=loadMeta();
-function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'){m.star=+m.star||0;m.maxHp=+m.maxHp||0;m.slot=+m.slot||0;m.goldStart=+m.goldStart||0;return m;}}catch(e){}return {star:0,maxHp:0,slot:0,goldStart:0};}
+function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'){m.star=+m.star||0;m.maxHp=+m.maxHp||0;m.slot=+m.slot||0;m.goldStart=+m.goldStart||0;if(!m.words||typeof m.words!=='object')m.words={};return m;}}catch(e){}return {star:0,maxHp:0,slot:0,goldStart:0,words:{}};}
 function saveMeta(){localStorage.setItem(META_KEY,JSON.stringify(META));}
 
 let S={};
@@ -51,12 +51,52 @@ function iconHTML(name){
   return '<i data-lucide="'+name+'"></i>';
 }
 
+/* ============ 间隔复习（学习属性 ↔ 游戏资源打通） ============ */
+const REVIEW_IV=[1,2,4,7,15,30]; // 答对间隔递进天数
+function touchWord(en,correct){
+  if(!en)return;
+  META.words=META.words||{};
+  const r=META.words[en]||{iv:0,due:0,wrongs:0,mastery:0};
+  const now=Date.now();
+  if(correct){
+    r.mastery=(r.mastery||0)+1;
+    if((r.wrongs||0)>0)r.wrongs--;
+    const idx=REVIEW_IV.indexOf(r.iv);
+    if(idx>=0&&idx<REVIEW_IV.length-1)r.iv=REVIEW_IV[idx+1];
+    else if(r.iv<=0)r.iv=REVIEW_IV[0];
+    r.due=now+r.iv*86400000;
+  }else{
+    r.wrongs=(r.wrongs||0)+1;
+    r.iv=REVIEW_IV[0];
+    r.due=now+r.iv*86400000;
+  }
+  META.words[en]=r;
+  saveMeta();
+}
+function wordRec(en){return (META.words||{})[en]||null;}
+function isDueWord(en){const r=wordRec(en);return !!(r&&r.due>0&&r.due<=Date.now());}
+function dueWordsCount(){let n=0,now=Date.now();for(const t in TIERS){for(const w of TIERS[t].words){const r=wordRec(w.en);if(r&&r.due>0&&r.due<=now)n++;}}return n;}
+
 /* ============ 词库 ============ */
 function getPool(){
-  const pool=[...TIERS[S.tier].words];
-  const wrong=pool.filter(w=>S.wrongWords[w.en]);
-  const base=shuffle(pool).slice(0,15);
-  for(const w of wrong){if(Math.random()<.6&&!base.some(x=>x.en===w.en))base.push(w);}
+  const words=TIERS[S.tier].words;
+  const now=Date.now();
+  const wlist=[];const dues=[];const wrongs=[];
+  for(const w of words){
+    const r=(META.words||{})[w.en];
+    let wgt=1;
+    if(r){
+      if(r.due>0&&r.due<=now){wgt=10;dues.push(w);}
+      else if(r.wrongs>0)wgt=6;
+      else if(r.mastery>=3&&r.iv>=7)wgt=0.4;
+    }
+    if(S.wrongWords[w.en]){wgt+=10;wrongs.push(w);}
+    const n=Math.max(1,Math.round(wgt));
+    for(let i=0;i<n;i++)wlist.push(w);
+  }
+  let base=shuffle(wlist).slice(0,18);
+  for(const d of dues){if(!base.some(x=>x.en===d.en)){if(base.length>=18)base.pop();base.push(d);}}
+  for(const w of wrongs){if(!base.some(x=>x.en===w.en)){if(base.length>=18)base.pop();base.push(w);}}
   return base;
 }
 function buildOptions(target,pool,qType){
@@ -129,7 +169,7 @@ function nextQuestion(){
   S.lastWord=w.en;S.currentWord=w;
   const qType=Math.random()<.5?'e2c':'c2e';
   S.qType=qType;S.options=buildOptions(w,pool,qType);
-  $('qType').textContent=qType==='e2c'?'英→中':'中→英';
+  $('qType').textContent=(isDueWord(w.en)?'📚 ':'')+(qType==='e2c'?'英→中':'中→英');
   $('qPos').textContent=w.pos;
   $('qHint').textContent=qType==='e2c'?('选择「'+w.en+'」的释义'):('选择「'+w.cn+'」对应的单词');
   $('qWord').textContent=qType==='e2c'?w.en:w.cn;
@@ -161,7 +201,9 @@ function onTimeout(){if(S.phase!=='question')return;lockOptions();const target=S
 function recordWrong(){if(S.currentWord)S.wrongWords[S.currentWord.en]=true;}
 function resolve(correct,timeout){
   S.locked=true;
+  const _wasDue=!!(S.currentWord&&isDueWord(S.currentWord.en)); // 答前判断是否到期复习词
   if(correct){S.correctTotal++;}else{S.wrongTotal++;recordWrong();}
+  touchWord(S.currentWord&&S.currentWord.en,correct);
   const curTime=$('timerRing');const remain=Math.max(0,parseInt(curTime.textContent)||0);
   // 数值 = 剩余时间 × 系数
   let val=correct?Math.round(remain*(S.choice==='atk'?ATK_RATE*S.atkMul:DEF_RATE*(S.defMul||1))):0;
@@ -180,7 +222,9 @@ function resolve(correct,timeout){
     log((correct?('🛡 格挡 '+val):'✗ 防御失败')+(timeout?'（超时）':''),correct?'':'r');
   }
   updatePlayer();updateEnemy();updateTop();
-  $('feedback').textContent=correct?('✓ 正确 · '+(S.choice==='atk'?'伤害':'格挡')+' '+val):('✗ 答错，数值 0');
+  let _fb=correct?('✓ 正确 · '+(S.choice==='atk'?'伤害':'格挡')+' '+val):('✗ 答错，数值 0');
+  if(correct&&_wasDue){S.reviewDone=(S.reviewDone||0)+1;S.gold+=2;updateTop();_fb+=' 📚复习+2';log('📚 复习词答对 +2 金币','g');}
+  $('feedback').textContent=_fb;
   $('feedback').className=correct?'ok':'bad';
   setTimeout(()=>{
     // ★ 关闭答题弹窗，回到战斗视图
@@ -339,7 +383,7 @@ function startRun(){
     floor:1,gold:META.goldStart||0,combo:0,maxCombo:0,hp:0,maxHp:0,
     correctTotal:0,wrongTotal:0,killedTotal:0,atkMul:1,defMul:1,goldMul:1,
     bossIndex:0,timeBonus:0,enemyBuff:0,block:0,choice:'atk',locked:false,
-    wrongWords:{},turnCount:0,enemiesInFloor:1,enemy:null,thorn:false,comboGold:false,knowBuff:false,
+    wrongWords:{},reviewDone:0,turnCount:0,enemiesInFloor:1,enemy:null,thorn:false,comboGold:false,knowBuff:false,
     /* 药水状态 */
     potions:[null,null,null],potionDrop:0.4,potionPity:0,
     doubleAtk:false,chargeAtk:false,genie:false,
@@ -361,9 +405,10 @@ function endRun(win,abandon){
   if(typeof updateContinueBtn==='function')updateContinueBtn();
   clearInterval(S.timer);
   const _rate=(TIERS[S.tier]&&TIERS[S.tier].rate)||1;
-  let star;
-  if(abandon){star=Math.max(1,Math.round((Math.floor(S.floor/2)+Math.floor(S.correctTotal/20))*0.5*_rate));}
-  else{star=Math.max(1,Math.round((Math.floor(S.floor/2)+(win?8:0)+Math.floor(S.correctTotal/20))*_rate));}
+  // ★ 新星尘公式：层数 + 通关 + 正确率 + 复习加成（学习=回报）
+  let star=Math.max(1,S.floor+(win?8:0)+Math.floor(S.correctTotal/25)+Math.min(5,S.reviewDone||0));
+  star=Math.max(1,Math.round(star*_rate));
+  if(abandon)star=Math.max(1,Math.round(star*0.5));
   META.star+=star;saveMeta();
   showScreen('result');
   const _g=abandon?'flag':(win?'trophy':'skull');$('resultGlyph').setAttribute('data-lucide',_g);$('resultGlyph').dataset.base=_g;refreshIcons();
@@ -374,6 +419,7 @@ function endRun(win,abandon){
     '<div class="stat-row"><span>答对 / 答错</span><span>'+S.correctTotal+' / '+S.wrongTotal+'</span></div>'+
     '<div class="stat-row"><span>击败敌人</span><span>'+S.killedTotal+'</span></div>'+
     '<div class="stat-row"><span>最高连击</span><span>×'+S.maxCombo+'</span></div>'+
+    '<div class="stat-row"><span>复习词</span><span>📚 ×'+(S.reviewDone||0)+'</span></div>'+
     '<div class="stat-row"><span>获得金币</span><span>'+S.gold+'</span></div>'+
     '<div class="stat-row"><span>✨ 星尘</span><span>+'+star+'</span></div>';
 }
@@ -383,6 +429,7 @@ function abandonRun(){
 }
 function renderMeta(){
   $('metaStar').innerHTML='<span class="star-ico">'+starSVG()+'</span><span id="metaStarNum">'+META.star+'</span>';
+  const _rb=$('reviewBox');if(_rb){const _due=dueWordsCount();_rb.innerHTML='<div class="u-name" style="color:var(--accent)">📚 今日复习</div><div class="u-desc">'+_due+' 个词已到期 · 答对复习词 +2 金币 · 结算星尘 +1/词（封顶 +5）</div>';}
   const list=$('upgradeList');list.innerHTML='';
   const ups=[
     {k:'maxHp',name:'❤ 生命强化',desc:'每级 +8 最大生命',cost:n=>6+n*3,lv:META.maxHp,max:8},

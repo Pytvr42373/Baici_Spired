@@ -280,7 +280,7 @@ const SAVE_KEY='lexicon_save';
 function saveGame(){
   if(!S||!S.floor||S.floor<1||S.hp<=0)return;
   const copy={};
-  ['floor','gold','hp','maxHp','combo','maxCombo','correctTotal','wrongTotal','killedTotal','atkMul','defMul','goldMul','bossIndex','timeBonus','enemyBuff','block','turnCount','enemiesInFloor','thorn','comboGold','knowBuff','potions','potionDrop','potionPity','doubleAtk','chargeAtk','genie','relics','hero','tier','diff','wrongWords','enemy'].forEach(k=>{if(S[k]!==undefined)copy[k]=S[k];});
+  ['floor','gold','hp','maxHp','combo','maxCombo','correctTotal','wrongTotal','killedTotal','atkMul','defMul','goldMul','bossIndex','timeBonus','enemyBuff','block','turnCount','enemiesInFloor','thorn','comboGold','knowBuff','potions','potionDrop','potionPity','doubleAtk','chargeAtk','genie','relics','hero','tier','diff','wrongWords','reviewDone','enemy'].forEach(k=>{if(S[k]!==undefined)copy[k]=S[k];});
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(copy));}catch(e){}
 }
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
