@@ -380,3 +380,22 @@ function playerSVG(key){return PLAYER_SVGS[key]||PLAYER_SVGS.warrior;}
 const MAP_ROW_W=[3,4,4,4,4,3,1]; // 每行节点数（row0 起点最下，row6 Boss）每幕 7 层
 const MAP_TYPE_ICON={battle:'⚔️',elite:'💀',shop:'🏪',rest:'⛺',event:'❓',treasure:'🎁',boss:'👹'};
 const MAP_TYPE_NAME={battle:'战斗',elite:'精英',shop:'商店',rest:'休息',event:'奇遇',treasure:'宝箱',boss:'Boss'};
+
+/* ============ 星尘天赋树（局外成长） ============ */
+// 分支 id: power力量 / lore学识；cost(n)=第 n→n+1 级花费；prereq=前置节点（全满足才可点）
+const TALENT_BRANCHES=[
+  {id:'power',name:'力量',icon:'⚔️',color:'#ff6b6b',nodes:[
+    {id:'P1',name:'锋刃磨砺',desc:'局内攻击 +5% / 级',cost:n=>4+3*n,max:5,prereq:[]},
+    {id:'P2',name:'致命一击',desc:'暴击率 +4% / 级（暴击伤害 ×1.5）',cost:n=>6+4*n,max:5,prereq:['P1']},
+    {id:'P3',name:'双刃乱舞',desc:'每答对 2 题，本击 +1 伤害',cost:n=>8+5*n,max:3,prereq:['P1']},
+    {id:'P5',name:'破甲之锋',desc:'对 BOSS 伤害 +12% / 级',cost:n=>10+6*n,max:3,prereq:['P2']},
+    {id:'P4',name:'战意昂扬',desc:'连击 ≥5 时回复 2 生命',cost:n=>18,max:1,prereq:['P2','P3']}
+  ]},
+  {id:'lore',name:'学识',icon:'📚',color:'#5eead4',nodes:[
+    {id:'L1',name:'词库扩充',desc:'战斗词池 +5 / 级',cost:n=>4+3*n,max:5,prereq:[]},
+    {id:'L2',name:'融会贯通',desc:'答对金币 +1 / 级',cost:n=>6+4*n,max:3,prereq:['L1']},
+    {id:'L3',name:'过目不忘',desc:'错题权重 +20% / 级',cost:n=>8+5*n,max:3,prereq:['L1']},
+    {id:'L4',name:'智慧之眼',desc:'答题时间 +2 秒 / 级',cost:n=>10+6*n,max:3,prereq:['L2','L3']},
+    {id:'L5',name:'学者之心',desc:'答对 25% 概率回复 2 生命',cost:n=>22,max:1,prereq:['L4']}
+  ]}
+];

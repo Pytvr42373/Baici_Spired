@@ -1047,3 +1047,27 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 .menu-panel{display:flex;flex-direction:column;gap:10px;}
 .menu-title{text-align:center;font-size:17px;margin-bottom:4px;}
 .back-btn{margin-top:4px;}
+
+/* ============ 星尘天赋树 ============ */
+.talent-title{text-align:center;font-size:15px;font-weight:700;color:var(--accent);margin:16px 0 8px;}
+.talent-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
+.talent-panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.talent-branch{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--tb,#fff);margin-bottom:6px;padding:2px 4px;}
+.tb-ico{font-size:16px;}
+.talent-tier{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0;border-top:1px dashed var(--line,#333);}
+.talent-tier:first-of-type{border-top:none;}
+.talent-node{flex:1 1 46%;min-width:150px;background:var(--bg,#15151a);border:1px solid var(--line,#333);border-radius:10px;padding:8px 9px;cursor:pointer;transition:.15s;position:relative;}
+.talent-node.on{border-color:var(--tb,#fff);background:linear-gradient(180deg,color-mix(in srgb,var(--tb) 18%,var(--bg,#15151a)),var(--bg,#15151a));}
+.talent-node.can{border-color:color-mix(in srgb,var(--tb) 55%,var(--line,#333));box-shadow:0 0 0 1px color-mix(in srgb,var(--tb) 25%,transparent);}
+.talent-node.lock{opacity:.5;cursor:not-allowed;}
+.talent-node.no-click{cursor:default;}
+.talent-node:active:not(.no-click){transform:scale(.97);}
+.tn-top{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--fg,#eee);}
+.tn-lv{font-size:11px;color:var(--gold,#e8b64c);white-space:nowrap;}
+.tn-desc{font-size:11px;color:var(--sub,#aaa);margin-top:3px;line-height:1.35;}
+.tn-foot{display:flex;justify-content:space-between;align-items:center;margin-top:5px;font-size:11px;gap:6px;}
+.tn-req{color:var(--sub,#999);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tn-cost{color:var(--gold,#e8b64c);font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:2px;}
+.tn-cost svg{width:12px;height:12px;}
+/* 暴击浮字 */
+.fx.crit{color:#ffd54a;font-weight:800;font-size:1.35em;text-shadow:0 0 8px rgba(255,213,74,.7);}

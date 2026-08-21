@@ -5,8 +5,39 @@
 
 /* ============ 局外成长持久化 ============ */
 let META=loadMeta();
-function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'){m.star=+m.star||0;m.maxHp=+m.maxHp||0;m.slot=+m.slot||0;m.goldStart=+m.goldStart||0;m.reviewToday=+m.reviewToday||0;m.reviewDate=m.reviewDate||'';if(!m.words||typeof m.words!=='object')m.words={};return m;}}catch(e){}return {star:0,maxHp:0,slot:0,goldStart:0,reviewToday:0,reviewDate:'',words:{}};}
+function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'){m.star=+m.star||0;m.maxHp=+m.maxHp||0;m.slot=+m.slot||0;m.goldStart=+m.goldStart||0;m.reviewToday=+m.reviewToday||0;m.reviewDate=m.reviewDate||'';m.tree=m.tree||{};if(!m.words||typeof m.words!=='object')m.words={};return m;}}catch(e){}return {star:0,maxHp:0,slot:0,goldStart:0,reviewToday:0,reviewDate:'',tree:{},words:{}};}
 function saveMeta(){localStorage.setItem(META_KEY,JSON.stringify(META));}
+
+/* ============ 星尘天赋树：加点与查询 ============ */
+function talentLv(id){return (META.tree&&META.tree[id])||0;}
+function talentNode(id){for(const b of TALENT_BRANCHES){const n=b.nodes.find(x=>x.id===id);if(n)return n;}return null;}
+function talentBranchOf(id){for(const b of TALENT_BRANCHES){if(b.nodes.some(x=>x.id===id))return b;}return null;}
+function talentCost(node){const lv=talentLv(node.id);return node.cost(lv);}
+function talentCanSpend(node){
+  if(talentLv(node.id)>=node.max)return false;
+  if(META.star<talentCost(node))return false;
+  for(const pid of (node.prereq||[])){if(talentLv(pid)<=0)return false;}
+  return true;
+}
+function spendTalent(id){
+  const node=talentNode(id);if(!node)return;
+  if(!talentCanSpend(node)){toast(node.prereq&&node.prereq.length&&talentLv(node.id)===0&&!node.prereq.every(p=>talentLv(p)>0)?'🔒 前置天赋未解锁':'✨ 星尘不足');return;}
+  META.star-=talentCost(node);META.tree[id]=(talentLv(id)||0)+1;saveMeta();renderMeta();
+  toast('🌟 点亮「'+node.name+'」Lv.'+talentLv(id));
+}
+/* 局内生效：开局时把天赋数值写入 S */
+function applyTalentRun(){
+  S.talentP1=talentLv('P1');          // 攻击 +5%/级
+  S.critRate=talentLv('P2')*4;        // 暴击率 +4%/级
+  S.talentP3=talentLv('P3');          // 每2连击 +1 伤害
+  S.talentP5=talentLv('P5');          // BOSS 伤害 +12%/级
+  S.talentP4=talentLv('P4')>0;        // 连击≥5 回2血
+  S.talentL2=talentLv('L2');          // 答对金币 +1/级
+  S.talentL4=talentLv('L4');          // 答题时间 +2秒/级
+  S.talentL5=talentLv('L5')>0;        // 答对25%回2血
+  if(S.talentP1)S.atkMul=(S.atkMul||1)*(1+S.talentP1*0.05);
+  if(S.talentL4)S.timeBonus=(S.timeBonus||0)+S.talentL4*2;
+}
 
 let S={};
 const $=id=>document.getElementById(id);
@@ -87,14 +118,14 @@ function getPool(){
     let wgt=1;
     if(r){
       if(r.due>0&&r.due<=now){wgt=10;dues.push(w);}
-      else if(r.wrongs>0)wgt=6;
+      else if(r.wrongs>0)wgt=6*(1+(talentLv('L3'))*0.2);
       else if(r.mastery>=3&&r.iv>=7)wgt=0.4;
     }
     if(S.wrongWords[w.en]){wgt+=10;wrongs.push(w);}
     const n=Math.max(1,Math.round(wgt));
     for(let i=0;i<n;i++)wlist.push(w);
   }
-  let base=shuffle(wlist).slice(0,18);
+  const _cap=18+(talentLv('L1'))*5;let base=shuffle(wlist).slice(0,_cap);
   for(const d of dues){if(!base.some(x=>x.en===d.en)){if(base.length>=18)base.pop();base.push(d);}}
   for(const w of wrongs){if(!base.some(x=>x.en===w.en)){if(base.length>=18)base.pop();base.push(w);}}
   return base;
@@ -183,7 +214,7 @@ function nextQuestion(){
   startTimer();
 }
 function startTimer(){
-  const time=(DIFFS[S.diff].time||15)+(HEROES[S.hero].time||0)+(S.timeBonus||0);let remain=time;
+  const time=(DIFFS[S.diff].time||15)+(HEROES[S.hero].time||0)+(S.timeBonus||0)+(S.talentL4||0)*2;let remain=time;
   const ring=$('timerRing');ring.textContent=remain;ring.style.background='var(--card)';ring.classList.remove('low');
   clearInterval(S.timer);
   S.timer=setInterval(()=>{remain--;ring.textContent=remain;if(remain<=5){ring.style.background='var(--red)';ring.style.color='#fff';ring.classList.add('low');}else{ring.style.background='var(--card)';ring.style.color='';ring.classList.remove('low');};if(remain<=0){clearInterval(S.timer);onTimeout();}},1000);
@@ -214,13 +245,15 @@ function resolve(correct,timeout){
   if(S.choice==='atk'&&S.knowBuff&&S.intent&&S.intent.type===2)val*=2;
   if(S.choice==='atk'&&S.chargeAtk&&S.intent&&S.intent.type===2){val*=2;S.chargeAtk=false;}
   if(S.choice==='atk'&&S.doubleAtk){val*=2;S.doubleAtk=false;}
+  if(S.choice==='atk'&&correct&&S.enemy&&S.talentP5&&S.enemy.isBoss)val=Math.round(val*(1+S.talentP5*0.12));
+  let _crit=false;if(S.choice==='atk'&&correct&&S.critRate&&Math.random()*100<S.critRate){val=Math.round(val*1.5);_crit=true;}
   if(S.choice==='atk'){
-    if(correct){S.enemy.hp-=Math.max(val-S.enemy.block,0);const absorbed=Math.min(val,S.enemy.block);S.enemy.block-=absorbed;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;}
+    if(correct){S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(S.talentP3&&S.combo>=2&&S.combo%2===0)val+=S.talentP3;S.enemy.hp-=Math.max(val-S.enemy.block,0);const absorbed=Math.min(val,S.enemy.block);S.enemy.block-=absorbed;if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;if(S.talentL2){S.gold+=S.talentL2;}if(S.talentP4&&S.combo>=5&&S.combo%5===0){S.hp=Math.min(S.maxHp,S.hp+2);fx(rect('playerArea').x,rect('playerArea').y,'+2','heal');}if(S.talentL5&&Math.random()<0.25){S.hp=Math.min(S.maxHp,S.hp+2);fx(rect('playerArea').x,rect('playerArea').y,'+2','heal');}}
     else{S.combo=0;}
-    const p=rect('enemyArea');if(val>0)fx(p.x,p.y,'-'+val,'');else if(!correct)fx(p.x,p.y,'落空','heal');
-    log((correct?('⚔ 攻击 '+val):'✗ 落空')+(timeout?'（超时）':''),correct?'':'r');
+    const p=rect('enemyArea');if(val>0)fx(p.x,p.y,'-'+val,_crit?'crit':'');else if(!correct)fx(p.x,p.y,'落空','heal');
+    log((correct?('⚔ 攻击 '+val+(_crit?' ⚡暴击':'')):'✗ 落空')+(timeout?'（超时）':''),correct?'':'r');
   }else{
-    if(correct){S.block+=val;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;}
+    if(correct){S.block+=val;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);if(HEROES[S.hero].combo)S.gold++;if(S.comboGold&&S.combo%3===0)S.gold+=2;if(S.talentL2){S.gold+=S.talentL2;}if(S.talentL5&&Math.random()<0.25){S.hp=Math.min(S.maxHp,S.hp+2);fx(rect('playerArea').x,rect('playerArea').y,'+2','heal');}}
     else{S.combo=0;}
     if(val>0)fx(rect('playerArea').x,rect('playerArea').y,'+'+val,'def');
     log((correct?('🛡 格挡 '+val):'✗ 防御失败')+(timeout?'（超时）':''),correct?'':'r');
@@ -407,6 +440,7 @@ function startRun(){
     relics:[],act:1,map:null,mapRow:0,mapCol:-1
   });
   S.atkMul=(HEROES[S.hero].atkMul||1)*(S.atkMul||1);
+  applyTalentRun();
   S.maxHp=60+META.maxHp*8;S.hp=S.maxHp;
   refreshTab();
   renderPlayer();
@@ -452,6 +486,35 @@ function renderMeta(){
     {k:'goldStart',name:'🪙 开局金币',desc:'每级 +5 金币',cost:n=>8+n*4,lv:META.goldStart,max:5}
   ];
   ups.forEach(u=>{const cost=u.cost(u.lv);const d=document.createElement('div');d.className='upgrade';d.innerHTML='<div><div class="u-name">'+u.name+' <span style="color:var(--gold)">Lv.'+u.lv+'</span></div><div class="u-desc">'+u.desc+'</div></div><div class="u-cost">'+starSVG()+'<span>'+cost+'</span></div>';if(META.star<cost||u.lv>=u.max)d.disabled=true;d.onclick=()=>{if(META.star>=cost&&u.lv<u.max){META.star-=cost;META[u.k]++;saveMeta();renderMeta();}};list.appendChild(d);});
+  renderTalentTree();
+}
+/* 天赋树 UI：双分支面板，前置连线 + 节点卡片 */
+function renderTalentTree(){
+  const wrap=$('talentWrap');if(!wrap)return;
+  wrap.innerHTML='';
+  for(const b of TALENT_BRANCHES){
+    const panel=document.createElement('div');panel.className='talent-panel';
+    panel.style.setProperty('--tb',b.color);
+    let html='<div class="talent-branch"><span class="tb-ico">'+b.icon+'</span>'+b.name+'</div>';
+    const tierMap={};for(const n of b.nodes){const t=Math.max(0,...(n.prereq||[]).map(p=>{const pn=talentNode(p);return (tierMap[pn.id]||0)+1;}));tierMap[n.id]=t;n._tier=t;}
+    const tiers=[];for(const n of b.nodes){const t=tierMap[n.id];(tiers[t]=tiers[t]||[]).push(n);}
+    for(let t=0;t<tiers.length;t++){
+      html+='<div class="talent-tier">';
+      for(const n of tiers[t]){
+        const lv=talentLv(n.id);const can=talentCanSpend(n);const locked=(lv===0&&(n.prereq||[]).some(p=>talentLv(p)<=0));
+        const cls='talent-node'+(lv>0?' on':'')+(can?' can':'')+(locked?' lock':'');
+        html+='<div class="'+cls+'" data-id="'+n.id+'"><div class="tn-top"><span class="tn-name">'+n.name+'</span><span class="tn-lv">Lv.'+lv+'/'+n.max+'</span></div><div class="tn-desc">'+n.desc+'</div><div class="tn-foot"><span class="tn-req">'+(locked?('🔒 '+(n.prereq||[]).map(p=>talentNode(p).name).join('、')):'')+'</span><span class="tn-cost">'+(lv>=n.max?'已满级':(can?(starSVG()+' '+talentCost(n)):('✨ '+talentCost(n))))+'</span></div></div>';
+      }
+      html+='</div>';
+    }
+    panel.innerHTML=html;
+    panel.querySelectorAll('.talent-node').forEach(el=>{
+      const id=el.dataset.id;const node=talentNode(id);const lv=talentLv(id);
+      if(lv>0||!talentCanSpend(node))el.classList.add('no-click');
+      el.addEventListener('click',()=>{if(talentCanSpend(node))spendTalent(id);});
+    });
+    wrap.appendChild(panel);
+  }
 }
 function starSVG(){
   return '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.2l1.3-6.6L2.5 9l6.6-.8z"/></svg>';
