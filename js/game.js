@@ -460,8 +460,10 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+id).classList.add('active');
   if(id==='meta')renderMeta();
   if(id==='review'){if(typeof renderReviewScreen==='function')renderReviewScreen();}
+  if(id==='wrongbook'){if(typeof renderWrongBookScreen==='function')renderWrongBookScreen();}
   if(id==='map'&&typeof renderMap==='function')renderMap();
-  if(id==='start'&&typeof updateReviewBtn==='function')updateReviewBtn();
+  if(id==='start'||id==='gamemenu'||id==='study'){if(typeof updateReviewBtn==='function')updateReviewBtn();}
+  if(id==='gamemenu'&&typeof updateContinueBtn==='function')updateContinueBtn();
   // 返回主页/放弃按钮：仅战斗时显示
   const bh=$('btnHomeFloat');if(bh)bh.classList.toggle('hidden',!(id==='game'||id==='map'));
   const ba=$('btnAbandonFloat');if(ba)ba.classList.toggle('hidden',!(id==='game'||id==='map'));
@@ -641,15 +643,6 @@ function genMap(act){
   edges.forEach(e=>{const k=e[0]+'_'+e[1];(outMap[k]=outMap[k]||[]).push([e[2],e[3]]);});
   return {act,rows,edges,outMap};
 }
-function renderMapHud(){
-  const h=$('mapHud');if(!h)return;
-  const _relics=(S.relics||[]).length;
-  const _pot=(S.potions||[]).filter(Boolean).length;
-  h.innerHTML='<span class="mh-stat mh-hp"><span class="mh-ico">❤️</span><span class="mh-num">'+Math.max(0,S.hp)+'/'+S.maxHp+'</span></span>'+
-    '<span class="mh-stat mh-gold"><span class="mh-ico">🪙</span><span class="mh-num">'+S.gold+'</span></span>'+
-    '<span class="mh-stat mh-relic"><span class="mh-ico">🧿</span><span class="mh-num">'+_relics+'</span></span>'+
-    '<span class="mh-stat mh-potion"><span class="mh-ico">🧪</span><span class="mh-num">'+_pot+'/'+POTION_SLOTS+'</span></span>';
-}
 function renderMap(){
   const svg=$('mapCanvas');if(!svg||!S.map)return;
   const M=S.map;
@@ -666,7 +659,6 @@ function renderMap(){
     else if(S.mapRow===MAP_ROW_W.length-1)se.textContent='击败词灵，迈向下一幕';
     else se.textContent='选择路线，直抵塔顶词灵';
   }
-  if(typeof renderMapHud==='function')renderMapHud();
   const W=MAP_ROW_W,H=W.length;
   const padX=26,padY=28;
   const Wpx=320-padX*2,Hpx=560-padY*2;
@@ -674,7 +666,8 @@ function renderMap(){
   for(let r=0;r<H;r++){
     pos[r]=[];
     for(let c=0;c<W[r];c++){
-      pos[r].push({x:padX+(c+0.5)*Wpx/W[r],y:padY+(r+0.5)*Hpx/H});
+      // ★ SVG y 轴向下，翻转行序：row0(第1层/起点)在最下，最后一行(Boss)在最上
+      pos[r].push({x:padX+(c+0.5)*Wpx/W[r],y:padY+(H-1-r+0.5)*Hpx/H});
     }
   }
   let html='';
@@ -842,8 +835,12 @@ function renderReviewScreen(){
     '<div class="rv-row"><span class="rv-k">今日已复习</span><span class="rv-v">'+(META.reviewToday||0)+' 词</span></div>'+
     '<div class="rv-row"><span class="rv-k">累计掌握</span><span class="rv-v">'+masterWordCount()+' 词</span></div>'+
     '<div class="rv-desc">按记忆间隔复习学习过的词汇，答对 +1 星尘，全对另有奖励。</div>';
-  if(RV_TAB==='wrong'&&typeof renderWrongBook==='function')renderWrongBook();
   updateReviewBtn();
+}
+/* ---- 错题本页渲染（独立页） ---- */
+function renderWrongBookScreen(){
+  if(typeof renderWrongBook==='function')renderWrongBook();
+  if(typeof updateReviewBtn==='function')updateReviewBtn();
 }
 function updateReviewBtn(){
   const b=$('btnReview');if(b){const due=dueWordsCount();b.textContent='📚 复习单词'+(due>0?'（'+due+'）':'');}
@@ -874,18 +871,6 @@ function startWrongReview(){
   RV.words=shuffle(pool).slice(0,10);
   RV.idx=0;RV.correct=0;RV.wrong=0;RV.star=0;RV._locked=false;
   openReviewQuestion();
-}
-let RV_TAB='review';
-function switchReviewTab(tab){
-  RV_TAB=tab;
-  const t1=$('rvTabReview'),t2=$('rvTabWrong');
-  if(t1)t1.classList.toggle('active',tab==='review');
-  if(t2)t2.classList.toggle('active',tab==='wrong');
-  const rv=$('reviewBoxMain'),wb=$('wrongBox');
-  if(rv)rv.style.display=(tab==='review')?'':'none';
-  if(wb)wb.style.display=(tab==='wrong')?'':'none';
-  if(typeof renderReviewScreen==='function')renderReviewScreen();
-  if(typeof updateReviewBtn==='function')updateReviewBtn();
 }
 function startReview(){
   RV.words=gatherReviewWords(10);
@@ -945,5 +930,5 @@ function finishReview(){
   if(typeof sfx==='function')sfx('victory');
   toast('📚 复习完成 +'+RV.star+' 星尘');
   updateReviewBtn();
-  if(RV_TAB==='wrong'&&typeof renderWrongBook==='function')renderWrongBook();
+  if(typeof renderWrongBook==='function')renderWrongBook();
 }

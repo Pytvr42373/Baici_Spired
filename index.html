@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Manrope:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260821f">
+<link rel="stylesheet" href="css/style.css?v=20260821g">
 </head>
 <body>
 <div id="fxLayer"></div>
@@ -43,23 +43,42 @@
       <div class="logo"><span class="glyph" data-lucide="scroll"></span></div>
       <h1 class="title">词域<em>远征</em></h1>
     </div>
-    <section class="panel" aria-label="词库"><h3>词库</h3><div class="chips" id="tierChips"></div></section>
-    <section class="panel" aria-label="角色"><h3>角色</h3><div class="chips" id="heroChips"></div></section>
-    <section class="panel" aria-label="难度"><h3>难度</h3><div class="chips" id="diffChips"></div></section>
-    <button class="btn gold hidden" id="btnContinue">⚔ 继续远征</button>
-    <button class="btn gold" id="btnStart">开始远征</button>
-    <button class="btn review" id="btnReview">📚 复习单词</button>
-    <button class="btn wrongbook" id="btnWrongBook">📕 错题本</button>
-    <button class="btn ghost" id="btnMeta">局外成长</button>
+    <div class="home-menu">
+      <button class="btn game-entry" id="btnGame">⚔ 游戏</button>
+      <button class="btn study-entry" id="btnStudy">📚 学习中心</button>
+    </div>
     <a class="btn ghost home-link" href="https://kiki-game.de5.net"><i data-lucide="house"></i> 返回游戏主页</a>
   </main>
+
+  <!-- ============ 游戏选择（主页 → 游戏） ============ -->
+  <section id="screen-gamemenu" class="screen" aria-label="游戏">
+    <div class="panel menu-panel" style="margin-top:24px;">
+      <h3 class="menu-title">⚔ 游戏</h3>
+      <section class="panel" aria-label="词库"><h3>词库</h3><div class="chips" id="tierChips"></div></section>
+      <section class="panel" aria-label="角色"><h3>角色</h3><div class="chips" id="heroChips"></div></section>
+      <section class="panel" aria-label="难度"><h3>难度</h3><div class="chips" id="diffChips"></div></section>
+      <button class="btn gold hidden" id="btnContinue">⚔ 继续远征</button>
+      <button class="btn gold" id="btnStart">开始远征</button>
+      <button class="btn ghost" id="btnMeta">局外成长</button>
+      <button class="btn ghost back-btn" id="btnGameBack">返回主页</button>
+    </div>
+  </section>
+
+  <!-- ============ 学习中心（主页 → 学习） ============ -->
+  <section id="screen-study" class="screen" aria-label="学习中心">
+    <div class="panel menu-panel" style="margin-top:24px;">
+      <h3 class="menu-title">📚 学习中心</h3>
+      <button class="btn review" id="btnReview">📚 复习单词</button>
+      <button class="btn wrongbook" id="btnWrongBook">📕 错题本</button>
+      <button class="btn ghost back-btn" id="btnStudyBack">返回主页</button>
+    </div>
+  </section>
 
   <!-- ============ 爬塔地图（类杀戮尖塔网状路线） ============ -->
   <section id="screen-map" class="screen" aria-label="爬塔地图">
     <header id="mapHeader">
       <div class="map-title" id="mapAct">第 1 幕</div>
       <div class="map-sub" id="mapSub">选择起始节点，踏上远征</div>
-      <div id="mapHud"></div>
     </header>
     <div id="mapCanvasWrap">
       <svg id="mapCanvas" viewBox="0 0 320 560" preserveAspectRatio="xMidYMid meet"></svg>
@@ -144,23 +163,23 @@
   </section>
 
   <!-- ============ 每日复习 ============ -->
-  <section id="screen-review" class="screen" aria-label="学习中心">
+  <section id="screen-review" class="screen" aria-label="复习单词">
     <div class="panel" style="margin-top:20px;">
-      <h3 style="text-align:center;font-size:17px;">📚 学习中心</h3>
-      <div class="rv-tabs">
-        <div class="rv-tab active" id="rvTabReview">📚 复习</div>
-        <div class="rv-tab" id="rvTabWrong">📕 错题本</div>
-      </div>
-      <div id="reviewBoxMain">
-        <div id="reviewHero"></div>
-        <button class="btn gold" id="btnReviewStart">开始复习</button>
-      </div>
-      <div id="wrongBox" style="display:none;">
-        <div id="wrongSummary"></div>
-        <button class="btn gold" id="btnWrongStart" style="margin:6px 0 10px;">开始错题复习</button>
-        <div id="wrongList"></div>
-      </div>
-      <button class="btn ghost" id="btnReviewBack">返回主页</button>
+      <h3 style="text-align:center;font-size:17px;">📚 复习单词</h3>
+      <div id="reviewHero"></div>
+      <button class="btn gold" id="btnReviewStart">开始复习</button>
+      <button class="btn ghost back-btn" id="btnReviewBack">返回</button>
+    </div>
+  </section>
+
+  <!-- ============ 错题本（学习中心 → 错题本，独立页） ============ -->
+  <section id="screen-wrongbook" class="screen" aria-label="错题本">
+    <div class="panel" style="margin-top:20px;">
+      <h3 style="text-align:center;font-size:17px;">📕 错题本</h3>
+      <div id="wrongSummary"></div>
+      <button class="btn gold" id="btnWrongStart" style="margin:6px 0 10px;">开始错题复习</button>
+      <div id="wrongList"></div>
+      <button class="btn ghost back-btn" id="btnWrongBack">返回</button>
     </div>
   </section>
 
@@ -236,8 +255,8 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://unpkg.com/tone@15/build/Tone.js"></script>
 <script>window.addEventListener("load",function(){if(!window.Tone){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tone@15/build/Tone.js";document.head.appendChild(s);setTimeout(function(){if(window.Tone&&typeof playMusic==="function"&&typeof ensureMusic==="function")ensureMusic();},900);}});</script>
-<script src="js/data.js?v=20260821f"></script>
-<script src="js/game.js?v=20260821f"></script>
-<script src="js/main.js?v=20260821f"></script>
+<script src="js/data.js?v=20260821g"></script>
+<script src="js/game.js?v=20260821g"></script>
+<script src="js/main.js?v=20260821g"></script>
 </body>
 </html>

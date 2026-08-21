@@ -999,13 +999,6 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 /* ============================================================
    UI 优化 v5：地图 HUD / 已走路线高亮 / 点击热区 / Boss 视觉
 ============================================================ */
-#mapHud{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;padding:9px 10px 2px;}
-.mh-stat{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:800;color:var(--ink);box-shadow:var(--paper-shadow);font-variant-numeric:tabular-nums;}
-.mh-ico{font-size:13px;line-height:1;}
-.mh-hp .mh-num{color:var(--red);}
-.mh-gold .mh-num{color:var(--gold);}
-.mh-relic .mh-num{color:var(--accent);}
-.mh-potion .mh-num{color:var(--def);}
 .act-dots{font-size:11px;letter-spacing:2px;color:var(--gold);vertical-align:2px;margin-left:4px;font-family:var(--font-sans);}
 .act-dots .off{opacity:.25;}
 
@@ -1029,11 +1022,6 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 @keyframes mapFade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 
 /* ---- 学习中心（复习 + 错题本 tab） ---- */
-.rv-tabs{display:flex;gap:8px;margin:4px 0 12px;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:4px;}
-.rv-tab{flex:1;text-align:center;padding:9px 0;font-size:14px;font-weight:800;color:var(--sub);border-radius:8px;cursor:pointer;transition:all .15s;}
-.rv-tab.active{background:var(--gold);color:#fff;box-shadow:0 2px 8px -3px var(--gold);}
-:root[data-theme="mech"] .rv-tab.active{background:var(--accent);box-shadow:0 0 10px rgba(0,216,255,.4);}
-:root[data-theme="pink"] .rv-tab.active{background:var(--gold);color:#fff;}
 .wb-row{display:flex;justify-content:space-between;align-items:center;padding:11px 6px;border-bottom:1px solid var(--line);gap:8px;}
 .wb-l{min-width:0;}
 .wb-en{font-size:16.5px;font-weight:800;color:var(--ink);word-break:break-all;}
@@ -1044,3 +1032,18 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 :root[data-theme="pink"] .btn.wrongbook{background:linear-gradient(160deg,#ef9a9a,#e57373);}
 :root[data-theme="egg"] .btn.wrongbook{background:linear-gradient(160deg,#f5b041,#e67e22);}
 :root[data-theme="mech"] .btn.wrongbook{background:linear-gradient(160deg,#ff6b35,#d9480f);box-shadow:0 0 10px rgba(255,107,53,.35);}
+
+/* ---- 主页：游戏/学习中心双入口 ---- */
+.home-menu{display:flex;flex-direction:column;gap:14px;margin:10px 0 20px;}
+.btn.game-entry,.btn.study-entry{font-size:20px;font-weight:900;padding:22px 0;letter-spacing:1px;border-radius:16px;}
+.btn.game-entry{background:linear-gradient(160deg,#a9823d,#8a6a2f);box-shadow:0 4px 16px -4px rgba(169,130,61,.5);}
+.btn.study-entry{background:linear-gradient(160deg,#7e57c2,#5e35b1);box-shadow:0 4px 16px -4px rgba(126,87,194,.5);}
+:root[data-theme="pink"] .btn.game-entry{background:linear-gradient(160deg,#f9a825,#f57f17);}
+:root[data-theme="pink"] .btn.study-entry{background:linear-gradient(160deg,#f06292,#e91e63);}
+:root[data-theme="egg"] .btn.study-entry{background:linear-gradient(160deg,#6c8ff0,#7e57c2);}
+:root[data-theme="mech"] .btn.game-entry{background:linear-gradient(160deg,#ffb84d,#f59e0b);box-shadow:0 0 14px rgba(255,184,77,.35);}
+:root[data-theme="mech"] .btn.study-entry{background:linear-gradient(160deg,#b26bff,#7c3aed);box-shadow:0 0 14px rgba(178,107,255,.35);}
+/* ---- 游戏/学习中心菜单页 ---- */
+.menu-panel{display:flex;flex-direction:column;gap:10px;}
+.menu-title{text-align:center;font-size:17px;margin-bottom:4px;}
+.back-btn{margin-top:4px;}

@@ -367,19 +367,24 @@ function init(){
   // 难度
   const dc=$('diffChips');Object.keys(DIFFS).forEach((d,i)=>{const c=document.createElement('div');c.className='chip'+(d==='normal'?' selected':'');c.innerHTML=DIFFS[d].name;c.onclick=()=>{S.diff=d;document.querySelectorAll('#diffChips .chip').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};dc.appendChild(c);});S.diff='normal';
 
-  // 主按钮
-  $('btnStart').addEventListener('click',()=>{sfx('button');startRun();});
-  $('btnMeta').addEventListener('click',()=>{sfx('button');showScreen('meta');});
-  const _br=$('btnReview');if(_br)_br.addEventListener('click',()=>{sfx('button');switchReviewTab('review');showScreen('review');});
-  const _bw=$('btnWrongBook');if(_bw)_bw.addEventListener('click',()=>{sfx('button');switchReviewTab('wrong');showScreen('review');});
-  const _rvt1=$('rvTabReview');if(_rvt1)_rvt1.addEventListener('click',()=>{sfx('button');switchReviewTab('review');});
-  const _rvt2=$('rvTabWrong');if(_rvt2)_rvt2.addEventListener('click',()=>{sfx('button');switchReviewTab('wrong');});
+  // 主页：游戏 / 学习中心 两大入口
+  const _bg=$('btnGame');if(_bg)_bg.addEventListener('click',()=>{sfx('button');showScreen('gamemenu');});
+  const _bs=$('btnStudy');if(_bs)_bs.addEventListener('click',()=>{sfx('button');showScreen('study');});
+  const _bgb=$('btnGameBack');if(_bgb)_bgb.addEventListener('click',()=>{sfx('button');showScreen('start');});
+  const _bsb=$('btnStudyBack');if(_bsb)_bsb.addEventListener('click',()=>{sfx('button');showScreen('start');});
+  // 游戏选择
+  const _bstart=$('btnStart');if(_bstart)_bstart.addEventListener('click',()=>{sfx('button');startRun();});
+  const _bmeta=$('btnMeta');if(_bmeta)_bmeta.addEventListener('click',()=>{sfx('button');showScreen('meta');});
+  const _bmb=$('btnMetaBack');if(_bmb)_bmb.addEventListener('click',()=>{sfx('button');showScreen('gamemenu');});
+  const _bag=$('btnAgain');if(_bag)_bag.addEventListener('click',()=>{sfx('button');showScreen('gamemenu');});
+  const _bho=$('btnHome');if(_bho)_bho.addEventListener('click',()=>{sfx('button');showScreen('start');});
+  // 学习中心
+  const _br=$('btnReview');if(_br)_br.addEventListener('click',()=>{sfx('button');showScreen('review');});
+  const _bw=$('btnWrongBook');if(_bw)_bw.addEventListener('click',()=>{sfx('button');showScreen('wrongbook');});
   const _bws=$('btnWrongStart');if(_bws)_bws.addEventListener('click',()=>{sfx('button');startWrongReview();});
   const _brs=$('btnReviewStart');if(_brs)_brs.addEventListener('click',()=>{sfx('button');startReview();});
-  const _brb=$('btnReviewBack');if(_brb)_brb.addEventListener('click',()=>{sfx('button');switchReviewTab('review');showScreen('start');});
-  $('btnMetaBack').addEventListener('click',()=>{sfx('button');showScreen('start');});
-  $('btnAgain').addEventListener('click',()=>{sfx('button');showScreen('start');});
-  $('btnHome').addEventListener('click',()=>{sfx('button');showScreen('start');});
+  const _brb=$('btnReviewBack');if(_brb)_brb.addEventListener('click',()=>{sfx('button');showScreen('study');});
+  const _bwb=$('btnWrongBack');if(_bwb)_bwb.addEventListener('click',()=>{sfx('button');showScreen('study');});
   $('btnAtk').addEventListener('click',()=>choose('atk'));
   $('btnDef').addEventListener('click',()=>choose('def'));
 
