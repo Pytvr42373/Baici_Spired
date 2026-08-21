@@ -289,7 +289,7 @@ function floorClear(){
   const n=S.map&&S.map.rows[S.mapRow]&&S.map.rows[S.mapRow][S.mapCol];
   if(n)n.done=true;
   if(S.mapRow===4){
-    S.bossIndex=(S.bossIndex||0)+1;
+    // ★ 修复：bossIndex 已在 onKill 中递增，这里不再重复 ++
     if(S.bossIndex>=BOSSES.length){endRun(true);return;}
     S.act=(S.act||1)+1;S.floor=(S.act-1)*5+1;
     S.map=genMap(S.act);S.mapRow=0;S.mapCol=-1;
@@ -297,7 +297,10 @@ function floorClear(){
     toast('🏰 踏入第 '+S.act+' 幕');
     return;
   }
-  giveRelic(); // ★ M5：每个节点清空后发遗物
+  // ★ 遗物掉落节奏：精英必出遗物，普通战斗按概率出（防滚雪球），未出则给金币战利品
+  const isElite=n&&n.type==='elite';
+  if(isElite||Math.random()<0.45){giveRelic();}
+  else{const _g=Math.round(8+S.floor*1.5);S.gold+=_g;updateTop();toast('🪙 战利品 +'+_g+' 金币');}
 }
 function giveRelic(){
   S.phase='relic';
@@ -634,11 +637,32 @@ function genMap(act){
   edges.forEach(e=>{const k=e[0]+'_'+e[1];(outMap[k]=outMap[k]||[]).push([e[2],e[3]]);});
   return {act,rows,edges,outMap};
 }
+function renderMapHud(){
+  const h=$('mapHud');if(!h)return;
+  const _relics=(S.relics||[]).length;
+  const _pot=(S.potions||[]).filter(Boolean).length;
+  h.innerHTML='<span class="mh-stat mh-hp"><span class="mh-ico">❤️</span><span class="mh-num">'+Math.max(0,S.hp)+'/'+S.maxHp+'</span></span>'+
+    '<span class="mh-stat mh-gold"><span class="mh-ico">🪙</span><span class="mh-num">'+S.gold+'</span></span>'+
+    '<span class="mh-stat mh-relic"><span class="mh-ico">🧿</span><span class="mh-num">'+_relics+'</span></span>'+
+    '<span class="mh-stat mh-potion"><span class="mh-ico">🧪</span><span class="mh-num">'+_pot+'/'+POTION_SLOTS+'</span></span>';
+}
 function renderMap(){
   const svg=$('mapCanvas');if(!svg||!S.map)return;
   const M=S.map;
-  const ae=$('mapAct');if(ae)ae.textContent='第 '+(S.act||1)+' 幕';
-  const se=$('mapSub');if(se)se.textContent=(S.mapRow===0&&S.mapCol===-1)?'选择起始节点，踏上远征':'选择路线，直抵塔顶词灵';
+  // 头部：幕数 + 进度点
+  const ae=$('mapAct');if(ae){
+    let _dots='';
+    for(let _i=1;_i<=BOSSES.length;_i++)_dots+='<span class="'+( _i<=(S.act||1)?'':'off')+'">●</span>';
+    ae.innerHTML='第 '+(S.act||1)+' 幕 <span class="act-dots">'+_dots+'</span>';
+  }
+  const se=$('mapSub');
+  if(se){
+    if(S.mapRow===0&&S.mapCol===-1)se.textContent='选择起始节点，踏上远征';
+    else if(S.mapRow===3)se.textContent='⚠️ Boss 就在前方，做好准备';
+    else if(S.mapRow===4)se.textContent='击败词灵，迈向下一幕';
+    else se.textContent='选择路线，直抵塔顶词灵';
+  }
+  if(typeof renderMapHud==='function')renderMapHud();
   const W=MAP_ROW_W,H=W.length;
   const padX=26,padY=28;
   const Wpx=320-padX*2,Hpx=560-padY*2;
@@ -652,8 +676,10 @@ function renderMap(){
   let html='';
   M.edges.forEach(e=>{
     const a=pos[e[0]][e[1]],b=pos[e[2]][e[3]];
+    const na=M.rows[e[0]][e[1]],nb=M.rows[e[2]][e[3]];
+    const _done=!!(na.done&&nb.done);
     const mid=(a.y+b.y)/2;
-    html+='<path d="M'+a.x.toFixed(1)+' '+a.y.toFixed(1)+' C'+a.x.toFixed(1)+' '+mid.toFixed(1)+','+b.x.toFixed(1)+' '+mid.toFixed(1)+','+b.x.toFixed(1)+' '+b.y.toFixed(1)+'" class="map-edge"/>';
+    html+='<path d="M'+a.x.toFixed(1)+' '+a.y.toFixed(1)+' C'+a.x.toFixed(1)+' '+mid.toFixed(1)+','+b.x.toFixed(1)+' '+mid.toFixed(1)+','+b.x.toFixed(1)+' '+b.y.toFixed(1)+'" class="map-edge'+(_done?' done':'')+'"/>';
   });
   for(let r=0;r<H;r++){
     for(let c=0;c<W[r];c++){
@@ -661,16 +687,21 @@ function renderMap(){
       const p=pos[r][c];
       const re=isReachable(r,c);
       const cur=(r===S.mapRow&&c===S.mapCol);
+      const isBoss=n.type==='boss';
       let cls='map-node';
       if(n.done)cls+=' done';
       if(cur)cls+=' cur';
       if(re)cls+=' reach';
+      if(isBoss)cls+=' boss';
       const ico=n.done?'✓':(MAP_TYPE_ICON[n.type]||'?');
-      const label=n.done?MAP_TYPE_NAME[n.type]:MAP_TYPE_NAME[n.type];
+      const label=MAP_TYPE_NAME[n.type]||'';
+      const bodyR=isBoss?27:21;
+      const labelY=p.y+(isBoss?52:42);
       html+='<g class="'+cls+'" data-r="'+r+'" data-c="'+c+'">'+
-        '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="21"/>'+
+        '<circle class="map-hit" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(isBoss?32:34)+'"/>'+
+        '<circle class="map-body" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+bodyR+'"/>'+
         '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" class="map-ico">'+ico+'</text>'+
-        '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+42).toFixed(1)+'" text-anchor="middle" class="map-label">'+label+'</text>'+
+        '<text x="'+p.x.toFixed(1)+'" y="'+labelY.toFixed(1)+'" text-anchor="middle" class="map-label">'+label+'</text>'+
         '</g>';
     }
   }

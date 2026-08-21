@@ -995,3 +995,35 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
   .map-node .map-ico{font-size:18px;}
   .map-node .map-label{font-size:10.5px;}
 }
+
+/* ============================================================
+   UI 优化 v5：地图 HUD / 已走路线高亮 / 点击热区 / Boss 视觉
+============================================================ */
+#mapHud{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;padding:9px 10px 2px;}
+.mh-stat{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:800;color:var(--ink);box-shadow:var(--paper-shadow);font-variant-numeric:tabular-nums;}
+.mh-ico{font-size:13px;line-height:1;}
+.mh-hp .mh-num{color:var(--red);}
+.mh-gold .mh-num{color:var(--gold);}
+.mh-relic .mh-num{color:var(--accent);}
+.mh-potion .mh-num{color:var(--def);}
+.act-dots{font-size:11px;letter-spacing:2px;color:var(--gold);vertical-align:2px;margin-left:4px;font-family:var(--font-sans);}
+.act-dots .off{opacity:.25;}
+
+/* 已走路线高亮（金色，区别于未走灰色虚线感） */
+.map-edge.done{stroke:var(--gold);opacity:.85;stroke-width:2.6;}
+
+/* 点击热区：透明扩大圈，手机好点 */
+.map-node circle.map-hit{fill:transparent;stroke:none;}
+
+/* Boss 节点突出：红色描边 + 可达时呼吸光晕 */
+.map-node.boss circle.map-body{stroke:var(--red);stroke-width:3.5;fill:var(--card);}
+.map-node.boss .map-ico{font-size:24px;}
+.map-node.boss.done circle.map-body{stroke:var(--line);opacity:.5;filter:none;}
+.map-node.boss.done .map-ico{font-size:20px;}
+.map-node.boss.reach circle.map-body{animation:bossGlow 1.6s ease-in-out infinite;filter:drop-shadow(0 0 6px var(--red));}
+.map-node.boss.reach .map-label{fill:var(--red);opacity:1;font-weight:800;}
+@keyframes bossGlow{0%,100%{filter:drop-shadow(0 0 3px var(--red));}50%{filter:drop-shadow(0 0 13px var(--red));}}
+
+/* 地图整体淡入 */
+#screen-map.active #mapCanvas{animation:mapFade .4s ease both;}
+@keyframes mapFade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
