@@ -377,6 +377,6 @@ const PLAYER_SVGS={
 function playerSVG(key){return PLAYER_SVGS[key]||PLAYER_SVGS.warrior;}
 
 /* ============ 网状爬塔地图（类杀戮尖塔） ============ */
-const MAP_ROW_W=[3,4,4,3,1]; // 每行节点数（row0 起点最下，row4 Boss）
+const MAP_ROW_W=[3,4,4,4,4,3,1]; // 每行节点数（row0 起点最下，row6 Boss）每幕 7 层
 const MAP_TYPE_ICON={battle:'⚔️',elite:'💀',shop:'🏪',rest:'⛺',event:'❓',treasure:'🎁',boss:'👹'};
 const MAP_TYPE_NAME={battle:'战斗',elite:'精英',shop:'商店',rest:'休息',event:'奇遇',treasure:'宝箱',boss:'Boss'};

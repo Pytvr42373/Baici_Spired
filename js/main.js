@@ -370,9 +370,13 @@ function init(){
   // 主按钮
   $('btnStart').addEventListener('click',()=>{sfx('button');startRun();});
   $('btnMeta').addEventListener('click',()=>{sfx('button');showScreen('meta');});
-  const _br=$('btnReview');if(_br)_br.addEventListener('click',()=>{sfx('button');showScreen('review');});
+  const _br=$('btnReview');if(_br)_br.addEventListener('click',()=>{sfx('button');switchReviewTab('review');showScreen('review');});
+  const _bw=$('btnWrongBook');if(_bw)_bw.addEventListener('click',()=>{sfx('button');switchReviewTab('wrong');showScreen('review');});
+  const _rvt1=$('rvTabReview');if(_rvt1)_rvt1.addEventListener('click',()=>{sfx('button');switchReviewTab('review');});
+  const _rvt2=$('rvTabWrong');if(_rvt2)_rvt2.addEventListener('click',()=>{sfx('button');switchReviewTab('wrong');});
+  const _bws=$('btnWrongStart');if(_bws)_bws.addEventListener('click',()=>{sfx('button');startWrongReview();});
   const _brs=$('btnReviewStart');if(_brs)_brs.addEventListener('click',()=>{sfx('button');startReview();});
-  const _brb=$('btnReviewBack');if(_brb)_brb.addEventListener('click',()=>{sfx('button');showScreen('start');});
+  const _brb=$('btnReviewBack');if(_brb)_brb.addEventListener('click',()=>{sfx('button');switchReviewTab('review');showScreen('start');});
   $('btnMetaBack').addEventListener('click',()=>{sfx('button');showScreen('start');});
   $('btnAgain').addEventListener('click',()=>{sfx('button');showScreen('start');});
   $('btnHome').addEventListener('click',()=>{sfx('button');showScreen('start');});

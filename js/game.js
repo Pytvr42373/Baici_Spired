@@ -288,10 +288,10 @@ function floorClear(){
   // ★ 网状地图：标记当前节点完成；Boss 行完成进下一幕或通关
   const n=S.map&&S.map.rows[S.mapRow]&&S.map.rows[S.mapRow][S.mapCol];
   if(n)n.done=true;
-  if(S.mapRow===4){
+  if(S.mapRow===MAP_ROW_W.length-1){
     // ★ 修复：bossIndex 已在 onKill 中递增，这里不再重复 ++
     if(S.bossIndex>=BOSSES.length){endRun(true);return;}
-    S.act=(S.act||1)+1;S.floor=(S.act-1)*5+1;
+    S.act=(S.act||1)+1;S.floor=(S.act-1)*7+1;
     S.map=genMap(S.act);S.mapRow=0;S.mapCol=-1;
     showScreen('map');if(typeof renderMap==='function')renderMap();updateTop();
     toast('🏰 踏入第 '+S.act+' 幕');
@@ -311,7 +311,7 @@ function giveRelic(){
 }
 function spawnFloor(){
   S.turnCount=0;S.locked=false;S.enemyBuff=0;
-  if(S.floor%5===0){spawnBoss();return;}
+  if(S.floor%7===0){spawnBoss();return;}
   if(typeof playMusic==='function')playMusic('battle');
   S.enemiesInFloor=1+Math.floor(Math.random()*2)+(S.floor>3?1:0);
   updateFloorTag();
@@ -334,7 +334,7 @@ function spawnNextEnemy(){
 function spawnBoss(){
   showScreen('game');
   const b=BOSSES[Math.min(S.bossIndex||0,BOSSES.length-1)];
-  const hpMul=1+(S.floor/5-1)*0.35;
+  const hpMul=1+(S.floor/7-1)*0.35;
   S.enemy={name:b.name,icon:b.icon,monster:b.monster,hp:Math.round(b.hp*hpMul),hpMax:Math.round(b.hp*hpMul),block:0,intents:b.intents,isBoss:true,goldGain:60+S.floor*3};
   S.enemiesInFloor=1;updateFloorTag();
   renderEnemy();updateEnemy();
@@ -600,15 +600,19 @@ function genMap(act){
     for(let c=0;c<W[r];c++)cols.push({r,c,type:null,done:false});
     rows.push(cols);
   }
-  // 类型分配：row0 全战斗，row4 Boss，中间行随机池
+  // 类型分配：row0 全战斗，row6 Boss，中间 5 行随机池（每幕 7 层）
   rows[0].forEach(n=>n.type='battle');
-  rows[4][0].type='boss';
-  const t1=shuffle(['elite','shop','rest','battle']);
+  rows[6][0].type='boss';
+  const t1=shuffle(['elite','rest','event','battle']);
   rows[1].forEach((n,i)=>n.type=t1[i]);
-  const t2=shuffle(['elite','treasure','event','battle']);
+  const t2=shuffle(['elite','shop','event','battle']);
   rows[2].forEach((n,i)=>n.type=t2[i]);
-  const t3=shuffle(['rest','treasure','battle']);
+  const t3=shuffle(['elite','treasure','event','battle']);
   rows[3].forEach((n,i)=>n.type=t3[i]);
+  const t4=shuffle(['rest','shop','event','battle']);
+  rows[4].forEach((n,i)=>n.type=t4[i]);
+  const t5=shuffle(['treasure','elite','battle']);
+  rows[5].forEach((n,i)=>n.type=t5[i]);
   // 连线：下层节点连到最近的上层节点（参考杀戮尖塔"连最近 3 房间"简化版）
   const edges=[];
   for(let r=0;r<W.length-1;r++){
@@ -658,8 +662,8 @@ function renderMap(){
   const se=$('mapSub');
   if(se){
     if(S.mapRow===0&&S.mapCol===-1)se.textContent='选择起始节点，踏上远征';
-    else if(S.mapRow===3)se.textContent='⚠️ Boss 就在前方，做好准备';
-    else if(S.mapRow===4)se.textContent='击败词灵，迈向下一幕';
+    else if(S.mapRow===MAP_ROW_W.length-2)se.textContent='⚠️ Boss 就在前方，做好准备';
+    else if(S.mapRow===MAP_ROW_W.length-1)se.textContent='击败词灵，迈向下一幕';
     else se.textContent='选择路线，直抵塔顶词灵';
   }
   if(typeof renderMapHud==='function')renderMapHud();
@@ -727,7 +731,7 @@ function enterNode(r,c){
   const n=S.map&&S.map.rows[r]&&S.map.rows[r][c];
   if(!n)return;
   S.mapRow=r;S.mapCol=c;
-  S.floor=(S.act-1)*5+r+1;
+  S.floor=(S.act-1)*7+r+1;
   if(typeof updateTop==='function')updateTop();
   switch(n.type){
     case 'battle':startNodeBattle(false);break;
@@ -821,29 +825,71 @@ function masterWordCount(){let n=0;for(const t in TIERS){for(const w of TIERS[t]
 function gatherReviewWords(max){
   max=max||10;
   const now=Date.now();
-  const dues=[],wrongs=[];
-  for(const t in TIERS){for(const w of TIERS[t].words){const r=(META.words||{})[w.en];if(!r)continue;if(r.due>0&&r.due<=now)dues.push({w,tier:t});else if(r.wrongs>0)wrongs.push({w,tier:t});}}
-  let pool=shuffle(dues);
-  if(pool.length<5){for(const x of shuffle(wrongs)){if(!pool.some(p=>p.w.en===x.w.en)){pool.push(x);if(pool.length>=max)break;}}}
-  if(pool.length<3){const all=[];for(const t in TIERS){for(const w of TIERS[t].words)all.push({w,tier:t});}for(const x of shuffle(all)){if(!pool.some(p=>p.w.en===x.w.en)){pool.push(x);if(pool.length>=max)break;}}}
-  return pool.slice(0,max);
+  const learned=[];
+  for(const t in TIERS){for(const w of TIERS[t].words){const r=(META.words||{})[w.en];if(!r)continue;learned.push({w,tier:t,r});}}
+  // ★ 复习只针对「学习过的词」：到期优先 → 错词 → 其余学过词（不再从全词库兜底）
+  const dues=learned.filter(x=>x.r.due>0&&x.r.due<=now);
+  const wrongs=learned.filter(x=>!(x.r.due>0&&x.r.due<=now)&&(x.r.wrongs||0)>0);
+  const rest=learned.filter(x=>!(x.r.due>0&&x.r.due<=now)&&!(x.r.wrongs||0)>0);
+  const pool=[...shuffle(dues),...shuffle(wrongs),...shuffle(rest)];
+  return pool.slice(0,max).map(x=>({w:x.w,tier:x.tier}));
 }
+function learnedWordCount(){let n=0;for(const t in TIERS){for(const w of TIERS[t].words){if((META.words||{})[w.en])n++;}}return n;}
 function renderReviewScreen(){
   const h=$('reviewHero');if(!h)return;
   h.innerHTML='<div class="rv-row"><span class="rv-k">今日到期</span><span class="rv-v">'+dueWordsCount()+' 词</span></div>'+
+    '<div class="rv-row"><span class="rv-k">已学习</span><span class="rv-v">'+learnedWordCount()+' 词</span></div>'+
     '<div class="rv-row"><span class="rv-k">今日已复习</span><span class="rv-v">'+(META.reviewToday||0)+' 词</span></div>'+
     '<div class="rv-row"><span class="rv-k">累计掌握</span><span class="rv-v">'+masterWordCount()+' 词</span></div>'+
-    '<div class="rv-desc">按记忆间隔复习到期词汇，答对 +1 星尘，全对另有奖励。</div>';
+    '<div class="rv-desc">按记忆间隔复习学习过的词汇，答对 +1 星尘，全对另有奖励。</div>';
+  if(RV_TAB==='wrong'&&typeof renderWrongBook==='function')renderWrongBook();
   updateReviewBtn();
 }
 function updateReviewBtn(){
-  const b=$('btnReview');if(!b)return;
-  const due=dueWordsCount();
-  b.textContent='📚 复习单词'+(due>0?'（'+due+'）':'');
+  const b=$('btnReview');if(b){const due=dueWordsCount();b.textContent='📚 复习单词'+(due>0?'（'+due+'）':'');}
+  const bw=$('btnWrongBook');if(bw){const n=wrongBookWords().length;bw.textContent='📕 错题本'+(n>0?'（'+n+'）':'');}
+}
+/* ---- 错题本：所有答错过的词（全局记录，独立栏目） ---- */
+function wrongBookWords(){
+  const list=[];
+  for(const t in TIERS){for(const w of TIERS[t].words){const r=(META.words||{})[w.en];if(r&&(r.wrongs||0)>0)list.push({w,tier:t,wrongs:r.wrongs});}}
+  return list.sort((a,b)=>b.wrongs-a.wrongs);
+}
+function renderWrongBook(){
+  const box=$('wrongList');if(!box)return;
+  const list=wrongBookWords();
+  const hd=$('wrongSummary');
+  if(hd){hd.innerHTML='<div class="rv-row"><span class="rv-k">错题总数</span><span class="rv-v">'+list.length+' 词</span></div><div class="rv-desc">按错误次数排序 · 答对一次减少一次错误，归零后自动移出错题本。</div>';}
+  if(!list.length){box.innerHTML='<div class="rv-done" style="font-size:18px;padding:16px 0;">🎉 暂无错题，继续保持！</div>';return;}
+  box.innerHTML=list.map((it,i)=>{
+    const w=it.w;
+    return '<div class="wb-row"><div class="wb-l"><div class="wb-en">'+(i+1)+'. '+w.en+' <span class="wb-pos">'+w.pos+'</span></div><div class="wb-cn">'+w.cn+'</div></div><div class="wb-bad">❌ ×'+it.wrongs+'</div></div>';
+  }).join('');
+}
+function startWrongReview(){
+  const list=wrongBookWords();
+  if(!list.length){toast('🎉 错题本空空如也');return;}
+  const pool=[];
+  for(const it of list){const n=Math.min(3,it.wrongs);for(let i=0;i<n;i++)pool.push({w:it.w,tier:it.tier});}
+  RV.words=shuffle(pool).slice(0,10);
+  RV.idx=0;RV.correct=0;RV.wrong=0;RV.star=0;RV._locked=false;
+  openReviewQuestion();
+}
+let RV_TAB='review';
+function switchReviewTab(tab){
+  RV_TAB=tab;
+  const t1=$('rvTabReview'),t2=$('rvTabWrong');
+  if(t1)t1.classList.toggle('active',tab==='review');
+  if(t2)t2.classList.toggle('active',tab==='wrong');
+  const rv=$('reviewBoxMain'),wb=$('wrongBox');
+  if(rv)rv.style.display=(tab==='review')?'':'none';
+  if(wb)wb.style.display=(tab==='wrong')?'':'none';
+  if(typeof renderReviewScreen==='function')renderReviewScreen();
+  if(typeof updateReviewBtn==='function')updateReviewBtn();
 }
 function startReview(){
   RV.words=gatherReviewWords(10);
-  if(!RV.words.length){toast('暂无到期单词，先开始远征吧！');return;}
+  if(!RV.words.length){toast('还没有学习过的单词，先开始远征学习吧！');return;}
   RV.idx=0;RV.correct=0;RV.wrong=0;RV.star=0;RV._locked=false;
   openReviewQuestion();
 }
@@ -899,4 +945,5 @@ function finishReview(){
   if(typeof sfx==='function')sfx('victory');
   toast('📚 复习完成 +'+RV.star+' 星尘');
   updateReviewBtn();
+  if(RV_TAB==='wrong'&&typeof renderWrongBook==='function')renderWrongBook();
 }

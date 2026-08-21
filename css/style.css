@@ -974,7 +974,7 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 .map-sub{font-size:13px;opacity:.65;margin-top:3px;}
 #mapCanvasWrap{flex:1;display:flex;align-items:center;justify-content:center;padding:4px 10px;min-height:0;}
 #mapCanvas{width:100%;max-width:400px;height:auto;max-height:calc(100vh - 160px);}
-.map-edge{stroke:var(--line);stroke-width:2;fill:none;opacity:.4;}
+.map-edge{stroke:var(--sub);stroke-width:4;fill:none;opacity:.6;}
 .map-node{cursor:pointer;}
 .map-node circle{fill:var(--card);stroke:var(--line);stroke-width:2.5;}
 .map-node .map-ico{font-size:20px;pointer-events:none;}
@@ -1010,7 +1010,7 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 .act-dots .off{opacity:.25;}
 
 /* 已走路线高亮（金色，区别于未走灰色虚线感） */
-.map-edge.done{stroke:var(--gold);opacity:.85;stroke-width:2.6;}
+.map-edge.done{stroke:var(--gold);opacity:.92;stroke-width:4.5;}
 
 /* 点击热区：透明扩大圈，手机好点 */
 .map-node circle.map-hit{fill:transparent;stroke:none;}
@@ -1027,3 +1027,20 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 /* 地图整体淡入 */
 #screen-map.active #mapCanvas{animation:mapFade .4s ease both;}
 @keyframes mapFade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ---- 学习中心（复习 + 错题本 tab） ---- */
+.rv-tabs{display:flex;gap:8px;margin:4px 0 12px;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:4px;}
+.rv-tab{flex:1;text-align:center;padding:9px 0;font-size:14px;font-weight:800;color:var(--sub);border-radius:8px;cursor:pointer;transition:all .15s;}
+.rv-tab.active{background:var(--gold);color:#fff;box-shadow:0 2px 8px -3px var(--gold);}
+:root[data-theme="mech"] .rv-tab.active{background:var(--accent);box-shadow:0 0 10px rgba(0,216,255,.4);}
+:root[data-theme="pink"] .rv-tab.active{background:var(--gold);color:#fff;}
+.wb-row{display:flex;justify-content:space-between;align-items:center;padding:11px 6px;border-bottom:1px solid var(--line);gap:8px;}
+.wb-l{min-width:0;}
+.wb-en{font-size:16.5px;font-weight:800;color:var(--ink);word-break:break-all;}
+.wb-pos{font-size:11px;color:var(--accent);font-weight:700;margin-left:4px;}
+.wb-cn{font-size:13px;color:var(--sub);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wb-bad{flex-shrink:0;font-size:12.5px;font-weight:900;color:var(--red);background:rgba(184,83,74,.1);padding:4px 9px;border-radius:20px;}
+.btn.wrongbook{background:linear-gradient(160deg,#c0625b,#a8433c);box-shadow:0 2px 8px -3px #c0625b;}
+:root[data-theme="pink"] .btn.wrongbook{background:linear-gradient(160deg,#ef9a9a,#e57373);}
+:root[data-theme="egg"] .btn.wrongbook{background:linear-gradient(160deg,#f5b041,#e67e22);}
+:root[data-theme="mech"] .btn.wrongbook{background:linear-gradient(160deg,#ff6b35,#d9480f);box-shadow:0 0 10px rgba(255,107,53,.35);}
