@@ -291,7 +291,7 @@ function giveRelic(){
   S.phase='relic';
   const box=$('relicChoices');box.innerHTML='';
   const choices=shuffle(RELICS).slice(0,3);
-  choices.forEach(r=>{const d=document.createElement('div');d.className='relic';d.innerHTML='<div class="r-top"><span class="r-ico">'+iconHTML(r.icon)+'</span><div><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.desc+'</div></div></div>';d.onclick=()=>{S.relics.push(r);if(typeof renderRelicBar==='function')renderRelicBar();r.apply();toast('获得 '+r.name);$('overlay').classList.remove('show');spawnFloor();};box.appendChild(d);});
+  choices.forEach(r=>{const d=document.createElement('div');d.className='relic';d.innerHTML='<div class="r-top"><span class="r-ico">'+iconHTML(r.icon)+'</span><div><div class="r-name">'+r.name+'</div><div class="r-desc">'+r.desc+'</div></div></div>';d.onclick=()=>{S.relics.push(r);if(typeof renderRelicBar==='function')renderRelicBar();r.apply();toast('获得 '+r.name);$('overlay').classList.remove('show');triggerNode();};box.appendChild(d);});
   $('overlay').classList.add('show');refreshIcons();
 }
 function spawnFloor(){
@@ -453,4 +453,134 @@ function showScreen(id){
   if((id==='game'||id==='start')&&typeof updatePotionBar==='function')updatePotionBar();
   if(id==='game'&&typeof renderRelicBar==='function')renderRelicBar();
   refreshIcons();
+}
+
+
+/* ============ 爬塔节点系统：奇遇 / 商店 / 休息处 ============ */
+function nodeGiveGold(n){S.gold+=n;updateTop();toast('🪙 金币 '+(n>=0?'+'+n:n));}
+function nodeGiveStar(n){META.star+=n;saveMeta();toast('✨ 星尘 '+(n>=0?'+'+n:n));}
+function nodeGivePotion(key){if(typeof addPotion==='function'){addPotion(key);}else{toast('🧪 获得药水');}}
+function nodeDamage(n){S.hp=Math.max(1,S.hp-n);updatePlayer();toast('💔 生命 -'+n);}
+
+function nodeDone(){
+  const no=$('nodeOverlay');if(no)no.classList.remove('show');
+  spawnFloor();
+}
+function renderNodeQuiz(q){
+  const t=$('nodeTitle'),tx=$('nodeText'),ch=$('nodeChoices');
+  t.textContent='📝 '+q.q;
+  tx.textContent='选择你认为正确的答案：';
+  ch.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('div');b.className='node-choice node-quiz';
+    b.innerHTML='<span class="letter">'+letters[i]+'</span>'+o;
+    b.onclick=()=>{
+      if(typeof sfx==='function')sfx('button');
+      ch.innerHTML='';
+      if(i===q.ans){if(q.ok)q.ok();toast('✓ 回答正确！');}
+      else{if(q.bad)q.bad();toast('✗ 回答错误');}
+      setTimeout(()=>{nodeDone();},900);
+    };
+    ch.appendChild(b);
+  });
+}
+function showEvent(ev){
+  S.phase='node';
+  const t=$('nodeTitle'),tx=$('nodeText'),ch=$('nodeChoices');
+  t.textContent=ev.title;
+  tx.textContent=ev.text;
+  ch.innerHTML='';
+  ev.choices.forEach((c,i)=>{
+    const b=document.createElement('div');b.className='node-choice';
+    b.innerHTML='<div class="nc-main">'+(i+1)+'. '+c.label+'</div>'+(c.tip?'<div class="nc-tip">'+c.tip+'</div>':'');
+    b.onclick=()=>{
+      if(typeof sfx==='function')sfx('button');
+      if(c.quiz){renderNodeQuiz(c.quiz);}
+      else{if(c.run)c.run();nodeDone();}
+    };
+    ch.appendChild(b);
+  });
+  const no=$('nodeOverlay');if(no)no.classList.add('show');
+}
+function showShop(){
+  S.phase='node';
+  const t=$('nodeTitle'),tx=$('nodeText'),ch=$('nodeChoices');
+  t.textContent='🏪 尤利西斯商栈';
+  tx.textContent='路边支着一顶绣金线的帐篷，店主叼着羽毛笔，面前的绒布上摆着几件发光的物件。';
+  ch.innerHTML='';
+  SHOP_ITEMS.forEach(item=>{
+    const b=document.createElement('div');b.className='node-choice node-shop';
+    const afford=S.gold>=item.price;
+    b.innerHTML='<div class="nc-main">'+item.name+' <span class="price">'+item.price+' 金</span></div><div class="nc-tip">'+item.desc+'</div>';
+    if(!afford)b.classList.add('disabled');
+    b.onclick=()=>{
+      if(!afford){toast('🪙 金币不够');return;}
+      if(typeof sfx==='function')sfx('button');
+      S.gold-=item.price;updateTop();
+      if(item.run)item.run();
+      ch.removeChild(b);
+    };
+    ch.appendChild(b);
+  });
+  const leave=document.createElement('button');leave.className='btn ghost node-leave';leave.textContent='离开商栈';
+  leave.onclick=()=>{if(typeof sfx==='function')sfx('button');nodeDone();};
+  ch.appendChild(leave);
+  const no=$('nodeOverlay');if(no)no.classList.add('show');
+}
+function showRest(){
+  S.phase='node';
+  const t=$('nodeTitle'),tx=$('nodeText'),ch=$('nodeChoices');
+  t.textContent='⛺ 篝火营地';
+  tx.textContent='林间空地点着一堆篝火，木桩上摆着烤面包和热茶。你可以停下来休整片刻，或趁火光默诵今日的单词。';
+  ch.innerHTML='';
+  const opts=[
+    {label:'🔥 在篝火旁休整',tip:'回复 '+Math.round(REST_HEAL*100)+'% 最大生命',run:()=>{
+        const heal=Math.max(5,Math.round(S.maxHp*REST_HEAL));
+        S.hp=Math.min(S.maxHp,S.hp+heal);toast('🔥 暖意传遍全身，生命 +'+heal);updatePlayer();}},
+    {label:'📚 默诵今日单词',tip:'复习一个到期词，答对得 2 星尘 +10 金币',run:()=>{reviewOneDueWord();}},
+    {label:'🌙 继续赶路',tip:'',run:()=>{}}
+  ];
+  opts.forEach((o,i)=>{
+    const b=document.createElement('div');b.className='node-choice';
+    b.innerHTML='<div class="nc-main">'+o.label+'</div>'+(o.tip?'<div class="nc-tip">'+o.tip+'</div>':'');
+    b.onclick=()=>{
+      if(typeof sfx==='function')sfx('button');
+      if(o.run)o.run();
+      if(i===1){/* 复习题由 renderNodeQuiz 收尾 */}else{nodeDone();}
+    };
+    ch.appendChild(b);
+  });
+  const no=$('nodeOverlay');if(no)no.classList.add('show');
+}
+function reviewOneDueWord(){
+  const words=TIERS[S.tier].words;
+  let due=null;
+  for(const w of shuffle(words)){if(isDueWord(w.en)){due=w;break;}}
+  if(!due){due=shuffle(words)[0];}
+  const dist=shuffle(words.filter(x=>x.en!==due.en));
+  const p=[];for(const c of dist){if(!p.includes(c.cn)){p.push(c.cn);if(p.length>=3)break;}}
+  while(p.length<3)p.push('其他释义'+(p.length+1));
+  const opts=shuffle([due.cn,...p]);
+  const ans=opts.indexOf(due.cn);
+  renderNodeQuiz({
+    q:'📚 复习：「'+due.en+'」的中文意思是？',
+    opts,ans,
+    ok:()=>{nodeGiveStar(2);nodeGiveGold(10);},
+    bad:()=>{nodeGiveGold(5);toast('📚 温故知新，仍得 5 金币');}
+  });
+}
+function triggerNode(){
+  const prevFloor=S.floor-1; // 刚清空的层
+  if(prevFloor%5===0){spawnFloor();return;} // Boss 层清空后直接进下一层，不插节点
+  // 随机挑选奇遇事件，避免连续重复
+  let idx=Math.floor(Math.random()*EVENT_POOL.length);
+  if(S.lastEventId!==undefined&&EVENT_POOL.length>1){
+    for(let g=0;g<8&&EVENT_POOL[idx].id===S.lastEventId;g++)idx=Math.floor(Math.random()*EVENT_POOL.length);
+  }
+  S.lastEventId=EVENT_POOL[idx].id;
+  const r=Math.random()*100;
+  if(r<NODE_WEIGHT.event){showEvent(EVENT_POOL[idx]);}
+  else if(r<NODE_WEIGHT.event+NODE_WEIGHT.shop){showShop();}
+  else{showRest();}
 }

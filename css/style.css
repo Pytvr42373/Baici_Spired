@@ -831,3 +831,19 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 .set-close{width:100%;margin-top:4px;}
 .float-gear{right:68px;top:14px;}
 #btnContinue{margin-bottom:10px;background:linear-gradient(160deg,var(--accent),#3a7bd5);box-shadow:var(--paper-shadow-lg);}
+
+/* ============ 爬塔节点弹窗（奇遇/商店/休息） ============ */
+#nodeOverlay{position:fixed;inset:0;background:rgba(58,54,46,.5);z-index:85;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);}
+#nodeOverlay.show{display:flex;}
+#nodeOverlay .node-card{max-width:430px;}
+#nodeOverlay #nodeText{text-align:left;white-space:pre-line;font-size:13px;line-height:1.65;color:var(--ink);background:var(--card2);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;margin-bottom:12px;}
+#nodeChoices{display:grid;gap:9px;}
+.node-choice{border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 13px;background:var(--card2);cursor:pointer;transition:all .12s;text-align:left;}
+.node-choice:hover{border-color:var(--accent);background:var(--card);}
+.node-choice:active{transform:scale(.98);}
+.node-choice .nc-main{font-weight:800;font-size:13.5px;color:var(--ink);font-family:var(--font-cn-title);}
+.node-choice .nc-tip{font-size:11.5px;color:var(--sub);margin-top:3px;font-weight:600;}
+.node-choice .letter{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;margin-right:8px;}
+.node-choice.disabled{opacity:.55;cursor:not-allowed;}
+.node-choice.node-shop .price{color:var(--gold);font-weight:800;}
+.node-leave{margin-top:6px;width:100%;}
