@@ -833,7 +833,10 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 #btnContinue{margin-bottom:10px;background:linear-gradient(160deg,var(--accent),#3a7bd5);box-shadow:var(--paper-shadow-lg);}
 
 /* ============ 爬塔节点弹窗（奇遇/商店/休息） ============ */
-#nodeOverlay{position:fixed;inset:0;background:rgba(58,54,46,.5);z-index:85;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);}
+#nodeOverlay{position:fixed;inset:0;background:var(--bg,#191919);z-index:85;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+#nodeOverlay.show{display:flex;}
+.node-topbar{position:fixed;top:0;left:0;right:0;padding:12px 14px;z-index:1;display:flex;}
+.node-back{margin-left:auto;}
 #nodeOverlay.show{display:flex;}
 #nodeOverlay .node-card{max-width:430px;}
 #nodeOverlay #nodeText{text-align:left;white-space:pre-line;font-size:13px;line-height:1.65;color:var(--ink);background:var(--card2);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;margin-bottom:12px;}
@@ -970,8 +973,8 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 #screen-map{display:flex;flex-direction:column;min-height:100vh;padding:0;}
 #screen-map.active{display:flex;}
 #mapHeader{padding:18px 18px 6px;text-align:center;}
-.map-title{font-size:22px;font-weight:900;letter-spacing:1.5px;}
-.map-sub{font-size:13px;opacity:.65;margin-top:3px;}
+.map-title{font-size:16px;font-weight:800;letter-spacing:1px;opacity:.9;}
+.map-sub{font-size:12px;opacity:.6;margin-top:2px;}
 #mapCanvasWrap{flex:1;display:flex;align-items:center;justify-content:center;padding:4px 10px;min-height:0;}
 #mapCanvas{width:100%;max-width:400px;height:auto;max-height:calc(100vh - 160px);}
 .map-edge{stroke:var(--sub);stroke-width:4;fill:none;opacity:.6;}
@@ -991,7 +994,7 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 
 @media (max-width:899px){
   #mapCanvas{max-height:calc(100vh - 140px);}
-  .map-title{font-size:19px;}
+  .map-title{font-size:15px;}
   .map-node .map-ico{font-size:18px;}
   .map-node .map-label{font-size:10.5px;}
 }

@@ -376,6 +376,7 @@ function init(){
   const _bstart=$('btnStart');if(_bstart)_bstart.addEventListener('click',()=>{sfx('button');startRun();});
   const _bmeta=$('btnMeta');if(_bmeta)_bmeta.addEventListener('click',()=>{sfx('button');showScreen('meta');});
   const _bmb=$('btnMetaBack');if(_bmb)_bmb.addEventListener('click',()=>{sfx('button');showScreen('gamemenu');});
+  const _nb=$('nodeBack');if(_nb)_nb.addEventListener('click',()=>{sfx('button');if(typeof nodeDone==='function')nodeDone();});
   const _bag=$('btnAgain');if(_bag)_bag.addEventListener('click',()=>{sfx('button');showScreen('gamemenu');});
   const _bho=$('btnHome');if(_bho)_bho.addEventListener('click',()=>{sfx('button');showScreen('start');});
   // 学习中心

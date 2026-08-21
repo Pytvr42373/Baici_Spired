@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Manrope:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260821h">
+<link rel="stylesheet" href="css/style.css?v=20260821i">
 </head>
 <body>
 <div id="fxLayer"></div>
@@ -78,7 +78,7 @@
   <section id="screen-map" class="screen" aria-label="爬塔地图">
     <header id="mapHeader">
       <div class="map-title" id="mapAct">第 1 幕</div>
-      <div class="map-sub" id="mapSub">选择起始节点，踏上远征</div>
+      <div class="map-sub" id="mapSub">选择路线，继续远征</div>
     </header>
     <div id="mapCanvasWrap">
       <svg id="mapCanvas" viewBox="0 0 320 560" preserveAspectRatio="xMidYMid meet"></svg>
@@ -241,6 +241,7 @@
 
 <!-- 爬塔节点弹窗：奇遇 / 商店 / 休息处 -->
 <div id="nodeOverlay">
+  <div class="node-topbar"><button id="nodeBack" class="btn ghost node-back">← 返回地图</button></div>
   <div class="overlay-card node-card">
     <div class="oc-title" id="nodeTitle">奇遇</div>
     <div class="oc-sub" id="nodeText"></div>
@@ -257,8 +258,8 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://unpkg.com/tone@15/build/Tone.js"></script>
 <script>window.addEventListener("load",function(){if(!window.Tone){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tone@15/build/Tone.js";document.head.appendChild(s);setTimeout(function(){if(window.Tone&&typeof playMusic==="function"&&typeof ensureMusic==="function")ensureMusic();},900);}});</script>
-<script src="js/data.js?v=20260821h"></script>
-<script src="js/game.js?v=20260821h"></script>
-<script src="js/main.js?v=20260821h"></script>
+<script src="js/data.js?v=20260821i"></script>
+<script src="js/game.js?v=20260821i"></script>
+<script src="js/main.js?v=20260821i"></script>
 </body>
 </html>

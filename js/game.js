@@ -717,10 +717,10 @@ function renderMap(){
   }
   const se=$('mapSub');
   if(se){
-    if(S.mapRow===0&&S.mapCol===-1)se.textContent='选择起始节点，踏上远征';
-    else if(S.mapRow===MAP_ROW_W.length-2)se.textContent='⚠️ Boss 就在前方，做好准备';
+    if(S.mapRow===0&&S.mapCol===-1)se.textContent='选择路线，继续远征';
+    else if(S.mapRow===MAP_ROW_W.length-2)se.textContent='Boss 就在前方';
     else if(S.mapRow===MAP_ROW_W.length-1)se.textContent='击败词灵，迈向下一幕';
-    else se.textContent='选择路线，直抵塔顶词灵';
+    else se.textContent='选择路线，直抵塔顶';
   }
   const W=MAP_ROW_W,H=W.length;
   const padX=26,padY=28;
