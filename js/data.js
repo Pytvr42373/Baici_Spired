@@ -365,3 +365,13 @@ const SHOP_ITEMS=[
    run:()=>{S.wrongWords={};toast('📜 卷轴化作尘埃，错题记忆被抹去');}}
 ];
 const REST_HEAL=0.35; // 篝火回血比例
+
+
+/* ============ 玩家自绘 SVG 立绘（复用怪物渲染逻辑，随主题 currentColor） ============ */
+const PLAYER_SVGS={
+  warrior:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 26c0-10 4-14 10-14s10 4 10 14"/><path d="M22 26c-3 8-2 16 10 16s13-8 10-16"/><path d="M32 12v5"/><path d="M24 26h16"/><path d="M14 24l8 3"/><path d="M48 22l4 3-2 6-5-2z"/><circle cx="27" cy="34" r="1.7" fill="currentColor" stroke="none"/><circle cx="37" cy="34" r="1.7" fill="currentColor" stroke="none"/><path d="M30 42h4"/></svg>',
+  mage:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M26 24l6-10 6 10"/><path d="M23 24h18"/><path d="M26 24c-3 7-2 14 6 14s9-7 6-14"/><path d="M25 40c2 4 4 6 7 6s5-2 7-6"/><path d="M42 30l7 7"/><circle cx="29" cy="30" r="1.6" fill="currentColor" stroke="none"/><circle cx="35" cy="30" r="1.6" fill="currentColor" stroke="none"/></svg>',
+  rogue:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 28c0-10 4-14 10-14s10 4 10 14"/><path d="M22 28l6 2-6 4z"/><path d="M42 28l-6 2 6 4z"/><path d="M22 30c-3 8-1 16 10 16s13-8 10-16"/><path d="M13 16c2 9 2 17 0 26"/><path d="M13 16v26"/><path d="M11 26l5 2-4 5z" fill="currentColor" stroke="none"/><circle cx="28" cy="32" r="1.6" fill="currentColor" stroke="none"/><circle cx="36" cy="32" r="1.6" fill="currentColor" stroke="none"/><path d="M30 40h4"/></svg>',
+  healer:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="12" r="4"/><path d="M24 24c0-8 3-12 8-12s8 4 8 12"/><path d="M24 24c-3 8-2 16 8 16s11-8 8-16"/><path d="M32 30v8"/><path d="M28 34h8"/><path d="M45 24l5-2"/><circle cx="28" cy="28" r="1.6" fill="currentColor" stroke="none"/><circle cx="36" cy="28" r="1.6" fill="currentColor" stroke="none"/></svg>'
+};
+function playerSVG(key){return PLAYER_SVGS[key]||PLAYER_SVGS.warrior;}

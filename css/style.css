@@ -847,3 +847,119 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 .node-choice.disabled{opacity:.55;cursor:not-allowed;}
 .node-choice.node-shop .price{color:var(--gold);font-weight:800;}
 .node-leave{margin-top:6px;width:100%;}
+
+
+/* ============================================================
+   ★ UI 重设计 v3：玩家自绘立绘 + 攻防选项卡 + 每日复习 + 字体放大
+   （置于文件末尾，覆盖旧布局；移动端为主）
+============================================================ */
+
+/* ---- 玩家立绘（复用怪物渲染样式） ---- */
+.player-head{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+#playerIcon{font-size:44px;color:var(--accent);line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.08));width:62px;height:62px;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+#playerIcon svg{width:62px;height:62px;}
+.p-hero-name{font-size:13px;font-weight:800;color:var(--ink);font-family:var(--font-cn-title);letter-spacing:1px;}
+:root[data-theme="mech"] #playerIcon{filter:drop-shadow(0 0 6px rgba(0,216,255,.4));}
+:root[data-theme="pink"] #playerIcon svg{stroke-width:3.4;}
+
+/* ---- 攻防选项卡（替代原双大卡） ---- */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:100%;background:var(--card2);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px;box-shadow:var(--paper-shadow);}
+.seg-tab{display:flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:calc(var(--r-sm) - 3px);padding:9px 4px;font-weight:800;font-size:15px;font-family:var(--font-cn-title);cursor:pointer;background:transparent;color:var(--sub);transition:all .12s;}
+.seg-tab .ico{font-size:18px;line-height:1;}
+.seg-tab.atk.active{background:var(--atk);color:#fff;box-shadow:0 2px 8px -3px var(--atk);}
+.seg-tab.def.active{background:var(--def);color:#fff;box-shadow:0 2px 8px -3px var(--def);}
+.seg-tab:active{transform:scale(.97);}
+.tab-detail{display:flex;align-items:center;justify-content:space-between;width:100%;padding:6px 4px 0;font-size:12px;color:var(--sub);font-weight:600;gap:6px;}
+.tab-detail .tab-rate{color:var(--accent);font-weight:800;white-space:nowrap;}
+:root[data-theme="mech"] .seg-tab.atk.active{background:linear-gradient(160deg,#ff6b35,#d9480f);}
+:root[data-theme="mech"] .seg-tab.def.active{background:linear-gradient(160deg,#00d8ff,#0a8fd0);}
+:root[data-theme="pink"] .seg-tab.atk.active{background:linear-gradient(160deg,#ff5e8a,#e91e63);}
+:root[data-theme="pink"] .seg-tab.def.active{background:linear-gradient(160deg,#7f8cff,#3f51b5);}
+
+/* ---- 每日复习界面 ---- */
+#screen-review .panel{max-width:440px;margin-left:auto;margin-right:auto;}
+#reviewHero{margin-bottom:14px;}
+.rv-row{display:flex;justify-content:space-between;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600;}
+.rv-row .rv-k{color:var(--sub);}
+.rv-row .rv-v{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+.rv-desc{font-size:12.5px;color:var(--sub);margin-top:12px;font-weight:600;line-height:1.6;text-align:center;}
+.rv-done{text-align:center;font-size:23px;font-weight:900;color:var(--accent);margin:6px 0 12px;font-family:var(--font-cn-title);}
+
+/* ---- 复习答题弹窗（独立于战斗答题） ---- */
+#reviewQuiz{position:fixed;inset:0;background:rgba(58,54,46,.45);z-index:92;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);}
+#reviewQuiz.show{display:flex;}
+#reviewQuiz .quiz-card{width:100%;max-width:440px;}
+#reviewQuiz section{padding:18px 12px;text-align:center;position:relative;}
+.rq-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--sub);font-weight:700;letter-spacing:1px;margin-bottom:4px;}
+#rqProg{color:var(--accent);}
+#rqWord{font-size:34px;font-weight:800;margin:8px 0 2px;word-break:break-word;color:var(--ink);font-family:var(--font-cn-title);}
+#rqPos{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:1px;}
+#rqHint{font-size:14px;color:var(--sub);margin:6px 0 14px;}
+#rqOptions{display:grid;gap:9px;}
+#rqFeedback{font-size:15px;margin-top:12px;font-weight:700;min-height:20px;}
+#rqFeedback.ok{color:var(--green);}
+#rqFeedback.bad{color:var(--red);}
+
+/* ---- 主页复习按钮 ---- */
+.btn.review{background:linear-gradient(160deg,#7e57c2,#5e35b1);box-shadow:0 2px 8px -3px #7e57c2;}
+:root[data-theme="pink"] .btn.review{background:linear-gradient(160deg,#f06292,#e91e63);}
+:root[data-theme="egg"] .btn.review{background:linear-gradient(160deg,#6c8ff0,#7e57c2);}
+:root[data-theme="mech"] .btn.review{background:linear-gradient(160deg,#b26bff,#7c3aed);box-shadow:0 0 10px rgba(178,107,255,.35);}
+
+/* ---- 移动端字号提升（桌面有更精细的 PC 布局，不受影响） ---- */
+@media (max-width:899px){
+  .chip{font-size:14px;padding:11px 6px;}
+  .chip .d{font-size:11px;}
+  .btn{font-size:16px;padding:14px;}
+  .panel h3{font-size:13px;}
+  .sub{font-size:14px;}
+  #topbar .stat .v{font-size:18px;}
+  #topbar .stat .l{font-size:10px;}
+  #topbar .hpbar{height:7px;}
+  #playerArea .pstat .num{font-size:22px;}
+  #playerArea .pstat .lbl{font-size:10px;}
+  #enemyName{font-size:19px;}
+  #enemyHpTxt{font-size:12px;}
+  #enemyBlock{font-size:14px;}
+  #intentLabel{font-size:12px;}
+  #intentNum{font-size:13px;min-width:38px;}
+  #floorTag{font-size:11px;}
+  #qWord{font-size:34px;}
+  #qPos{font-size:12px;}
+  #qHint{font-size:14px;}
+  #qType{font-size:11px;}
+  #timerRing{width:40px;height:40px;line-height:38px;font-size:15px;}
+  .opt{font-size:17px;padding:13px 14px;}
+  .opt .letter{width:23px;height:23px;line-height:23px;font-size:12px;}
+  #feedback{font-size:15px;}
+  #log{font-size:12.5px;}
+  #logHeader{font-size:12.5px;}
+  .rbar-icon{width:38px;height:38px;}
+  .rbar-icon svg,.rbar-icon .lucide{width:21px;height:21px;}
+  .oc-title{font-size:18px;}
+  .oc-sub{font-size:13px;}
+  .relic .r-name{font-size:15px;}
+  .relic .r-desc{font-size:13px;}
+  .upgrade .u-name{font-size:14px;}
+  .upgrade .u-desc{font-size:11px;}
+  #tooltip .tt-name{font-size:14px;}
+  #tooltip .tt-desc{font-size:12.5px;}
+  .node-choice .nc-main{font-size:15px;}
+  .node-choice .nc-tip{font-size:12.5px;}
+  #nodeText{font-size:14px;}
+  .big-result{font-size:26px;}
+  #resultStats{font-size:15px;}
+  .meta-star-wrap{font-size:24px;}
+}
+
+/* ---- PC 增强 ---- */
+@media (min-width:900px){
+  .btn{font-size:16px;}
+  .chip{font-size:15px;}
+  #playerIcon svg{width:88px;height:88px;}
+  #playerIcon{width:88px;height:88px;}
+  .p-hero-name{font-size:16px;}
+  .seg-tab{font-size:17px;padding:12px 6px;}
+  .tab-detail{font-size:14px;}
+  #rqWord{font-size:40px;}
+}

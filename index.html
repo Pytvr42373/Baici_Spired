@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=Manrope:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260821b">
+<link rel="stylesheet" href="css/style.css?v=20260821c">
 </head>
 <body>
 <div id="fxLayer"></div>
@@ -48,6 +48,7 @@
     <section class="panel" aria-label="难度"><h3>难度</h3><div class="chips" id="diffChips"></div></section>
     <button class="btn gold hidden" id="btnContinue">⚔ 继续远征</button>
     <button class="btn gold" id="btnStart">开始远征</button>
+    <button class="btn review" id="btnReview">📚 复习单词</button>
     <button class="btn ghost" id="btnMeta">局外成长</button>
     <a class="btn ghost home-link" href="https://kiki-game.de5.net"><i data-lucide="house"></i> 返回游戏主页</a>
   </main>
@@ -72,15 +73,22 @@
     <section id="battleField" aria-label="战场">
       <!-- 左：玩家区（HP/格挡/本击 + 攻防按钮） -->
       <div id="playerArea" aria-label="玩家状态">
+        <div class="player-head">
+          <span id="playerIcon"></span>
+          <div class="p-hero-name" id="pHeroName">战士</div>
+        </div>
         <div class="pstats">
           <div class="pstat"><div class="lbl">生命</div><div class="num" id="pHp">60</div></div>
           <div class="pstat def"><div class="ico" data-lucide="shield"></div><div class="num" id="pBlock">0</div><div class="lbl">格挡</div></div>
-          <div class="pstat atk"><div class="ico" data-lucide="swords"></div><div class="num" id="pAtk">×1</div><div class="lbl">本击</div></div>
         </div>
-        <nav id="actionBar" aria-label="攻防选择">
-          <div class="actionCard atk" id="btnAtk"><div class="ico" data-lucide="sword"></div><div class="nm">攻击</div><div class="ds">答对造成伤害</div><div class="rate" id="atkRate">0/秒</div></div>
-          <div class="actionCard def" id="btnDef"><div class="ico" data-lucide="shield"></div><div class="nm">防御</div><div class="ds">答对获得格挡</div><div class="rate" id="defRate">0/秒</div></div>
-        </nav>
+        <div class="seg" role="tablist" aria-label="攻防选择">
+          <button class="seg-tab atk active" id="btnAtk" type="button"><span class="ico" data-lucide="sword"></span>攻击</button>
+          <button class="seg-tab def" id="btnDef" type="button"><span class="ico" data-lucide="shield"></span>防御</button>
+        </div>
+        <div class="tab-detail" id="tabDetail">
+          <span class="tab-desc" id="tabDesc">答对造成伤害</span>
+          <span class="tab-rate" id="tabRate">~2.9/秒</span>
+        </div>
       </div>
 
       <!-- 右：敌人区（意图在头顶 + 怪物 + 血条 + 格挡） -->
@@ -116,6 +124,16 @@
       <div id="resultStats"></div>
       <button class="btn gold" id="btnAgain" style="margin-top:14px;">再次远征</button>
       <button class="btn ghost" id="btnHome">返回主页</button>
+    </div>
+  </section>
+
+  <!-- ============ 每日复习 ============ -->
+  <section id="screen-review" class="screen" aria-label="每日复习">
+    <div class="panel" style="margin-top:20px;">
+      <h3 style="text-align:center;font-size:17px;">📚 每日复习</h3>
+      <div id="reviewHero"></div>
+      <button class="btn gold" id="btnReviewStart">开始复习</button>
+      <button class="btn ghost" id="btnReviewBack">返回主页</button>
     </div>
   </section>
 
@@ -159,6 +177,20 @@
   </div>
 </div>
 
+<!-- 复习答题弹窗（主页每日复习，独立于战斗答题） -->
+<div id="reviewQuiz">
+  <div class="quiz-card">
+    <section aria-label="复习答题">
+      <div class="rq-top"><span id="rqType">英→中</span><span id="rqProg">1/10</span></div>
+      <div id="rqWord">able</div>
+      <div id="rqPos">adj.</div>
+      <div id="rqHint">选择正确释义</div>
+      <div id="rqOptions"></div>
+      <div id="rqFeedback"></div>
+    </section>
+  </div>
+</div>
+
 <!-- 爬塔节点弹窗：奇遇 / 商店 / 休息处 -->
 <div id="nodeOverlay">
   <div class="overlay-card node-card">
@@ -177,8 +209,8 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://unpkg.com/tone@15/build/Tone.js"></script>
 <script>window.addEventListener("load",function(){if(!window.Tone){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tone@15/build/Tone.js";document.head.appendChild(s);setTimeout(function(){if(window.Tone&&typeof playMusic==="function"&&typeof ensureMusic==="function")ensureMusic();},900);}});</script>
-<script src="js/data.js?v=20260821b"></script>
-<script src="js/game.js?v=20260821b"></script>
-<script src="js/main.js?v=20260821b"></script>
+<script src="js/data.js?v=20260821c"></script>
+<script src="js/game.js?v=20260821c"></script>
+<script src="js/main.js?v=20260821c"></script>
 </body>
 </html>

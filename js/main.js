@@ -205,7 +205,7 @@ function usePotion(idx){
     case 'heal':S.hp=Math.min(S.maxHp,S.hp+Math.round(S.maxHp*0.2));log('🧪 回血药 +'+Math.round(S.maxHp*0.2)+' 生命','g');break;
     case 'block':S.block=(S.block||0)+14;log('🧪 格挡药 +14 格挡','b');break;
     case 'atk':S.enemy.hp-=20;log('🧪 攻击药 造成 20 伤害','r');break;
-    case 'strength':S.atkMul=(S.atkMul||1)*1.25;$('atkRate').textContent='~'+Math.round(ATK_RATE*S.atkMul)+'/秒';log('🧪 力量药 攻击系数 +25%','y');break;
+    case 'strength':S.atkMul=(S.atkMul||1)*1.25;if(typeof refreshTab==='function')refreshTab();log('🧪 力量药 攻击系数 +25%','y');break;
     case 'time':S.timeBonus=(S.timeBonus||0)+5;log('🧪 时间药 答题时间 +5 秒','y');break;
     case 'double':S.doubleAtk=true;log('🧪 双倍药 下次攻击 ×2','y');break;
     case 'thorn':S.thorn=true;log('🧪 荆棘药 反弹 6 伤害','b');break;
@@ -316,6 +316,7 @@ function continueGame(){
     if(typeof updateFloorTag==='function')updateFloorTag();
     if(typeof renderEnemy==='function')renderEnemy();
     if(typeof updateEnemy==='function')updateEnemy();
+    if(typeof renderPlayer==='function')renderPlayer();
     if(typeof updatePlayer==='function')updatePlayer();
     if(typeof updateTop==='function')updateTop();
     if(S.enemy.isBoss){if(typeof playMusic==='function')playMusic('boss');}
@@ -365,6 +366,9 @@ function init(){
   // 主按钮
   $('btnStart').addEventListener('click',()=>{sfx('button');startRun();});
   $('btnMeta').addEventListener('click',()=>{sfx('button');showScreen('meta');});
+  const _br=$('btnReview');if(_br)_br.addEventListener('click',()=>{sfx('button');showScreen('review');});
+  const _brs=$('btnReviewStart');if(_brs)_brs.addEventListener('click',()=>{sfx('button');startReview();});
+  const _brb=$('btnReviewBack');if(_brb)_brb.addEventListener('click',()=>{sfx('button');showScreen('start');});
   $('btnMetaBack').addEventListener('click',()=>{sfx('button');showScreen('start');});
   $('btnAgain').addEventListener('click',()=>{sfx('button');showScreen('start');});
   $('btnHome').addEventListener('click',()=>{sfx('button');showScreen('start');});
@@ -390,6 +394,7 @@ function init(){
   const bv=$('bgmVol');if(bv){bv.value=Math.round((S.bgmVol||0.32)*100);bv.addEventListener('input',()=>{S.bgmVol=bv.value/100;try{localStorage.setItem('lexicon_bgm_vol',S.bgmVol);}catch(e){}if(_bgm)_bgm.volume=S.bgmVol;});}
   // 继续战斗（弹确认）
   updateContinueBtn();
+  if(typeof updateReviewBtn==='function')updateReviewBtn();
   const bc=$('btnContinue');if(bc)bc.addEventListener('click',()=>{
     sfx('button');
     let sv=null;try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){}

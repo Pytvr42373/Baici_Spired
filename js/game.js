@@ -5,7 +5,7 @@
 
 /* ============ 局外成长持久化 ============ */
 let META=loadMeta();
-function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'){m.star=+m.star||0;m.maxHp=+m.maxHp||0;m.slot=+m.slot||0;m.goldStart=+m.goldStart||0;if(!m.words||typeof m.words!=='object')m.words={};return m;}}catch(e){}return {star:0,maxHp:0,slot:0,goldStart:0,words:{}};}
+function loadMeta(){try{const m=JSON.parse(localStorage.getItem(META_KEY));if(m&&typeof m==='object'){m.star=+m.star||0;m.maxHp=+m.maxHp||0;m.slot=+m.slot||0;m.goldStart=+m.goldStart||0;m.reviewToday=+m.reviewToday||0;m.reviewDate=m.reviewDate||'';if(!m.words||typeof m.words!=='object')m.words={};return m;}}catch(e){}return {star:0,maxHp:0,slot:0,goldStart:0,reviewToday:0,reviewDate:'',words:{}};}
 function saveMeta(){localStorage.setItem(META_KEY,JSON.stringify(META));}
 
 let S={};
@@ -147,6 +147,10 @@ function startTurn(){
 function choose(mode){
   if(S.phase!=='choose')return;
   S.choice=mode;S.phase='question';
+  const _at=$('btnAtk'),_de=$('btnDef');
+  if(_at)_at.classList.toggle('active',mode==='atk');
+  if(_de)_de.classList.toggle('active',mode==='def');
+  refreshTab();
   const banner=$('choiceBanner');
   banner.className=mode==='atk'?'atk':'def';
   banner.textContent=mode==='atk'?'⚔ 攻击':'🛡 防御';
@@ -344,7 +348,7 @@ function updateEnemy(){
 function updatePlayer(){
   $('pHp').textContent=Math.max(0,S.hp);
   $('pBlock').textContent=S.block||0;
-  $('pAtk').textContent=S.choice==='atk'?('×'+Math.round((S.atkMul||1)*100)/100):''; // ★ M6：显示本击系数
+  refreshTab();
   $('statHp').textContent=Math.max(0,S.hp);
   $('statHpBar').style.width=(S.hp/S.maxHp*100)+'%';
   refreshIcons();
@@ -392,8 +396,8 @@ function startRun(){
   });
   S.atkMul=(HEROES[S.hero].atkMul||1)*(S.atkMul||1);
   S.maxHp=60+META.maxHp*8;S.hp=S.maxHp;
-  $('atkRate').textContent='~'+Math.round(ATK_RATE*(S.atkMul||1))+'/秒';
-  $('defRate').textContent='~'+DEF_RATE+'/秒';
+  refreshTab();
+  renderPlayer();
   showScreen('game');$('log').innerHTML='';
   if(typeof updatePotionBar==='function')updatePotionBar();
   if(typeof renderRelicBar==='function')renderRelicBar();
@@ -429,7 +433,7 @@ function abandonRun(){
 }
 function renderMeta(){
   $('metaStar').innerHTML='<span class="star-ico">'+starSVG()+'</span><span id="metaStarNum">'+META.star+'</span>';
-  const _rb=$('reviewBox');if(_rb){const _due=dueWordsCount();_rb.innerHTML='<div class="u-name" style="color:var(--accent)">📚 今日复习</div><div class="u-desc">'+_due+' 个词已到期 · 答对复习词 +2 金币 · 结算星尘 +1/词（封顶 +5）</div>';}
+  const _rb=$('reviewBox');if(_rb){const _due=dueWordsCount();_rb.innerHTML='<div class="u-name" style="color:var(--accent)">📚 今日复习</div><div class="u-desc">'+_due+' 个词已到期 · 今日已复习 '+(META.reviewToday||0)+' 个 · 答对复习词 +2 金币 · 结算星尘 +1/词（封顶 +5）</div>';}
   const list=$('upgradeList');list.innerHTML='';
   const ups=[
     {k:'maxHp',name:'❤ 生命强化',desc:'每级 +8 最大生命',cost:n=>6+n*3,lv:META.maxHp,max:8},
@@ -443,11 +447,14 @@ function starSVG(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+id).classList.add('active');
   if(id==='meta')renderMeta();
+  if(id==='review'){if(typeof renderReviewScreen==='function')renderReviewScreen();}
+  if(id==='start'&&typeof updateReviewBtn==='function')updateReviewBtn();
   // 返回主页/放弃按钮：仅战斗时显示
   const bh=$('btnHomeFloat');if(bh)bh.classList.toggle('hidden',id!=='game');
   const ba=$('btnAbandonFloat');if(ba)ba.classList.toggle('hidden',id!=='game');
   // 配乐按阶段切换
   if(id==='start'&&typeof playMusic==='function')playMusic('menu');
+  if(id==='review'&&typeof playMusic==='function')playMusic('menu');
   if(id==='game'&&typeof playMusic==='function')playMusic('battle');
   if(id==='result'&&typeof playMusic==='function')playMusic('result');
   if((id==='game'||id==='start')&&typeof updatePotionBar==='function')updatePotionBar();
@@ -583,4 +590,110 @@ function triggerNode(){
   if(r<NODE_WEIGHT.event){showEvent(EVENT_POOL[idx]);}
   else if(r<NODE_WEIGHT.event+NODE_WEIGHT.shop){showShop();}
   else{showRest();}
+}
+
+
+/* ============ 玩家自绘立绘渲染 + 攻防选项卡 ============ */
+function renderPlayer(){
+  const ic=$('playerIcon');if(!ic)return;
+  ic.innerHTML=(typeof playerSVG==='function')?playerSVG(S.hero):'';
+  const nm=$('pHeroName');if(nm&&HEROES[S.hero])nm.textContent=HEROES[S.hero].name;
+  refreshIcons();
+}
+function refreshTab(){
+  const d=$('tabDetail');if(!d)return;
+  const isAtk=S.choice!=='def';
+  const mul=isAtk?(S.atkMul||1):(S.defMul||1);
+  const desc=$('tabDesc'),rate=$('tabRate');
+  if(desc)desc.textContent=(isAtk?'答对造成伤害':'答对获得格挡')+(mul&&mul!==1?(' ×'+Math.round(mul*100)/100):'');
+  if(rate)rate.textContent='~'+(isAtk?Math.round(ATK_RATE*(S.atkMul||1)):Math.round(DEF_RATE*(S.defMul||1)))+'/秒';
+}
+
+/* ============ 每日复习界面（主页独立入口，脱离远征） ============ */
+const RV={words:[],idx:0,correct:0,wrong:0,star:0,qType:'e2c',opts:[],ans:0,_locked:false};
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function findTierOf(en){for(const t in TIERS){if(TIERS[t].words.some(w=>w.en===en))return t;}return null;}
+function bumpReviewToday(){const ts=todayStr();if(META.reviewDate!==ts){META.reviewDate=ts;META.reviewToday=0;}META.reviewToday=(META.reviewToday||0)+1;saveMeta();}
+function masterWordCount(){let n=0;for(const t in TIERS){for(const w of TIERS[t].words){const r=(META.words||{})[w.en];if(r&&r.mastery>=3&&r.iv>=7)n++;}}return n;}
+function gatherReviewWords(max){
+  max=max||10;
+  const now=Date.now();
+  const dues=[],wrongs=[];
+  for(const t in TIERS){for(const w of TIERS[t].words){const r=(META.words||{})[w.en];if(!r)continue;if(r.due>0&&r.due<=now)dues.push({w,tier:t});else if(r.wrongs>0)wrongs.push({w,tier:t});}}
+  let pool=shuffle(dues);
+  if(pool.length<5){for(const x of shuffle(wrongs)){if(!pool.some(p=>p.w.en===x.w.en)){pool.push(x);if(pool.length>=max)break;}}}
+  if(pool.length<3){const all=[];for(const t in TIERS){for(const w of TIERS[t].words)all.push({w,tier:t});}for(const x of shuffle(all)){if(!pool.some(p=>p.w.en===x.w.en)){pool.push(x);if(pool.length>=max)break;}}}
+  return pool.slice(0,max);
+}
+function renderReviewScreen(){
+  const h=$('reviewHero');if(!h)return;
+  h.innerHTML='<div class="rv-row"><span class="rv-k">今日到期</span><span class="rv-v">'+dueWordsCount()+' 词</span></div>'+
+    '<div class="rv-row"><span class="rv-k">今日已复习</span><span class="rv-v">'+(META.reviewToday||0)+' 词</span></div>'+
+    '<div class="rv-row"><span class="rv-k">累计掌握</span><span class="rv-v">'+masterWordCount()+' 词</span></div>'+
+    '<div class="rv-desc">按记忆间隔复习到期词汇，答对 +1 星尘，全对另有奖励。</div>';
+  updateReviewBtn();
+}
+function updateReviewBtn(){
+  const b=$('btnReview');if(!b)return;
+  const due=dueWordsCount();
+  b.textContent='📚 复习单词'+(due>0?'（'+due+'）':'');
+}
+function startReview(){
+  RV.words=gatherReviewWords(10);
+  if(!RV.words.length){toast('暂无到期单词，先开始远征吧！');return;}
+  RV.idx=0;RV.correct=0;RV.wrong=0;RV.star=0;RV._locked=false;
+  openReviewQuestion();
+}
+function openReviewQuestion(){
+  if(RV.idx>=RV.words.length){finishReview();return;}
+  const item=RV.words[RV.idx],w=item.w;
+  RV.qType=Math.random()<.5?'e2c':'c2e';
+  const tier=item.tier||findTierOf(w.en)||'ket';
+  const used=shuffle(TIERS[tier].words.filter(x=>x.en!==w.en));
+  const p=[];let pick;
+  if(RV.qType==='e2c'){for(const c of used){if(!p.includes(c.cn)&&c.cn!==w.cn){p.push(c.cn);if(p.length>=3)break;}}while(p.length<3)p.push('其他释义'+(p.length+1));pick=w.cn;}
+  else{for(const c of used){if(!p.includes(c.en)){p.push(c.en);if(p.length>=3)break;}}while(p.length<3)p.push('word'+(p.length+1));pick=w.en;}
+  const opts=shuffle([pick,...p]);
+  RV.opts=opts;RV.ans=opts.indexOf(pick);
+  $('rqType').textContent=RV.qType==='e2c'?'英→中':'中→英';
+  $('rqPos').textContent=w.pos||'';
+  $('rqHint').textContent=RV.qType==='e2c'?('选择「'+w.en+'」的释义'):('选择「'+w.cn+'」对应的单词');
+  $('rqWord').textContent=RV.qType==='e2c'?w.en:w.cn;
+  $('rqProg').textContent=(RV.idx+1)+'/'+RV.words.length;
+  const box=$('rqOptions');box.innerHTML='';const letters=['A','B','C','D'];
+  RV.opts.forEach((o,i)=>{const b=document.createElement('div');b.className='opt';b.innerHTML='<span class="letter">'+letters[i]+'</span>'+o;b.onclick=()=>reviewAnswer(i,b);box.appendChild(b);});
+  $('rqFeedback').textContent='';$('rqFeedback').className='';
+  const q=$('reviewQuiz');if(q)q.classList.add('show');
+}
+function reviewAnswer(i,el){
+  if(RV._locked)return;RV._locked=true;
+  const box=$('rqOptions');
+  [...box.children].forEach(b=>b.disabled=true);
+  const w=RV.words[RV.idx].w;
+  const btns=[...box.children];
+  const rightBtn=btns[RV.ans];
+  const isRight=RV.opts[i]===RV.opts[RV.ans];
+  if(isRight){if(rightBtn)rightBtn.classList.add('correct');}
+  else{el.classList.add('wrong');if(rightBtn)rightBtn.classList.add('correct');}
+  touchWord(w.en,isRight);
+  bumpReviewToday();
+  if(isRight){RV.correct++;RV.star++;}
+  else{RV.wrong++;}
+  $('rqFeedback').textContent=isRight?'✓ 正确 · +1 星尘':'✗ 答错，正确：'+(RV.qType==='e2c'?w.cn:w.en);
+  $('rqFeedback').className=isRight?'ok':'bad';
+  setTimeout(()=>{RV._locked=false;RV.idx++;openReviewQuestion();},800);
+}
+function finishReview(){
+  const q=$('reviewQuiz');if(q)q.classList.remove('show');
+  if(RV.wrong===0&&RV.correct>=5)RV.star+=3;
+  META.star+=RV.star;saveMeta();
+  const h=$('reviewHero');if(h){
+    h.innerHTML='<div class="rv-done">复习完成！</div>'+
+      '<div class="rv-row"><span class="rv-k">答对 / 答错</span><span class="rv-v">'+RV.correct+' / '+RV.wrong+'</span></div>'+
+      '<div class="rv-row"><span class="rv-k">获得星尘</span><span class="rv-v">✨ +'+RV.star+'</span></div>'+
+      '<div class="rv-desc">今日已复习 '+(META.reviewToday||0)+' 词，明日再来巩固！</div>';
+  }
+  if(typeof sfx==='function')sfx('victory');
+  toast('📚 复习完成 +'+RV.star+' 星尘');
+  updateReviewBtn();
 }
