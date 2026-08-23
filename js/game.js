@@ -812,6 +812,7 @@ function startNodeBattle(isElite){
     S.enemy={name:'精英·'+e.name,icon:e.icon,monster:e.monster,hp:Math.round(e.hp*hpMul),hpMax:Math.round(e.hp*hpMul),block:0,intents:e.intents,isBoss:false,isElite:true,goldGain:Math.round((22+S.floor*2.2)*1.6)};
     renderEnemy();updateEnemy();
     toast('💀 精英 '+S.enemy.name+' 拦路！');
+    startTurn();
   }else{
     spawnNextEnemy();
   }
