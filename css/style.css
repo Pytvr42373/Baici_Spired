@@ -970,7 +970,7 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 /* ============================================================
    UI 重设计 v4：网状爬塔地图（类杀戮尖塔）
 ============================================================ */
-#screen-map{display:flex;flex-direction:column;min-height:100vh;padding:0;}
+#screen-map{display:none;flex-direction:column;min-height:100vh;padding:0;}
 #screen-map.active{display:flex;}
 #mapHeader{padding:18px 18px 6px;text-align:center;}
 .map-title{font-size:16px;font-weight:800;letter-spacing:1px;opacity:.9;}
