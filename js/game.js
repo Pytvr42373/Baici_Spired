@@ -535,29 +535,28 @@ function renderMeta(){
   ups.forEach(u=>{const cost=u.cost(u.lv);const d=document.createElement('div');d.className='upgrade';d.innerHTML='<div><div class="u-name">'+u.name+' <span style="color:var(--gold)">Lv.'+u.lv+'</span></div><div class="u-desc">'+u.desc+'</div></div><div class="u-cost">'+starSVG()+'<span>'+cost+'</span></div>';if(META.star<cost||u.lv>=u.max)d.disabled=true;d.onclick=()=>{if(META.star>=cost&&u.lv<u.max){META.star-=cost;META[u.k]++;saveMeta();renderMeta();}};list.appendChild(d);});
   renderTalentTree();
 }
-/* 天赋树 UI：双分支面板，前置连线 + 节点卡片 */
+/* 天赋树 UI：双分支分层节点 */
 function renderTalentTree(){
   const wrap=$('talentWrap');if(!wrap)return;
   wrap.innerHTML='';
   for(const b of TALENT_BRANCHES){
-    const panel=document.createElement('div');panel.className='talent-panel';
-    panel.style.setProperty('--tb',b.color);
+    const panel=document.createElement('div');panel.className='talent-panel talent-'+b.id;
     let html='<div class="talent-branch"><span class="tb-ico">'+b.icon+'</span>'+b.name+'</div>';
     const tierMap={};for(const n of b.nodes){const t=Math.max(0,...(n.prereq||[]).map(p=>{const pn=talentNode(p);return (tierMap[pn.id]||0)+1;}));tierMap[n.id]=t;n._tier=t;}
     const tiers=[];for(const n of b.nodes){const t=tierMap[n.id];(tiers[t]=tiers[t]||[]).push(n);}
     for(let t=0;t<tiers.length;t++){
       html+='<div class="talent-tier">';
       for(const n of tiers[t]){
-        const lv=talentLv(n.id);const can=talentCanSpend(n);const locked=(lv===0&&(n.prereq||[]).some(p=>talentLv(p)<=0));
-        const cls='talent-node'+(lv>0?' on':'')+(can?' can':'')+(locked?' lock':'');
-        html+='<div class="'+cls+'" data-id="'+n.id+'"><div class="tn-top"><span class="tn-name">'+n.name+'</span><span class="tn-lv">Lv.'+lv+'/'+n.max+'</span></div><div class="tn-desc">'+n.desc+'</div><div class="tn-foot"><span class="tn-req">'+(locked?('🔒 '+(n.prereq||[]).map(p=>talentNode(p).name).join('、')):'')+'</span><span class="tn-cost">'+(lv>=n.max?'已满级':(can?(starSVG()+' '+talentCost(n)):('✨ '+talentCost(n))))+'</span></div></div>';
+        const lv=talentLv(n.id);const can=talentCanSpend(n);const locked=(lv===0&&(n.prereq||[]).some(p=>talentLv(p)<=0));const maxed=lv>=n.max;
+        const cls='talent-node'+(lv>0?' on':'')+(can?' can':'')+(locked?' lock':'')+(maxed?' maxed':'');
+        html+='<div class="'+cls+'" data-id="'+n.id+'"><div class="tn-top"><span class="tn-name">'+n.name+'</span><span class="tn-lv">Lv.'+lv+'/'+n.max+'</span></div><div class="tn-desc">'+n.desc+'</div><div class="tn-foot"><span class="tn-req">'+(locked?('需：'+(n.prereq||[]).map(p=>talentNode(p).name).join('、')):'')+'</span><span class="tn-cost">'+(maxed?'满级':(can?(starSVG()+' '+talentCost(n)):('✨ '+talentCost(n))))+'</span></div></div>';
       }
       html+='</div>';
     }
     panel.innerHTML=html;
     panel.querySelectorAll('.talent-node').forEach(el=>{
       const id=el.dataset.id;const node=talentNode(id);const lv=talentLv(id);
-      if(lv>0||!talentCanSpend(node))el.classList.add('no-click');
+      if(!talentCanSpend(node))el.classList.add('no-click');
       el.addEventListener('click',()=>{if(talentCanSpend(node))spendTalent(id);});
     });
     wrap.appendChild(panel);

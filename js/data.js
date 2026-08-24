@@ -204,14 +204,12 @@ const NODE_WEIGHT={event:55,shop:25,rest:20}; // 普通层清空后，遇到三�
 const EVENT_POOL=[
   {
     id:'ewander',title:'🗺 词源漫游者',
-    text:`一位身披旧羊皮纸斗篷的老者从路旁树下抬起头，像是等你很久了。
+    text:`老者从树下抬头，摊开一张旧地图。
 
-「每个词都是一段迁徙史。」他摊开一卷发黄的地图，「你看 atlas——希腊神话里那位被罚永远扛着天球的泰坦。十六世纪，地理学家墨卡托把扛天的巨神画在地图册扉页，从此『地图册』就叫 atlas 了。」
-
-他递来一张羊皮纸：「考你一个，答对了，这点星尘归你。答错了……就当交学费。」`,
+他说 atlas 来自希腊神话中扛天的泰坦；墨卡托把他画在地图册上，后来地图册就叫 atlas。答题可赢星尘，你决定是否试试。`,
     choices:[
-      {label:'接受词源考验',tip:'答对 +3 星尘 / 答错 -1 星尘',
-       quiz:{q:'「atlas」得名于希腊神话中的人物，他原本的职责是？',opts:['守护冥河渡口','扛起天空的天神','掌管海上风暴','铸炼雷霆的工匠'],ans:1,
+      {label:'接受词源考验',tip:'答对 +3 星尘，答错 -1',
+       quiz:{q:'神话中的 Atlas 被罚做什么？',opts:['守护冥河渡口','扛起天空的天神','掌管海上风暴','铸炼雷霆的工匠'],ans:1,
          ok:()=>{nodeGiveStar(3);},
          bad:()=>{nodeGiveStar(-1);}}},
       {label:'婉拒赶路',tip:'礼貌道别，老者微笑点头',run:()=>{toast('🍃 老者目送你远去');}}
@@ -219,73 +217,65 @@ const EVENT_POOL=[
   },
   {
     id:'shakespeare',title:'🎭 莎士比亚的幽灵',
-    text:`浓雾里浮出一位穿着伊丽莎白时代紧身衣、手持鹅毛笔的幽灵。他上下打量你，突然抑扬顿挫地吟道：
+    text:`浓雾中出现手持鹅毛笔的莎士比亚幽灵。
 
-「To be, or not to be——那孩子当年写得可真不赖，是不是？」他眯起眼，「可我更好奇，如今的远征者，还认不认得我们那时的词儿。」
-
-他在空中写下几个发光的字母：「接我一题，赢家拿钱走人。」`,
+他写下名句 To be, or not to be，并问你是否认得《哈姆雷特》的开头。答对有金币，答错会受伤。`,
     choices:[
-      {label:'接住莎翁的考题',tip:'答对 +25 金币 / 答错 -5 生命',
-       quiz:{q:'《哈姆雷特》中那句最著名的独白，开头是？',opts:["All the world's a stage",'To be, or not to be','A rose by any other name','Brevity is the soul of wit'],ans:1,
+      {label:'接下莎翁考题',tip:'答对 +25 金币，答错 -5 生命',
+       quiz:{q:'《哈姆雷特》名句的开头是？',opts:["All the world's a stage",'To be, or not to be','A rose by any other name','Brevity is the soul of wit'],ans:1,
          ok:()=>{nodeGiveGold(25);},
          bad:()=>{nodeDamage(5);}}},
-      {label:'也引一句名言回应',tip:'赌 50%：幽灵击节赞赏 / 或嘲笑你班门弄斧',
+      {label:'引用名言回应',tip:'50% 获 +20 金币，否则无奖励',
        run:()=>{if(Math.random()<0.5){toast('🎭 「妙哉！」幽灵大笑，撒下一把金币');nodeGiveGold(20);}else{toast('🪶 「班门弄斧。」幽灵撇撇嘴，飘走了');}}},
       {label:'礼貌告退',tip:'幽灵欠身行礼',run:()=>{toast('🎭 幽灵鞠躬：「愿你的词句永不褪色。」');}}
     ]
   },
   {
     id:'witch',title:'🧙 拼写女巫',
-    text:`路旁歪斜的木屋上，挂着一串被风吹得叮当作响的字母。女巫从沸腾的坩埚里舀起一勺金色的气泡，笑眯眯地看着你。
+    text:`木屋旁，女巫从坩埚后探出头，挥杖打散一串字母。
 
-「远征者，魔法世界的法则很简单——拼对，我就把力量灌进你体内；拼错……就得交一点『学费』。」
-
-她用魔杖在空气里划出一个词，字母散落一地。`,
+她说拼对就能获得力量，拼错要付出代价。你可以挑战拼写，也可以花钱买护身符。`,
     choices:[
-      {label:'接受拼写挑战',tip:'答对 +8 生命上限 / 答错 -6 生命',
+      {label:'挑战拼写',tip:'答对生命上限 +8，答错 -6 生命',
        quiz:{q:'哪个拼写是正确的？',opts:['necessary','necessery','neccessary','necessarry'],ans:0,
          ok:()=>{S.maxHp+=8;S.hp=Math.min(S.maxHp,S.hp+8);toast('✨ 女巫点点头，生命上限 +8');updatePlayer();},
          bad:()=>{nodeDamage(6);}}},
-      {label:'花 50 金币买一枚护身符',tip:'获得一瓶「格挡药」',run:()=>{if(S.gold<50){toast('🪙 金币不够……女巫遗憾地摇头');return false;}if(!nodeGivePotion('block'))return false;S.gold-=50;updateTop();return true;}}
+      {label:'花 50 金币买护身符',tip:'获得一瓶格挡药',run:()=>{if(S.gold<50){toast('🪙 金币不够……女巫遗憾地摇头');return false;}if(!nodeGivePotion('block'))return false;S.gold-=50;updateTop();return true;}}
     ]
   },
   {
     id:'jester',title:'🤡 双关语小丑',
-    text:`一个戴尖帽的小丑从树丛后蹦出来，夸张地鞠了一躬：「远征者！来都来了，赏脸听个谜呗？」
+    text:`尖帽小丑拦住你，讲了个双关语：英语老师放梯子，是因为要 raise the level of the class；level 既是水平，也是楼层。
 
-他清清嗓子：「为什么英语老师总在讲台边放一架梯子？」他得意地眨眼，「——Because they want to raise the level of the class！level 既是『水平』，也是『楼层』，一举两得！哈哈哈哈！」
-
-他笑得前仰后合，从口袋里掏出一把金币晃了晃：「笑一个，分你点。」`,
+他晃着金币，邀请你笑一个或讲个笑话，换取奖励。`,
     choices:[
       {label:'礼貌地笑一笑',tip:'+15 金币',run:()=>{toast('🤡 「上道！」小丑抛来一把金币');nodeGiveGold(15);}},
-      {label:'讲个双关语反击',tip:'赌 50%：逗笑全场 +30 金币 / 冷场被取笑',run:()=>{if(Math.random()<0.5){toast('🤡 「哈哈哈哈！这招妙！」小丑捧腹，金币哗哗作响');nodeGiveGold(30);}else{toast('😅 全场安静……小丑干笑两声：「呃，下次改进。」');}}},
+      {label:'用双关语反击',tip:'50% 获 +30 金币，否则无奖励',run:()=>{if(Math.random()<0.5){toast('🤡 「哈哈哈哈！这招妙！」小丑捧腹，金币哗哗作响');nodeGiveGold(30);}else{toast('😅 全场安静……小丑干笑两声：「呃，下次改进。」');}}},
       {label:'面无表情地路过',tip:'小丑耸耸肩',run:()=>{toast('🤡 「冷面远征者，有性格。」小丑自己笑场了');}}
     ]
   },
   {
     id:'librarian',title:'📚 图书馆馆长',
-    text:`一座高耸入云的图书馆毫无征兆地矗立在路中央，大门洞开。馆长从柜台后探出头，食指竖在唇边：「嘘——这里的书，按字母顺序活着。」
+    text:`图书馆突然出现在路中央，馆长示意你小声些。
 
-「library 这个词，来自拉丁语 liber，意思是『树皮』——最早的『书』，是刻在树皮上的。」他推了推眼镜，「要借点『知识』上路吗？不过得先通过我的索引考验：按字典序，哪个词排最前面？」`,
+他介绍 library 来自拉丁语 liber，原意是树皮；最早的书曾刻在树皮上。想借知识上路，就先找出字典序最前的词。`,
     choices:[
-      {label:'通过索引考验',tip:'答对 +3 秒答题时间 / 答错 -5 生命',
-       quiz:{q:'按字典序，哪个词排在「最前面」？',opts:['able','about','abandon','ability'],ans:2,
+      {label:'接受索引考验',tip:'答对答题时间 +3 秒，答错 -5 生命',
+       quiz:{q:'按字典序，哪个词最靠前？',opts:['able','about','abandon','ability'],ans:2,
          ok:()=>{S.timeBonus=(S.timeBonus||0)+3;toast('📖 「索引无误。」答题时间 +3 秒');},
          bad:()=>{nodeDamage(5);}}},
-      {label:'花 30 金币买一本《时间之书》',tip:'答题时间 +3 秒（本局）',run:()=>{if(S.gold<30){toast('🪙 金币不够，馆长摇头');return false;}S.gold-=30;S.timeBonus=(S.timeBonus||0)+3;toast('📖 获得《时间之书》：答题时间 +3 秒');updateTop();return true;}},
+      {label:'花 30 金币买《时间之书》',tip:'本局答题时间 +3 秒',run:()=>{if(S.gold<30){toast('🪙 金币不够，馆长摇头');return false;}S.gold-=30;S.timeBonus=(S.timeBonus||0)+3;toast('📖 获得《时间之书》：答题时间 +3 秒');updateTop();return true;}},
       {label:'不打扰，继续赶路',tip:'',run:()=>{toast('📚 馆长轻声：「愿字母保佑你。」');}}
     ]
   },
   {
     id:'viking',title:'🛶 维京长船水手',
-    text:`一位胡须结霜的维京水手靠在他的长船边，正用牛角杯喝着蜂蜜酒。看见你，他咧嘴一笑。
+    text:`维京水手靠在长船边，举杯向你打招呼。
 
-「小子，英语里一大半的『家常词』——sky、egg、knife、window——都是我们北欧人带来的！你航船时喊的 wind，看天看的 weather，全是维京人教给撒克逊人的。」
-
-他拍了拍腰间鼓鼓的钱袋：「用一句话换我的战利品。答对了，金币归你。」`,
+他说明 sky、egg、knife、window 等日常词来自古诺尔斯语。找出并非来自古诺尔斯语的词，即可赢金币；也可以喝酒回血。`,
     choices:[
-      {label:'答维京人的题',tip:'答对 +25 金币 / 答错无事',
-       quiz:{q:'下面哪个词「不是」从古诺尔斯语（维京人）传入英语的？',opts:['sky','window','knife','mountain'],ans:3,
+      {label:'回答维京词源题',tip:'答对 +25 金币，答错无事',
+       quiz:{q:'哪个词不是维京人带入英语的？',opts:['sky','window','knife','mountain'],ans:3,
          ok:()=>{nodeGiveGold(25);},
          bad:()=>{toast('🛶 「哈哈，撒克逊词！」水手大笑，但没计较');}}},
       {label:'和他干一杯蜂蜜酒',tip:'+8 生命',run:()=>{S.hp=Math.min(S.maxHp,S.hp+8);toast('🍯 蜂蜜酒暖透胸膛，生命 +8');updatePlayer();}}
@@ -293,14 +283,12 @@ const EVENT_POOL=[
   },
   {
     id:'madtea',title:'☕ 疯帽匠的茶会',
-    text:`一棵歪脖子树下，铺着一条望不到头的长桌，堆满热腾腾的茶杯。三月兔和疯帽匠冲你拼命挥手：「换位子！换位子！」
+    text:`疯帽匠和三月兔在长桌旁招手，桌上摆满茶杯。
 
-疯帽匠晃着一块停摆的怀表，神神秘秘地压低声音：「时间为什么永远停在六点？」他眨眨眼，「——因为六点是 tea time（下午茶时间）！答案就藏在单词里。」
-
-他推来一杯茶：「坐下来，答对我们的谜题，这块表送你。」`,
+疯帽匠说怀表总停在六点，因为那是 tea time（下午茶时间）。坐下答题，就能获得额外答题时间。`,
     choices:[
-      {label:'坐下喝茶答题',tip:'答对 +3 秒答题时间 / 答错 -5 生命',
-       quiz:{q:'《爱丽丝漫游奇境》里，疯帽匠的怀表为什么停在「六点」？',opts:['六点是下午茶时间','表真的坏了','他讨厌六这个数字','表是三月兔偷来的'],ans:0,
+      {label:'喝茶并回答',tip:'答对答题时间 +3 秒，答错 -5 生命',
+       quiz:{q:'疯帽匠的怀表为何停在六点？',opts:['六点是下午茶时间','表真的坏了','他讨厌六这个数字','表是三月兔偷来的'],ans:0,
          ok:()=>{S.timeBonus=(S.timeBonus||0)+3;toast('⏰ 疯帽匠鼓掌：「正是 tea time！」答题时间 +3 秒');},
          bad:()=>{nodeDamage(5);}}},
       {label:'不喝茶，拒绝谜题',tip:'',run:()=>{toast('☕ 「随你吧。」疯帽匠自顾自往茶杯里倒时间');}}
@@ -308,14 +296,12 @@ const EVENT_POOL=[
   },
   {
     id:'rootstele',title:'🪨 词根石碑',
-    text:`一块开裂的石碑立在路边，上面刻着拉丁词根：port（携带）。
+    text:`裂开的石碑刻着拉丁词根 port（携带）。
 
-下方的小字密密麻麻：「port + able = 可携带的；port + er = 搬运工；import 进口、export 出口、transport 运输、portable 便携……」
-
-一个低沉的声音在你脑中响起：「远征者，选一个真正『承托』这个词根意义的词，我便赐你祝福。」`,
+portable 是“可携带的”，import、export、transport 也都含有这个词根。选出最贴合 port 含义的词，就能得到祝福。`,
     choices:[
-      {label:'选出真正的派生词',tip:'答对 +6 生命上限 / 答错 -5 生命',
-       quiz:{q:'哪个词与词根 port（携带）的「意思最相关」？',opts:['portable（可携带的）','portrait（肖像）','portion（一份）','poster（海报）'],ans:0,
+      {label:'找出相关派生词',tip:'答对生命上限 +6，答错 -5 生命',
+       quiz:{q:'哪个词最符合 port（携带）的含义？',opts:['portable（可携带的）','portrait（肖像）','portion（一份）','poster（海报）'],ans:0,
          ok:()=>{S.maxHp+=6;S.hp=Math.min(S.maxHp,S.hp+6);toast('🪨 石碑泛起微光：生命上限 +6');updatePlayer();},
          bad:()=>{nodeDamage(5);}}},
       {label:'默默记下石碑，继续赶路',tip:'',run:()=>{toast('📜 你把词根记在心里：port = 携带');}}
@@ -323,30 +309,26 @@ const EVENT_POOL=[
   },
   {
     id:'pirate',title:'🏴☠️ 海盗的宝箱',
-    text:`沙滩上埋着一只半露的橡木宝箱，旁边坐着独眼海盗，抱着吉他弹一支慵懒的小调。
+    text:`海盗坐在沙滩宝箱旁弹吉他，向你提问 pirate 的词源。
 
-「A pirate's life for me～」他抬眼，「你晓得 pirate 这个词打哪儿来不？希腊语 peirates，意思是『尝试者、袭击者』——敢试的人，才配当海盗。」
-
-他弹了个扫弦：「我出个词，你接住。赢的人，箱子里随便挑。」`,
+他说 pirate 来自希腊语 peirates，意思接近“尝试者、袭击者”。答对可得攻击药，也可以冒险偷开宝箱。`,
     choices:[
-      {label:'和海盗比一比',tip:'答对得一瓶「攻击药」/ 答错 -6 生命',
-       quiz:{q:'pirate 源自希腊语 peirates，其本意最接近？',opts:['尝试者 / 袭击者','航海家','沿海商人','皇家船长'],ans:0,
+      {label:'回答海盗词源题',tip:'答对得攻击药，答错 -6 生命',
+       quiz:{q:'peirates 的本意最接近？',opts:['尝试者 / 袭击者','航海家','沿海商人','皇家船长'],ans:0,
          ok:()=>{nodeGivePotion('atk');},
          bad:()=>{nodeDamage(6);}}},
-      {label:'趁他不注意偷开宝箱',tip:'赌 50%：得随机遗物 / 触发陷阱 -8 生命',run:()=>{if(Math.random()<0.5){const r=RELICS[Math.floor(Math.random()*RELICS.length)];S.relics.push(r);if(typeof renderRelicBar==='function')renderRelicBar();r.apply();toast('🏴☠️ 得手！遗物「'+r.name+'」');}else{nodeDamage(8);toast('🪤 宝箱弹出一条木蛇，咬了你一口！');}}}
+      {label:'趁机偷开宝箱',tip:'50% 得随机遗物，否则 -8 生命',run:()=>{if(Math.random()<0.5){const r=RELICS[Math.floor(Math.random()*RELICS.length)];S.relics.push(r);if(typeof renderRelicBar==='function')renderRelicBar();r.apply();toast('🏴☠️ 得手！遗物「'+r.name+'」');}else{nodeDamage(8);toast('🪤 宝箱弹出一条木蛇，咬了你一口！');}}}
     ]
   },
   {
     id:'midas',title:'🌟 迈达斯的金苹果',
-    text:`一个浑身金光闪闪的国王站在路中央，指尖托着一颗金苹果，神情却莫名落寞。
+    text:`迈达斯国王托着金苹果，神情并不快乐。
 
-「你听过 Midas 的故事么？」他叹道，「希腊传说里，他碰到什么，什么就变成金子——连晚餐、连女儿，都成了冷冰冰的金像。语言的讽刺在于：gold 一词出自古英语，而 golden age（黄金时代）……那是个一去不返的时代。」
-
-他把金苹果递向你：「拿去吧。但记住——有些东西，比金子更珍贵。」`,
+希腊传说中，他碰到什么都会变成金子，连女儿也不例外。国王把苹果递给你：你会取走金币，还是追问这个典故？`,
     choices:[
-      {label:'收下金苹果',tip:'+30 金币，但 -3 生命（贪婪的代价）',run:()=>{nodeGiveGold(30);nodeDamage(3);toast('🍎 金苹果沉甸甸的，闪着耀眼的光……');}},
-      {label:'婉拒，向他请教典故',tip:'+2 星尘（智者之路）',run:()=>{nodeGiveStar(2);toast('🌟 迈达斯欣慰地笑了：「明智的选择。」');}},
-      {label:'追问词源细节',tip:'答对 +3 星尘 / 答错无事',quiz:{q:'Midas 点石成金的故事，结局最接近哪个？',opts:['连女儿也变成金像，他悔恨不已','他成为众神之王','他在冥河解除了魔法','他把金苹果献给了国王'],ans:0,
+      {label:'收下金苹果',tip:'+30 金币，但 -3 生命',run:()=>{nodeGiveGold(30);nodeDamage(3);toast('🍎 金苹果沉甸甸的，闪着耀眼的光……');}},
+      {label:'请教典故后婉拒',tip:'+2 星尘',run:()=>{nodeGiveStar(2);toast('🌟 迈达斯欣慰地笑了：「明智的选择。」');}},
+      {label:'追问典故细节',tip:'答对 +3 星尘，答错无事',quiz:{q:'Midas 故事的结局最接近哪项？',opts:['连女儿也变成金像，他悔恨不已','他成为众神之王','他在冥河解除了魔法','他把金苹果献给了国王'],ans:0,
         ok:()=>{nodeGiveStar(3);},
         bad:()=>{toast('🌟 迈达斯苦笑：「细节早已被传说磨平了。」');}}}
     ]
@@ -384,18 +366,18 @@ const MAP_TYPE_NAME={battle:'战斗',elite:'精英',shop:'商店',rest:'休息',
 /* ============ 星尘天赋树（局外成长） ============ */
 // 分支 id: power力量 / lore学识；cost(n)=第 n→n+1 级花费；prereq=前置节点（全满足才可点）
 const TALENT_BRANCHES=[
-  {id:'power',name:'力量',icon:'⚔️',color:'#ff6b6b',nodes:[
-    {id:'P1',name:'锋刃磨砺',desc:'局内攻击 +5% / 级',cost:n=>4+3*n,max:5,prereq:[]},
-    {id:'P2',name:'致命一击',desc:'暴击率 +4% / 级（暴击伤害 ×1.5）',cost:n=>6+4*n,max:5,prereq:['P1']},
-    {id:'P3',name:'双刃乱舞',desc:'每答对 2 题，本击 +1 伤害',cost:n=>8+5*n,max:3,prereq:['P1']},
-    {id:'P5',name:'破甲之锋',desc:'对 BOSS 伤害 +12% / 级',cost:n=>10+6*n,max:3,prereq:['P2']},
-    {id:'P4',name:'战意昂扬',desc:'连击 ≥5 时回复 2 生命',cost:n=>18,max:1,prereq:['P2','P3']}
+  {id:'power',name:'力量',icon:'⚔️',nodes:[
+    {id:'P1',name:'锋刃磨砺',desc:'攻击 +5% / 级',cost:n=>4+3*n,max:5,prereq:[]},
+    {id:'P2',name:'致命一击',desc:'暴击 +4% / 级，暴伤 ×1.5',cost:n=>6+4*n,max:5,prereq:['P1']},
+    {id:'P3',name:'双刃乱舞',desc:'每答对 2 题，本击 +1',cost:n=>8+5*n,max:3,prereq:['P1']},
+    {id:'P5',name:'破甲之锋',desc:'对 Boss 伤害 +12% / 级',cost:n=>10+6*n,max:3,prereq:['P2']},
+    {id:'P4',name:'战意昂扬',desc:'连击 ≥5 时回 2 生命',cost:n=>18,max:1,prereq:['P2','P3']}
   ]},
-  {id:'lore',name:'学识',icon:'📚',color:'#5eead4',nodes:[
+  {id:'lore',name:'学识',icon:'📚',nodes:[
     {id:'L1',name:'词库扩充',desc:'战斗词池 +5 / 级',cost:n=>4+3*n,max:5,prereq:[]},
     {id:'L2',name:'融会贯通',desc:'答对金币 +1 / 级',cost:n=>6+4*n,max:3,prereq:['L1']},
     {id:'L3',name:'过目不忘',desc:'错题权重 +20% / 级',cost:n=>8+5*n,max:3,prereq:['L1']},
     {id:'L4',name:'智慧之眼',desc:'答题时间 +2 秒 / 级',cost:n=>10+6*n,max:3,prereq:['L2','L3']},
-    {id:'L5',name:'学者之心',desc:'答对 25% 概率回复 2 生命',cost:n=>22,max:1,prereq:['L4']}
+    {id:'L5',name:'学者之心',desc:'答对时 25% 概率回 2 生命',cost:n=>22,max:1,prereq:['L4']}
   ]}
 ];
