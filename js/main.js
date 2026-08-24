@@ -159,7 +159,7 @@ function playMusic(phase){
     a.loop=true;a.volume=0;a.dataset.src=src;
     _bgm=a;
     a.play().then(()=>{
-      const target=S.bgmVol||0.32;let v=0;
+      const target=Number.isFinite(S.bgmVol)?S.bgmVol:0.32;let v=0;
       _bgmFade=setInterval(()=>{v=Math.min(target,v+0.015);a.volume=v;if(v>=target){clearInterval(_bgmFade);_bgmFade=null;}},70);
     }).catch(()=>{});
   }catch(e){}
@@ -201,6 +201,8 @@ function dropPotionAfterBattle(){
 function usePotion(idx){
   if(!S.potions||!S.potions[idx])return;
   const key=S.potions[idx];const P=POTIONS[key];
+  // 先释放当前槽位，混沌药才能把新药水放回药水栏。
+  S.potions[idx]=null;
   switch(key){
     case 'heal':S.hp=Math.min(S.maxHp,S.hp+Math.round(S.maxHp*0.2));log('🧪 回血药 +'+Math.round(S.maxHp*0.2)+' 生命','g');break;
     case 'block':S.block=(S.block||0)+14;log('🧪 格挡药 +14 格挡','b');break;
@@ -208,12 +210,12 @@ function usePotion(idx){
     case 'strength':S.atkMul=(S.atkMul||1)*1.25;if(typeof refreshTab==='function')refreshTab();log('🧪 力量药 攻击系数 +25%','y');break;
     case 'time':S.timeBonus=(S.timeBonus||0)+5;log('🧪 时间药 答题时间 +5 秒','y');break;
     case 'double':S.doubleAtk=true;log('🧪 双倍药 下次攻击 ×2','y');break;
-    case 'thorn':S.thorn=true;log('🧪 荆棘药 反弹 6 伤害','b');break;
+    case 'thorn':S.thorn=true;S.thornDamage=Math.max(S.thornDamage||0,6);log('🧪 荆棘药 反弹 6 伤害','b');break;
     case 'gold':{const g=Math.round(15+S.floor*2);S.gold+=g;log('🧪 金币药 +'+g+' 金币','y');updateTop();break;}
     case 'genie':S.genie=true;log('🧪 瓶中精灵 免死一次','y');break;
     case 'juice':S.maxHp+=12;S.hp+=12;log('🧪 果汁 最大生命 +12','g');break;
     case 'chaos':{
-      const cn=1+Math.floor(Math.random()*3);let got=0;
+      const cn=2;let got=0;
       for(let i=0;i<cn;i++){ if(addPotion(randomPotion()))got++; }
       log('🧪 混沌药 随机获得 '+got+' 瓶药水','y');
       const cr=Math.random();
@@ -224,7 +226,6 @@ function usePotion(idx){
       break;}
     case 'charge':S.chargeAtk=true;log('🧪 蓄力药 敌人蓄力时攻击 ×2','y');break;
   }
-  S.potions[idx]=null;
   if(typeof updatePotionBar==='function')updatePotionBar();
   if(typeof updatePlayer==='function')updatePlayer();
   if(typeof updateEnemy==='function')updateEnemy();
@@ -279,8 +280,8 @@ function updateMuteBtn(){
 const SAVE_KEY='lexicon_save';
 function saveGame(){
   if(!S||!S.floor||S.floor<1||S.hp<=0)return;
-  const copy={};
-  ['floor','gold','hp','maxHp','combo','maxCombo','correctTotal','wrongTotal','killedTotal','atkMul','defMul','goldMul','bossIndex','timeBonus','enemyBuff','block','turnCount','enemiesInFloor','thorn','comboGold','knowBuff','potions','potionDrop','potionPity','doubleAtk','chargeAtk','genie','relics','hero','tier','diff','wrongWords','reviewDone','enemy','act','map','mapRow','mapCol'].forEach(k=>{if(S[k]!==undefined)copy[k]=S[k];});
+  const copy={version:2};
+  ['floor','gold','hp','maxHp','combo','maxCombo','correctTotal','wrongTotal','killedTotal','atkMul','defMul','goldMul','bossIndex','timeBonus','enemyBuff','block','turnCount','enemiesInFloor','thorn','thornDamage','comboGold','knowBuff','potions','potionDrop','potionPity','doubleAtk','chargeAtk','genie','relics','hero','tier','diff','wrongWords','reviewDone','enemy','act','map','mapRow','mapCol','talentP1','critRate','talentP3','talentP5','talentP4','talentL2','talentL4','talentL5'].forEach(k=>{if(S[k]!==undefined)copy[k]=S[k];});
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(copy));}catch(e){}
 }
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
@@ -307,6 +308,8 @@ function continueGame(){
   let sv=null;try{sv=JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){}
   if(!sv)return;clearSave();
   Object.assign(S,sv);
+  if(typeof restoreTalentRunState==='function')restoreTalentRunState();
+  if(S.thornDamage===undefined)S.thornDamage=S.thorn?4:0;
   $('log').innerHTML='';
   updateContinueBtn();
   if(typeof updatePotionBar==='function')updatePotionBar();
@@ -344,7 +347,8 @@ function init(){
   let _th='minimal';try{_th=localStorage.getItem('lexicon_theme')||'minimal';}catch(e){}
   let _mu=0;try{_mu=localStorage.getItem('lexicon_muted')==='1'?1:0;}catch(e){}
   S.muted=!!_mu;S.theme=_th;
-  S.bgmVol=parseFloat(localStorage.getItem('lexicon_bgm_vol'))||0.32;
+  const _storedVol=parseFloat(localStorage.getItem('lexicon_bgm_vol'));
+  S.bgmVol=Number.isFinite(_storedVol)?Math.max(0,Math.min(1,_storedVol)):0.32;
   captureBaseIcons();
   applyTheme(_th);
   setupIconObserver();
@@ -405,7 +409,7 @@ function init(){
   const bs=$('btnSettings'),sp=$('settingsPop'),tp=$('themePop');
   if(bs&&sp)bs.addEventListener('click',()=>{sfx('button');sp.classList.toggle('hidden');if(tp)tp.classList.add('hidden');});
   const sc=$('btnSettingsClose');if(sc&&sp)sc.addEventListener('click',()=>sp.classList.add('hidden'));
-  const bv=$('bgmVol');if(bv){bv.value=Math.round((S.bgmVol||0.32)*100);bv.addEventListener('input',()=>{S.bgmVol=bv.value/100;try{localStorage.setItem('lexicon_bgm_vol',S.bgmVol);}catch(e){}if(_bgm)_bgm.volume=S.bgmVol;});}
+  const bv=$('bgmVol');if(bv){bv.value=Math.round(S.bgmVol*100);bv.addEventListener('input',()=>{S.bgmVol=bv.value/100;try{localStorage.setItem('lexicon_bgm_vol',S.bgmVol);}catch(e){}if(_bgm)_bgm.volume=S.bgmVol;});}
   // 继续战斗（弹确认）
   updateContinueBtn();
   if(typeof updateReviewBtn==='function')updateReviewBtn();
@@ -420,7 +424,7 @@ function init(){
   // 放弃远征（结算）
   const ba=$('btnAbandonFloat');if(ba)ba.addEventListener('click',()=>{
     sfx('button');
-    showConfirm('🏳 放弃远征', '将按当前进度结算星尘（中途放弃获得 <b>50%</b> 奖励），\n并清除本次存档返回主页。确定放弃？', ()=>abandonRun());
+    showConfirm('🏳 放弃远征', '将按当前进度结算星尘（中途放弃获得 <b>50%</b> 奖励，未击败敌人且答题不足 5 次时无奖励），\n并清除本次存档返回主页。确定放弃？', ()=>abandonRun());
   });
 
   // 页面刷新/关闭时自动保存（战斗中）

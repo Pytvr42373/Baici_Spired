@@ -1,0 +1,42 @@
+# Agent instruction files
+AGENTS.md
+AGENT.md
+agents.md
+agent.md
+
+# Local deployment and environment files
+.deploy/
+.env
+.env.*
+!.env.example
+*.local
+
+# Private keys, certificates, and keystores
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.kdbx
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+
+# Credentials and tokens
+credentials*
+secrets*
+auth.json
+*.secret
+*.secrets
+*.credentials
+.npmrc
+
+# Local data and logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+.DS_Store
+Thumbs.db

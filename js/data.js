@@ -92,7 +92,7 @@ const HEROES={
   warrior:{name:"战士",icon:"swords",desc:"攻击系数+30%",atkMul:1.3},
   mage:{name:"法师",icon:"wand",desc:"答题时间+3秒",time:3},
   rogue:{name:"游侠",icon:"target",desc:"连击奖励+1金币",combo:true},
-  healer:{name:"牧师",icon:"heart",desc:"每层回4血",heal:4}
+  healer:{name:"牧师",icon:"heart",desc:"每场战斗后回复4生命",heal:4}
 };
 /* ============ 难度 ============ */
 const DIFFS={
@@ -132,7 +132,7 @@ const RELICS=[
   {name:'生命之石',icon:'gem',desc:'最大生命 +15 并回 15',apply:()=>{S.maxHp+=15;S.hp=Math.min(S.maxHp,S.hp+15);updatePlayer();}},
   {name:'蓄力预知',icon:'eye',desc:'看到敌人蓄力时，下次攻击翻倍',apply:()=>{S.knowBuff=true;}},
   {name:'时间之沙',icon:'hourglass',desc:'答题时间 +3 秒',apply:()=>{S.timeBonus=(S.timeBonus||0)+3;}},
-  {name:'荆棘',icon:'svg-thorns',desc:'敌人攻击你时反弹 4 伤害',apply:()=>{S.thorn=true;}},
+  {name:'荆棘',icon:'svg-thorns',desc:'敌人攻击你时反弹 4 伤害',apply:()=>{S.thorn=true;S.thornDamage=Math.max(S.thornDamage||0,4);}},
   {name:'连击之心',icon:'flame',desc:'连击每 3 次额外 +2 金币',apply:()=>{S.comboGold=true;}}
 ];
 
@@ -246,7 +246,7 @@ const EVENT_POOL=[
        quiz:{q:'哪个拼写是正确的？',opts:['necessary','necessery','neccessary','necessarry'],ans:0,
          ok:()=>{S.maxHp+=8;S.hp=Math.min(S.maxHp,S.hp+8);toast('✨ 女巫点点头，生命上限 +8');updatePlayer();},
          bad:()=>{nodeDamage(6);}}},
-      {label:'花 50 金币买一枚护身符',tip:'获得一瓶「格挡药」',run:()=>{if(S.gold>=50){S.gold-=50;nodeGivePotion('block');}else{toast('🪙 金币不够……女巫遗憾地摇头');}}}
+      {label:'花 50 金币买一枚护身符',tip:'获得一瓶「格挡药」',run:()=>{if(S.gold<50){toast('🪙 金币不够……女巫遗憾地摇头');return false;}if(!nodeGivePotion('block'))return false;S.gold-=50;updateTop();return true;}}
     ]
   },
   {
@@ -272,7 +272,7 @@ const EVENT_POOL=[
        quiz:{q:'按字典序，哪个词排在「最前面」？',opts:['able','about','abandon','ability'],ans:2,
          ok:()=>{S.timeBonus=(S.timeBonus||0)+3;toast('📖 「索引无误。」答题时间 +3 秒');},
          bad:()=>{nodeDamage(5);}}},
-      {label:'花 30 金币买一本《时间之书》',tip:'答题时间 +3 秒（本局）',run:()=>{if(S.gold>=30){S.gold-=30;S.timeBonus=(S.timeBonus||0)+3;toast('📖 获得《时间之书》：答题时间 +3 秒');updateTop();}else{toast('🪙 金币不够，馆长摇头');}}},
+      {label:'花 30 金币买一本《时间之书》',tip:'答题时间 +3 秒（本局）',run:()=>{if(S.gold<30){toast('🪙 金币不够，馆长摇头');return false;}S.gold-=30;S.timeBonus=(S.timeBonus||0)+3;toast('📖 获得《时间之书》：答题时间 +3 秒');updateTop();return true;}},
       {label:'不打扰，继续赶路',tip:'',run:()=>{toast('📚 馆长轻声：「愿字母保佑你。」');}}
     ]
   },
@@ -354,9 +354,9 @@ const EVENT_POOL=[
 ];
 const SHOP_ITEMS=[
   {id:'heal',name:'回血药',icon:'potion-heal',desc:'回复 20% 最大生命',price:40,
-   run:()=>{nodeGivePotion('heal');}},
+   run:()=>nodeGivePotion('heal')},
   {id:'strength',name:'力量药',icon:'potion-str',desc:'本局攻击系数 +25%',price:55,
-   run:()=>{nodeGivePotion('strength');}},
+   run:()=>nodeGivePotion('strength')},
   {id:'time',name:'时间之沙',icon:'hourglass',desc:'答题时间 +3 秒（本局）',price:45,
    run:()=>{S.timeBonus=(S.timeBonus||0)+3;toast('⏳ 沙粒缓缓流下，答题时间 +3 秒');}},
   {id:'blade',name:'锋利之刃',icon:'sword',desc:'遗物：攻击系数 +20%',price:70,

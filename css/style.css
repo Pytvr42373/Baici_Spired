@@ -115,6 +115,7 @@ body::after{
   --paper-shadow:0 1px 3px rgba(90,120,200,.08);
   --paper-shadow-lg:0 8px 30px rgba(90,120,200,.16);
   --r:16px; --r-sm:12px; --r-lg:22px;
+  --map-edge:#7186bd; --map-edge-done:#e29a45;
 }
 :root[data-theme="egg"] h1.title{
   background:linear-gradient(90deg,#6c8ff0,#e87aa0,#ffb74d,#66bb6a);
@@ -493,6 +494,8 @@ h1.title em{font-style:normal;font-family:var(--font-serif);font-weight:600;colo
   --icon-stroke:1.6;                  /* 线性细描边 icon */
   --btn-clip:none;
   --chip-clip:none;
+  --map-edge:#8b877b;
+  --map-edge-done:#a9823d;
 }
 /* token 统一落地 */
 .panel,.card,.chip,.opt,.actionCard,
@@ -511,6 +514,7 @@ svg.lucide{ stroke-width:var(--icon-stroke); }
 :root[data-theme="minimal"]{
   --border-w:1px; --icon-stroke:1.6;
   --anim-in:fadeUp .35s ease both; --anim-card:fadeUp .3s ease;
+  --map-edge:#8b877b; --map-edge-done:#a9823d;
 }
 :root[data-theme="minimal"] h1.title{letter-spacing:4px;font-weight:700;color:var(--accent);}
 :root[data-theme="minimal"] .btn{box-shadow:0 2px 8px -3px var(--accent);}
@@ -529,6 +533,8 @@ svg.lucide{ stroke-width:var(--icon-stroke); }
   --chip-radius:16px;
   --pill-radius:99px;
   --icon-stroke:2.2;
+  --map-edge:#c47b98;
+  --map-edge-done:#d66b92;
 }
 /* 背景：圆点纸 + 柔和粉 */
 :root[data-theme="pink"] body::before{
@@ -594,6 +600,8 @@ svg.lucide{ stroke-width:var(--icon-stroke); }
   --chip-radius:2px;
   --pill-radius:2px;
   --icon-stroke:2;
+  --map-edge:#3aa9c8;
+  --map-edge-done:#ffb84d;
   --btn-clip:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
   --chip-clip:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
 }
@@ -879,6 +887,17 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 :root[data-theme="pink"] .seg-tab.atk.active{background:linear-gradient(160deg,#ff5e8a,#e91e63);}
 :root[data-theme="pink"] .seg-tab.def.active{background:linear-gradient(160deg,#7f8cff,#3f51b5);}
 
+/* 攻防按钮始终保留各自色系；选中态只加强层次，不改变颜色归属 */
+.seg-tab.atk{background:var(--atk);color:#fff;opacity:.78;box-shadow:0 1px 4px -2px var(--atk);}
+.seg-tab.def{background:var(--def);color:#fff;opacity:.78;box-shadow:0 1px 4px -2px var(--def);}
+.seg-tab.atk.active,.seg-tab.def.active{opacity:1;transform:translateY(-1px);}
+.seg-tab.atk.active{box-shadow:0 3px 10px -3px var(--atk);}
+.seg-tab.def.active{box-shadow:0 3px 10px -3px var(--def);}
+:root[data-theme="mech"] .seg-tab.atk{background:linear-gradient(160deg,#ff6b35,#d9480f);}
+:root[data-theme="mech"] .seg-tab.def{background:linear-gradient(160deg,#00d8ff,#0a8fd0);}
+:root[data-theme="pink"] .seg-tab.atk{background:linear-gradient(160deg,#ff5e8a,#e91e63);}
+:root[data-theme="pink"] .seg-tab.def{background:linear-gradient(160deg,#7f8cff,#3f51b5);}
+
 /* ---- 每日复习界面 ---- */
 #screen-review .panel{max-width:440px;margin-left:auto;margin-right:auto;}
 #reviewHero{margin-bottom:14px;}
@@ -972,31 +991,37 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 ============================================================ */
 #screen-map{display:none;flex-direction:column;min-height:100vh;padding:0;}
 #screen-map.active{display:flex;}
-#mapHeader{padding:18px 18px 6px;text-align:center;}
-.map-title{font-size:16px;font-weight:800;letter-spacing:1px;opacity:.9;}
-.map-sub{font-size:12px;opacity:.6;margin-top:2px;}
+#mapHeader{padding:20px 18px 6px;text-align:center;}
+.map-title{font-size:19px;font-weight:800;letter-spacing:1px;opacity:1;}
+.map-sub{font-size:14px;opacity:.82;margin-top:2px;}
 #mapCanvasWrap{flex:1;display:flex;align-items:center;justify-content:center;padding:4px 10px;min-height:0;}
 #mapCanvas{width:100%;max-width:400px;height:auto;max-height:calc(100vh - 160px);}
-.map-edge{stroke:var(--sub);stroke-width:4;fill:none;opacity:.6;}
+.map-edge{stroke:var(--map-edge);stroke-width:5.5;fill:none;opacity:.84;}
 .map-node{cursor:pointer;}
 .map-node circle{fill:var(--card);stroke:var(--line);stroke-width:2.5;}
-.map-node .map-ico{font-size:20px;pointer-events:none;}
-.map-node .map-label{font-size:11.5px;fill:var(--fg);opacity:.72;pointer-events:none;}
+.map-node .map-ico{font-size:24px;font-weight:700;pointer-events:none;}
+.map-node .map-label{font-size:13.5px;fill:var(--ink);opacity:1;font-weight:700;paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-linejoin:round;pointer-events:none;}
 .map-node.reach circle{stroke:var(--gold);stroke-width:3.5;fill:var(--card);filter:drop-shadow(0 0 7px var(--gold));}
 .map-node.reach .map-label{fill:var(--gold);opacity:1;font-weight:700;}
 .map-node.done circle{fill:var(--line);stroke:var(--line);opacity:.45;}
 .map-node.done .map-ico{opacity:.8;}
-.map-node.done .map-label{opacity:.35;}
+.map-node.done .map-label{fill:var(--ink);opacity:.9;font-weight:700;}
+.map-node.done .map-ico{opacity:.92;}
 .map-node.cur circle{fill:var(--gold);stroke:var(--gold);stroke-width:3.5;}
 .map-node.cur .map-ico{color:#fff;}
+.map-node.cur .map-label{fill:var(--ink);opacity:1;font-weight:800;}
+.map-node circle.map-body{stroke-width:3px;}
+.map-node.boss .map-label{font-size:14px;}
 #mapFooter{padding:8px 16px 22px;text-align:center;}
-.map-tip{font-size:12px;opacity:.6;}
+.map-tip{font-size:13px;opacity:.78;}
 
 @media (max-width:899px){
   #mapCanvas{max-height:calc(100vh - 140px);}
-  .map-title{font-size:15px;}
-  .map-node .map-ico{font-size:18px;}
-  .map-node .map-label{font-size:10.5px;}
+  .map-title{font-size:18px;}
+  .map-sub{font-size:13px;}
+  .map-node .map-ico{font-size:23px;}
+  .map-node .map-label{font-size:12.5px;}
+  .map-node.boss .map-label{font-size:13px;}
 }
 
 /* ============================================================
@@ -1006,18 +1031,21 @@ a.home-link i{vertical-align:-3px;margin-right:6px;}
 .act-dots .off{opacity:.25;}
 
 /* 已走路线高亮（金色，区别于未走灰色虚线感） */
-.map-edge.done{stroke:var(--gold);opacity:.92;stroke-width:4.5;}
+.map-edge.done{stroke:var(--map-edge-done);opacity:1;stroke-width:6.5;}
 
 /* 点击热区：透明扩大圈，手机好点 */
 .map-node circle.map-hit{fill:transparent;stroke:none;}
 
 /* Boss 节点突出：红色描边 + 可达时呼吸光晕 */
-.map-node.boss circle.map-body{stroke:var(--red);stroke-width:3.5;fill:var(--card);}
-.map-node.boss .map-ico{font-size:24px;}
+.map-node.boss circle.map-body{stroke:var(--red);stroke-width:4px;fill:var(--card);}
+.map-node.boss .map-ico{font-size:28px;}
 .map-node.boss.done circle.map-body{stroke:var(--line);opacity:.5;filter:none;}
 .map-node.boss.done .map-ico{font-size:20px;}
 .map-node.boss.reach circle.map-body{animation:bossGlow 1.6s ease-in-out infinite;filter:drop-shadow(0 0 6px var(--red));}
 .map-node.boss.reach .map-label{fill:var(--red);opacity:1;font-weight:800;}
+:root[data-theme="pink"] .map-node .map-label{stroke:#fff;}
+:root[data-theme="mech"] .map-node .map-label{fill:var(--ink);stroke:var(--card);stroke-width:4px;text-shadow:0 0 5px rgba(0,216,255,.45);}
+:root[data-theme="mech"] .map-node.done .map-label{fill:var(--ink);opacity:1;}
 @keyframes bossGlow{0%,100%{filter:drop-shadow(0 0 3px var(--red));}50%{filter:drop-shadow(0 0 13px var(--red));}}
 
 /* 地图整体淡入 */
